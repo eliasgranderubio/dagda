@@ -5,13 +5,6 @@ To fulfill its mission, the CVEs (Common Vulnerabilities and Exposures) are impo
 
 Finally, each docker image scan result is stored into the same MongoDB for be capable of retrieve the vulnerabilities history of each docker image/container when you need.
 
-  * [Requirements](#Requirements)
-  	* [Installation of MongoDB](#Installation-of-MongoDB)
-  	* [Installation of Docker](#Installation-of-Docker)
-  * [Populating the database](#Populating-the-database)
-  * [Usage](#Usage)
-  * [Bugs and Feedback](#Bugs-and-Feedback)
-
 ## Requirements
 Before **check_docker_image** usage, you must have installed Python >= 3.4.5 and the requirements:
 
@@ -82,7 +75,15 @@ Fulfilling with the described usage, a usage example would be the next one (Keep
 
 The expected output is shown below:
 ```
-    ["CVE-2005-4442", "CVE-2006-6493", "CVE-2006-5779", "CVE-2006-2754", "CVE-2007-5707", "CVE-2007-5708", "CVE-2011-4079"]
+    [
+		"CVE-2005-4442", 
+		"CVE-2006-6493", 
+		"CVE-2006-5779", 
+		"CVE-2006-2754", 
+		"CVE-2007-5707", 
+		"CVE-2007-5708", 
+		"CVE-2011-4079"
+	]
 ```
 
 ## Usage

@@ -92,18 +92,21 @@ The expected output is shown below:
 Below, the help when you type `python3 check_docker_image.py --help` is shown:
 
 ```
-    usage: check_docker_image.py [-h] [-i DOCKER_IMAGE] [--show_history]
+    usage: check_docker_image.py [-h] [-i DOCKER_IMAGE] [-c CONTAINER_ID]
+                                 [--show_history] [-v]
 
     Your personal docker image security scanner.
 
     optional arguments:
       -h, --help            show this help message and exit
       -i DOCKER_IMAGE, --docker_image DOCKER_IMAGE
-                            the input docker image name. This argument is
-                            mandatory
+                            the input docker image name
+      -c CONTAINER_ID, --container_id CONTAINER_ID
+                            the input docker container id
       --show_history        the security scan history for the requested docker
                             image will be shown order by date from the newest to
                             oldest
+      -v, --version         show the version message and exit
 ```
 
 Fulfilling with the described usage, a usage example would be the next one (note that the expected output has been shortened):

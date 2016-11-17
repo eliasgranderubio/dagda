@@ -7,31 +7,45 @@ from util.check_docker_image_cli_parser import CheckDockerImageCLIParser
 
 
 # Gets installed software from docker image
-def get_soft_from_docker_image(image_name):
+def get_soft_from_docker_image(cli, image_name):
     # Start container
-    cli = docker.Client(base_url='unix://var/run/docker.sock', version="auto")
     container = cli.create_container(image=image_name)
     cli.start(container=container.get('Id'))
 
-    # Extract Linux image distribution
-    dict = cli.exec_create(container=container.get('Id'),cmd='cat /etc/os-release', stderr=False)
-    response = get_os_name((cli.exec_start(exec_id=dict.get('Id'))).decode("utf-8"))
-
     # Get all installed packages
-    if 'Red Hat' in response or 'CentOS' in response or 'Fedora' in response:  # Red Hat/CentOS/Fedora
-        dict = cli.exec_create(container=container.get('Id'), cmd='rpm -aqi', stderr=False)
-        packages_info = (cli.exec_start(exec_id=dict.get('Id'))).decode("utf-8")
-        products = parse_rpm_output_list(packages_info)
-    else:   # Others distributions (Debian/Ubuntu)
-        dict = cli.exec_create(container=container.get('Id'), cmd='dpkg -l', stderr=False)
-        packages_info = (cli.exec_start(exec_id=dict.get('Id'))).decode("utf-8")
-        products = parse_dpkg_output_list(packages_info)
+    products = get_soft_from_docker_container_id(cli, container.get('Id'))
 
     # Stop container
     cli.stop(container=container.get('Id'))
 
     # Return packages
     return products
+
+
+# Gets installed software from docker container id
+def get_soft_from_docker_container_id(cli, container_id):
+    # Extract Linux image distribution
+    dict = cli.exec_create(container=container_id,cmd='cat /etc/os-release', stderr=False)
+    response = get_os_name((cli.exec_start(exec_id=dict.get('Id'))).decode("utf-8"))
+
+    # Get all installed packages
+    if 'Red Hat' in response or 'CentOS' in response or 'Fedora' in response:  # Red Hat/CentOS/Fedora
+        dict = cli.exec_create(container=container_id, cmd='rpm -aqi', stderr=False)
+        packages_info = (cli.exec_start(exec_id=dict.get('Id'))).decode("utf-8")
+        products = parse_rpm_output_list(packages_info)
+    else:   # Others distributions (Debian/Ubuntu)
+        dict = cli.exec_create(container=container_id, cmd='dpkg -l', stderr=False)
+        packages_info = (cli.exec_start(exec_id=dict.get('Id'))).decode("utf-8")
+        products = parse_dpkg_output_list(packages_info)
+
+    # Return packages
+    return products
+
+
+# Gets the docker image name from a running container
+def get_docker_image_name_from_container_id(cli, container_id):
+    containers = cli.containers(filters={'id':container_id})
+    return containers[0]['Image']
 
 
 # Gets OS name from /etc/os-release file
@@ -129,14 +143,29 @@ def check_cves(product, version):
 # Main function
 def main(parsed_args):
     m = MongoDbDriver()
-    if not parsed_args.is_history_requested():  # Scan the docker image
-        products = get_soft_from_docker_image(parsed_args.get_docker_image_name())
-        evaluated_docker_image = evaluate_products(parsed_args.get_docker_image_name(), products)
+    if not parsed_args.is_history_requested():
+        cli = docker.Client(base_url='unix://var/run/docker.sock', version="auto")
+
+        # Scans the docker image/container
+        if parsed_args.get_docker_image_name():   # Scan the docker image
+            products = get_soft_from_docker_image(cli, parsed_args.get_docker_image_name())
+            image_name = parsed_args.get_docker_image_name()
+        else:   # Scan the docker container
+            products = get_soft_from_docker_container_id(cli, parsed_args.get_container_id())
+            image_name = get_docker_image_name_from_container_id(cli, parsed_args.get_container_id())
+
+        # Evaluate the installed software
+        evaluated_docker_image = evaluate_products(image_name, products)
+
+        # Update the scan history
         m.insert_docker_image_scan_result_to_history(evaluated_docker_image)
+
+        # Prepares output
         evaluated_docker_image['timestamp'] = str(
             datetime.datetime.utcfromtimestamp(evaluated_docker_image['timestamp']))
         del evaluated_docker_image['_id']
         print(json.dumps(evaluated_docker_image))
+
     else:   # Gets the history
         print(json.dumps(m.get_docker_image_history(parsed_args.get_docker_image_name())))
 

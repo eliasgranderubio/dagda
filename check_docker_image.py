@@ -33,11 +33,14 @@ def get_soft_from_docker_container_id(cli, container_id):
         dict = cli.exec_create(container=container_id, cmd='rpm -aqi', stderr=False)
         packages_info = (cli.exec_start(exec_id=dict.get('Id'))).decode("utf-8")
         products = parse_rpm_output_list(packages_info)
-    else:   # Others distributions (Debian/Ubuntu)
+    elif 'Debian' in response or 'Ubuntu' in response:   # Debian/Ubuntu
         dict = cli.exec_create(container=container_id, cmd='dpkg -l', stderr=False)
         packages_info = (cli.exec_start(exec_id=dict.get('Id'))).decode("utf-8")
         products = parse_dpkg_output_list(packages_info)
-
+    elif 'Alpine' in response:    # Alpine
+        dict = cli.exec_create(container=container_id, cmd='apk -v info', stderr=False)
+        packages_info = (cli.exec_start(exec_id=dict.get('Id'))).decode("utf-8")
+        products = parse_apk_output_list(packages_info)
     # Return packages
     return products
 
@@ -54,7 +57,6 @@ def get_os_name(os_release):
     for line in lines:
         if line.startswith('NAME='):
             return line
-
 
 # Parses the rpm output returned by docker container
 def parse_rpm_output_list(packages_info):
@@ -108,6 +110,21 @@ def parse_dpkg_output_list(packages_info):
 
     return products
 
+# Parses the apk info output returned by docker container
+def parse_apk_output_list(packages_info):
+    package_lines = packages_info.split('\n')
+    products = []
+    for line in package_lines:
+        data = {}
+        if (re.search("(.*)-([0-9].*)", line)):
+            splitted_line = re.match("(.*)-([0-9].*)", line)
+            # Get product name
+            data['product'] = splitted_line.group(1)
+            # Get version
+            data['version'] = splitted_line.group(2)
+
+            products.append(data)
+    return products
 
 # Evaluates all products installed in the docker image
 def evaluate_products(image_name, products):
@@ -130,7 +147,6 @@ def evaluate_products(image_name, products):
     data['ok_products'] = data['total_products'] - vuln_products
     return data
 
-
 # Checks if product with version has vulnerabilities
 def check_cves(product, version):
     m = MongoDbDriver()
@@ -138,7 +154,6 @@ def check_cves(product, version):
         return 'VULN'
     else:
         return 'OK'
-
 
 # Main function
 def main(parsed_args):

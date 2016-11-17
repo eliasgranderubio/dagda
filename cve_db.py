@@ -10,12 +10,10 @@ def main(parsed_args):
         # Init db
         db_composer = DBComposer()
         db_composer.compose_cve_db()
-        exit(0)
     elif parsed_args.get_cve():
         # Get product from CVE
         m = MongoDbDriver()
         print(json.dumps(m.get_products(parsed_args.get_cve())))
-        exit(0)
     else:
         m = MongoDbDriver()
         if parsed_args.is_only_product_check():
@@ -24,7 +22,7 @@ def main(parsed_args):
         else:
             # Gets cves
             print(json.dumps(m.get_cves(parsed_args.get_product(), parsed_args.get_product_version())))
-        exit(0)
+
 
 if __name__ == "__main__":
     main(CVEDBCLIParser())

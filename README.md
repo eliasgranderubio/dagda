@@ -22,6 +22,12 @@ The requirements can be installed with pip:
     sudo pip3 install -r requirements.txt
 ```
 
+### Installation of Docker
+
+You must have installed Docker for using **check_docker_image**. If you need instructions for Docker installation, see the [How-to install Docker](https://docs.docker.com/engine/getstarted/step_one/) page.
+
+To avoid having to use `sudo` when you use the `docker` command, create a Unix group called `docker` and add users to it. When the `docker` daemon starts, it makes the ownership of the Unix socket read/writable by the `docker` group.
+
 ### Installation of MongoDB
 
 You must have installed MongoDB 2.4 or later for using **check_docker_image** because in MongoDB are stored both the CVE vulnerabilities and the docker image scan results.
@@ -30,14 +36,9 @@ If you need instructions for MongoDB installation, see the [How-to install Mongo
 
 You can also run MongoDB using docker:
 ```
+    docker pull mongo
     docker run -d -p 27017:27017 mongo
 ```
-
-### Installation of Docker
-
-You must have installed Docker for using **check_docker_image**. If you need instructions for Docker installation, see the [How-to install Docker](https://docs.docker.com/engine/getstarted/step_one/) page.
-
-To avoid having to use `sudo` when you use the `docker` command, create a Unix group called `docker` and add users to it. When the `docker` daemon starts, it makes the ownership of the Unix socket read/writable by the `docker` group.
 
 ## Populating the database
 

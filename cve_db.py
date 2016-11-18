@@ -13,7 +13,7 @@ def main(parsed_args):
     elif parsed_args.get_cve():
         # Get product from CVE
         m = MongoDbDriver()
-        print(json.dumps(m.get_products(parsed_args.get_cve())))
+        print(json.dumps(m.get_products(parsed_args.get_cve()), sort_keys=True, indent=4))
     else:
         m = MongoDbDriver()
         if parsed_args.is_only_product_check():
@@ -21,7 +21,8 @@ def main(parsed_args):
             print(m.has_cves(parsed_args.get_product(), parsed_args.get_product_version()))
         else:
             # Gets cves
-            print(json.dumps(m.get_cves(parsed_args.get_product(), parsed_args.get_product_version())))
+            print(json.dumps(m.get_cves(parsed_args.get_product(), parsed_args.get_product_version()), sort_keys=True,
+                             indent=4))
 
 
 if __name__ == "__main__":

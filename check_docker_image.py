@@ -93,9 +93,9 @@ def main(parsed_args):
         evaluated_docker_image['timestamp'] = str(
             datetime.datetime.utcfromtimestamp(evaluated_docker_image['timestamp']))
         del evaluated_docker_image['_id']
-        print(json.dumps(evaluated_docker_image))
+        print(json.dumps(evaluated_docker_image, sort_keys=True, indent=4))
     else:   # Gets the history
-        print(json.dumps(m.get_docker_image_history(parsed_args.get_docker_image_name())))
+        print(json.dumps(m.get_docker_image_history(parsed_args.get_docker_image_name()), sort_keys=True, indent=4))
 
 
 if __name__ == "__main__":

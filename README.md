@@ -28,6 +28,11 @@ You must have installed MongoDB 2.4 or later for using **check_docker_image** be
 
 If you need instructions for MongoDB installation, see the [How-to install MongoDB Community Edition](https://docs.mongodb.com/manual/administration/install-community/) page.
 
+You can also run MongoDB using docker:
+```
+    docker run -d -p 27017:27017 mongo
+```
+
 ### Installation of Docker
 
 You must have installed Docker for using **check_docker_image**. If you need instructions for Docker installation, see the [How-to install Docker](https://docs.docker.com/engine/getstarted/step_one/) page.

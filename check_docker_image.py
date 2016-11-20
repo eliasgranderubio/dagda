@@ -2,7 +2,7 @@ import datetime
 import json
 import dockerUtil.docker_content_parser
 from dockerUtil.docker_driver import DockerDriver
-from cveDB.mongodb_driver import MongoDbDriver
+from vulnDB.mongodb_driver import MongoDbDriver
 from util.check_docker_image_cli_parser import CheckDockerImageCLIParser
 import sys
 
@@ -67,7 +67,7 @@ def evaluate_products(image_name, products):
 # Checks if product with version has vulnerabilities
 def check_cves(product, version):
     m = MongoDbDriver()
-    if m.has_cves(product, version):
+    if m.has_vulnerabilities(product, version):
         return 'VULN'
     else:
         return 'OK'

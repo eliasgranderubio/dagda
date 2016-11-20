@@ -5,6 +5,13 @@ To fulfill its mission, the CVEs (Common Vulnerabilities and Exposures) and the 
 
 Finally, each docker image scan result is stored into the same MongoDB for be capable of retrieve the vulnerabilities history of each docker image/container when you need.
 
+   * [Requirements](#requirements)
+  	 * [Installation of Docker](#installation-of-docker)
+     * [Installation of MongoDB](#installation-of-mongodb)
+   * [Populating the database](#populating-the-database)
+   * [Usage](#usage)
+   * [Bugs and Feedback](#bugs-and-feedback)
+
 ## Requirements
 Before **check_docker_image** usage, you must have installed Python >= 3.4.5 and the requirements:
 
@@ -49,7 +56,7 @@ For the initial run, you need to populate the CVEs/BIDs database by running:
 
 If you need repopulating your database for update with the new CVEs/BIDs, you only need rerun the previous command.
 
-Also, you can run queries on your personal CVE/BugTraq database with this tool. Below, the help when you type `python3 vuln_db.py -h` is shown:
+Also, you can run queries on your personal CVEs/BIDs database with this tool. Below, the help when you type `python3 vuln_db.py -h` is shown:
 ```
     usage: vuln_db.py [-h] [--init] [--bid BID] [--cve CVE] [--product PRODUCT]
                       [--product_version PRODUCT_VERSION] [--only_check] [-v]

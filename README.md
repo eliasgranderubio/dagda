@@ -9,6 +9,7 @@ Finally, each docker image scan result is stored into the same MongoDB for be ca
   	 * [Installation of Docker](#installation-of-docker)
      * [Installation of MongoDB](#installation-of-mongodb)
    * [Populating the database](#populating-the-database)
+     * [Database contents](#database-contents)
    * [Usage](#usage)
    * [Bugs and Feedback](#bugs-and-feedback)
 
@@ -107,6 +108,13 @@ The expected output is shown below:
         "BID-83610"
     ]
 ```
+
+### Database contents
+
+The database is called `vuln_database` and there are 2 collections:
+
+* cve (Common Vulnerabilities and Exposure items) - source NVD NIST
+* bid (BugTraqs Ids items from `http://www.securityfocus.com/`) - source [bidDB_downloader](https://github.com/eliasgranderubio/bidDB_downloader)
 
 ## Usage
 **IMPORTANT NOTE:** In this **check_docker_image** version, the `docker pull` command must be run out-of-the-box because this functionality is not included. That is way, the docker image must be in the host when you run `check_docker_image`.

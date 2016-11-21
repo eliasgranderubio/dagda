@@ -11,6 +11,7 @@ Finally, each docker image scan result is stored into the same MongoDB for be ca
    * [Populating the database](#populating-the-database)
      * [Database contents](#database-contents)
    * [Usage](#usage)
+   * [Roadmap](#roadmap)
    * [Bugs and Feedback](#bugs-and-feedback)
 
 ## Requirements
@@ -173,6 +174,10 @@ The expected output is shown below:
         }]
     }
 ```
+
+## Roadmap
+
+*Coming soon …*
 
 ## Bugs and Feedback
 For bugs, questions and discussions please use the [Github Issues](https://github.com/eliasgranderubio/check_docker_image/issues) or ping me on Twitter (@3grander).

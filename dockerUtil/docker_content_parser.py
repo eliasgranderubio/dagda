@@ -9,7 +9,7 @@ def get_os_name(os_release):
             return line
 
 
-# Parses the rpm output returned by docker container (Red Hat/CentOS/Fedora)
+# Parses the rpm output returned by docker container (Red Hat/CentOS/Fedora/openSUSE)
 def parse_rpm_output_list(packages_info):
     package_lines = packages_info.split('\n')
     counter = 0

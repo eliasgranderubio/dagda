@@ -26,13 +26,16 @@ def get_soft_from_docker_container_id(docker_driver, container_id):
     response = dockerUtil.docker_content_parser.get_os_name(
         docker_driver.docker_exec(container_id, 'cat /etc/os-release'))
     # Get all installed packages
-    if 'Red Hat' in response or 'CentOS' in response or 'Fedora' in response:  # Red Hat/CentOS/Fedora
+    if 'Red Hat' in response or 'CentOS' in response or 'Fedora' in response or 'openSUSE' in response:
+        # Red Hat/CentOS/Fedora/openSUSE
         packages_info = docker_driver.docker_exec(container_id, 'rpm -aqi')
         products = dockerUtil.docker_content_parser.parse_rpm_output_list(packages_info)
-    elif 'Debian' in response or 'Ubuntu' in response:   # Debian/Ubuntu
+    elif 'Debian' in response or 'Ubuntu' in response:
+        # Debian/Ubuntu
         packages_info = docker_driver.docker_exec(container_id, 'dpkg -l')
         products = dockerUtil.docker_content_parser.parse_dpkg_output_list(packages_info)
-    elif 'Alpine' in response:    # Alpine
+    elif 'Alpine' in response:
+        # Alpine
         packages_info = docker_driver.docker_exec(container_id, 'apk -v info')
         products = dockerUtil.docker_content_parser.parse_apk_output_list(packages_info)
     else:

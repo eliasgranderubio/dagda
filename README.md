@@ -202,7 +202,7 @@ The following features are already implemented and included in the 0.1.0 release
     * CVEs
     * BugTraqs
     * Exploit-db
-* CLI for querying your personal database for vulnerabilities and exploits from the imported sources
+* CLI for querying your personal database which contains the vulnerabilities and the exploits from the imported sources
 
 ## Bugs and Feedback
 For bugs, questions and discussions please use the [Github Issues](https://github.com/eliasgranderubio/check_docker_image/issues) or ping me on Twitter (@3grander).

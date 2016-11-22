@@ -184,7 +184,25 @@ The expected output is shown below:
 
 ## Roadmap
 
-*Coming soon …*
+### 0.2.0
+
+check_docker_image 0.2.0 is currently in the planning phase.
+
+### 0.1.0 (Work in progress)
+
+The following features are already implemented and included in the 0.1.0 release.
+* Scans both docker images and running containers
+* Docker scan history supported
+* Multiple Linux base images supported
+    * Red Hat/CentOS/Fedora
+    * Debian/Ubuntu
+    * OpenSUSE
+    * Alpine
+* Multiple vulnerabilities and exploits sources
+    * CVEs
+    * BugTraqs
+    * Exploit-db
+* CLI for querying your personal database for vulnerabilities and exploits from the imported sources
 
 ## Bugs and Feedback
 For bugs, questions and discussions please use the [Github Issues](https://github.com/eliasgranderubio/check_docker_image/issues) or ping me on Twitter (@3grander).

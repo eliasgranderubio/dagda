@@ -10,24 +10,30 @@ class VulnDBCLIParser:
     # CVEDBCLIParser Constructor
     def __init__(self):
         super(VulnDBCLIParser, self).__init__()
-        self.parser = argparse.ArgumentParser(prog='vuln_db.py', description='Your personal CVE/BID database.')
+        self.parser = argparse.ArgumentParser(prog='vuln_db.py', description='Your personal CVE, BID & ExploitDB '
+                                                                             'database.')
         self.parser.add_argument('--init', action='store_true',
-                                 help='initializes your local database with all CVEs provided by NIST publications and '
-                                      'with all BugTraqs Ids (BIDs) downloaded from the "http://www.securityfocus.com/" '
-                                      'pages (See my project "bidDB_downloader" '
-                                      '[https://github.com/eliasgranderubio/bidDB_downloader] for details). '
-                                      'If this argument is present, first all CVEs/BIDs of your local database will be '
-                                      'removed and then, will be inserted again with all updated CVEs/BIDs.')
+                                 help='initializes your local database with all CVEs provided by NIST publications, '
+                                      'all BugTraqs Ids (BIDs) downloaded from the "http://www.securityfocus.com/"'
+                                      ' pages (See my project "bidDB_downloader" '
+                                      '[https://github.com/eliasgranderubio/bidDB_downloader] for details) and all '
+                                      'exploits from Offensive Security Exploit Database. '
+                                      'If this argument is present, all CVEs, BIDs and exploits of your local '
+                                      'database will be removed and then, will be inserted again with all updated '
+                                      'CVEs, BIDs and exploits.')
         self.parser.add_argument('--bid', type=int,
                                  help='all product with this BugTraq Id (BID) vulnerability will be shown')
         self.parser.add_argument('--cve', help='all products with this CVE vulnerability will be shown')
-        self.parser.add_argument('--product', help='all CVE/BID vulnerabilities of this product will be shown')
+        self.parser.add_argument('--exploit_db', type=int, help='all products with this Exploit_DB Id vulnerability '
+                                                                'will be shown')
+        self.parser.add_argument('--product', help='all CVE/BID vulnerabilities and exploits of this product will be '
+                                                   'shown')
         self.parser.add_argument('--product_version',
-                                 help='extra filter for product query about its CVE/BID vulnerabilities. If this '
-                                      'argument is present, the "--product" argument must be present too')
+                                 help='extra filter for product query about its CVE/BID vulnerabilities and exploits. If'
+                                      ' this argument is present, the "--product" argument must be present too')
         self.parser.add_argument('--only_check', action='store_true',
                                  help='only checks if "--product" with "--product_version" has CVE/BID vulnerabilities '
-                                      'but they will not be shown')
+                                      'or exploits but they will not be shown')
         self.parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.1.0',
                                  help='show the version message and exit')
         self.args = self.parser.parse_args()
@@ -51,6 +57,10 @@ class VulnDBCLIParser:
     def get_bid(self):
         return self.args.bid
 
+    # Gets Exploit_DB Id value
+    def get_exploit_db_id(self):
+        return self.args.exploit_db
+
     # Gets the product
     def get_product(self):
         return self.args.product
@@ -64,16 +74,16 @@ class VulnDBCLIParser:
     # Verify command line arguments
     def __verify_args(self):
         if not self.args.init and not self.args.only_check and not self.args.cve and not self.args.product \
-                and not self.args.product_version and not self.args.bid:
+                and not self.args.product_version and not self.args.bid and not self.args.exploit_db:
             print(self.parser.prog + ': error: missing arguments.', file=sys.stderr)
             exit(1)
         elif self.args.init and (self.args.only_check or self.args.cve or self.args.product \
-                                 or self.args.product_version or self.args.bid):
+                                 or self.args.product_version or self.args.bid or self.args.exploit_db):
             print(self.parser.prog + ': error: argument --init: this argument must be alone.', file=sys.stderr)
             exit(1)
         elif self.args.cve:
             if self.args.init or self.args.only_check or self.args.product or self.args.product_version or \
-                    self.args.bid:
+                    self.args.bid or self.args.exploit_db:
                 print(self.parser.prog + ': error: argument --cve: this argument must be alone.', file=sys.stderr)
                 exit(1)
             else:
@@ -85,12 +95,24 @@ class VulnDBCLIParser:
                     exit(2)
         elif self.args.bid:
             if self.args.init or self.args.only_check or self.args.product or self.args.product_version or \
-                    self.args.cve:
+                    self.args.cve or self.args.exploit_db:
                 print(self.parser.prog + ': error: argument --bid: this argument must be alone.', file=sys.stderr)
                 exit(1)
             else:
                 if self.args.bid <= 0:
                     print(self.parser.prog + ': error: argument --bid: The bid argument must be greater than zero.',
+                          file=sys.stderr)
+                    exit(2)
+        elif self.args.exploit_db:
+            if self.args.init or self.args.only_check or self.args.product or self.args.product_version or \
+                    self.args.cve or self.args.bid:
+                print(self.parser.prog + ': error: argument --exploit_db: this argument must be alone.',
+                      file=sys.stderr)
+                exit(1)
+            else:
+                if self.args.exploit_db <= 0:
+                    print(self.parser.prog + ': error: argument --exploit_db: The bid argument must be greater than '
+                                             'zero.',
                           file=sys.stderr)
                     exit(2)
         elif (self.args.product_version or self.args.only_check) and not self.args.product:

@@ -1,7 +1,7 @@
 # check_docker_image
 **check_docker_image** is a tool to perform static analysis of known vulnerabilities in docker images/containers.
 
-To fulfill its mission, the CVEs (Common Vulnerabilities and Exposures) and the BIDs (Bugtraq IDs) are imported into a MongoDB to facilitate search and processing of these CVEs/BIDs.
+To fulfill its mission, the known vulnerabilities CVEs (Common Vulnerabilities and Exposures) and BIDs (Bugtraq IDs) and exploits from Offensive Security Exploit Database are imported into a MongoDB to facilitate search and processing of these vulnerabilities and exploits.
 
 Finally, each docker image scan result is stored into the same MongoDB for be capable of retrieve the vulnerabilities history of each docker image/container when you need.
 
@@ -39,7 +39,7 @@ To avoid having to use `sudo` when you use the `docker` command, create a Unix g
 
 ### Installation of MongoDB
 
-You must have installed MongoDB 2.4 or later for using **check_docker_image** because in MongoDB are stored both the CVEs and BIDs vulnerabilities and the docker images scan results.
+You must have installed MongoDB 2.4 or later for using **check_docker_image** because in MongoDB are stored both the vulnerabilities/exploits and the docker images scan results.
 
 If you need instructions for MongoDB installation, see the [How-to install MongoDB Community Edition](https://docs.mongodb.com/manual/administration/install-community/) page.
 
@@ -51,42 +51,48 @@ You can also run MongoDB using docker:
 
 ## Populating the database
 
-For the initial run, you need to populate the CVEs/BIDs database by running:
+For the initial run, you need to populate the vulnerabilities and the exploits in the database by running:
 ```
     python3 vuln_db.py --init
 ```
 
-If you need repopulating your database for update with the new CVEs/BIDs, you only need rerun the previous command.
+If you need repopulating your database for update with the new vulnerabilities and exploits, you only need rerun the previous command.
 
-Also, you can run queries on your personal CVEs/BIDs database with this tool. Below, the help when you type `python3 vuln_db.py -h` is shown:
+Also, you can run queries on your personal database with this tool. Below, the help when you type `python3 vuln_db.py -h` is shown:
 ```
-    usage: vuln_db.py [-h] [--init] [--bid BID] [--cve CVE] [--product PRODUCT]
+    usage: vuln_db.py [-h] [--init] [--bid BID] [--cve CVE]
+                      [--exploit_db EXPLOIT_DB] [--product PRODUCT]
                       [--product_version PRODUCT_VERSION] [--only_check] [-v]
 
-    Your personal CVEs/BIDs database.
+    Your personal CVE, BID & ExploitDB database.
 
     optional arguments:
       -h, --help            show this help message and exit
       --init                initializes your local database with all CVEs provided
-                            by NIST publications and with all BugTraqs Ids (BIDs)
+                            by NIST publications, all BugTraqs Ids (BIDs)
                             downloaded from the "http://www.securityfocus.com/"
                             pages (See my project "bidDB_downloader"
                             [https://github.com/eliasgranderubio/bidDB_downloader]
-                            for details). If this argument is present, first all
-                            CVEs/BIDs of your local database will be removed and
-                            then, will be inserted again with all updated
-                            CVEs/BIDs.
+                            for details) and all exploits from Offensive Security
+                            Exploit Database. If this argument is present, all
+                            CVEs, BIDs and exploits of your local database will be
+                            removed and then, will be inserted again with all
+                            updated CVEs, BIDs and exploits.
       --bid BID             all product with this BugTraq Id (BID) vulnerability
                             will be shown
       --cve CVE             all products with this CVE vulnerability will be shown
-      --product PRODUCT     all CVEs/BIDs vulnerabilities of this product will be
-                            shown
+      --exploit_db EXPLOIT_DB
+                            all products with this Exploit_DB Id vulnerability
+                            will be shown
+      --product PRODUCT     all CVE/BID vulnerabilities and exploits of this
+                            product will be shown
       --product_version PRODUCT_VERSION
-                            extra filter for product query about its CVEs/BIDs
-                            vulnerabilities. If this argument is present, the "--
-                            product" argument must be present too
+                            extra filter for product query about its CVE/BID
+                            vulnerabilities and exploits. If this argument is
+                            present, the "--product" argument must be present too
       --only_check          only checks if "--product" with "--product_version"
-                            has CVEs/BIDs vulnerabilities but they will not be shown
+                            has CVE/BID vulnerabilities or exploits but they will
+                            not be shown
       -v, --version         show the version message and exit
 ```
 
@@ -112,10 +118,11 @@ The expected output is shown below:
 
 ### Database contents
 
-The database is called `vuln_database` and there are 2 collections:
+The database is called `vuln_database` and there are 3 collections:
 
 * cve (Common Vulnerabilities and Exposure items) - source NVD NIST
 * bid (BugTraqs Ids items from `http://www.securityfocus.com/`) - source [bidDB_downloader](https://github.com/eliasgranderubio/bidDB_downloader)
+* exploit_db (Offensive Security - Exploit Database) - source [Offensive Security](https://github.com/offensive-security/exploit-database)
 
 ## Usage
 **IMPORTANT NOTE:** In this **check_docker_image** version, the `docker pull` command must be run out-of-the-box because this functionality is not included. That is way, the docker image must be in the host when you run `check_docker_image`.

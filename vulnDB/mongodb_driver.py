@@ -45,6 +45,20 @@ class MongoDbDriver:
         self.db.bid.create_index([('product', 'text')], default_language='english')
         self.db.bid.insert_many(products)
 
+    # Bulk insert the exploit_db list with the next format: <EXPLOIT_DB-ID>#<product>#<version>
+    def bulk_insert_exploit_db_ids(self, exploit_db_list):
+        products = []
+        for product in exploit_db_list:
+            splitted_product = product.split("#")
+            data = {}
+            data['exploit_db_id'] = splitted_product[0]
+            data['product'] = splitted_product[1]
+            data['version'] = splitted_product[2]
+            products.append(data)
+        # Bulk insert
+        self.db.exploit_db.create_index([('product', 'text')], default_language='english')
+        self.db.exploit_db.insert_many(products)
+
     # Inserts the docker image scan result to history
     def insert_docker_image_scan_result_to_history(self, scan_result):
         if self.db.image_history.count() == 0:
@@ -61,26 +75,36 @@ class MongoDbDriver:
     def delete_bid_collection(self):
         self.db.bid.remove()
 
+    # Removes exploit_db collection
+    def delete_exploit_db_collection(self):
+        self.db.exploit_db.remove()
+
     # -- Querying methods
 
     # Checks if the product has CVEs or BIDs
     def has_vulnerabilities(self, product, version=None):
         if not version:
-            return (self.db.cve.count({'product': product}) + self.db.bid.count({'$text': {'$search': product}})) > 0
+            return (self.db.cve.count({'product': product}) + self.db.bid.count({'$text': {'$search': product}}) +
+                    self.db.exploit_db.count({'$text': {'$search': product}})) > 0
         else:
             return (self.db.cve.count({'product': product, 'version': version}) +
-                    self.db.bid.count({'$text': {'$search': product}, 'version': version})) > 0
+                    self.db.bid.count({'$text': {'$search': product}, 'version': version}) +
+                    self.db.exploit_db.count({'$text': {'$search': product}, 'version': version})) > 0
 
     # Gets the product vulnerabilities
     def get_vulnerabilities(self, product, version=None):
         if not version:
             cve_cursor = self.db.cve.find({'product': product}, {'product': 0, 'version': 0, '_id': 0})
             bid_cursor = self.db.bid.find({'$text': {'$search': product}}, {'product': 0, 'version': 0, '_id': 0})
+            exploit_db_cursor = self.db.exploit_db.find({'$text': {'$search': product}},
+                                                        {'product': 0, 'version': 0, '_id': 0})
         else:
             cve_cursor = self.db.cve.find({'product': product, 'version': version}, {'product': 0, 'version': 0,
                                                                                      '_id': 0})
             bid_cursor = self.db.bid.find({'$text': {'$search': product}, 'version': version}, {'product': 0,
                                                                                                 'version': 0, '_id': 0})
+            exploit_db_cursor = self.db.exploit_db.find({'$text': {'$search': product}, 'version': version},
+                                                        {'product': 0, 'version': 0, '_id': 0})
         # Prepare output
         output = []
         for cve in cve_cursor:
@@ -89,6 +113,9 @@ class MongoDbDriver:
         for bid in bid_cursor:
             if bid is not None:
                 output.append('BID-' + bid['bugtraq_id'])
+        for exploit_db in exploit_db_cursor:
+            if exploit_db is not None:
+                output.append('EXPLOIT_DB_ID-' + exploit_db['exploit_db_id'])
         # Return
         return output
 
@@ -106,6 +133,17 @@ class MongoDbDriver:
     # Gets products from BID
     def get_products_from_BID(self, bid):
         cursor = self.db.bid.find({'bugtraq_id': str(bid)}, {'bugtraq_id': 0, '_id': 0})
+        # Prepare output
+        output = []
+        for product in cursor:
+            if product is not None:
+                output.append(product)
+        # Return
+        return output
+
+    # Gets products from Exploit_db id
+    def get_products_from_exploit_db_id(self, exploit_db_id):
+        cursor = self.db.exploit_db.find({'exploit_db_id': str(exploit_db_id)}, {'exploit_db_id': 0, '_id': 0})
         # Prepare output
         output = []
         for product in cursor:

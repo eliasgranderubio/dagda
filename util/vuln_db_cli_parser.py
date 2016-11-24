@@ -31,9 +31,6 @@ class VulnDBCLIParser:
         self.parser.add_argument('--product_version',
                                  help='extra filter for product query about its CVE/BID vulnerabilities and exploits. If'
                                       ' this argument is present, the "--product" argument must be present too')
-        self.parser.add_argument('--only_check', action='store_true',
-                                 help='only checks if "--product" with "--product_version" has CVE/BID vulnerabilities '
-                                      'or exploits but they will not be shown')
         self.parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.1.0',
                                  help='show the version message and exit')
         self.args = self.parser.parse_args()
@@ -44,10 +41,6 @@ class VulnDBCLIParser:
     # Gets if initialization is required
     def is_initialization_required(self):
         return self.args.init
-
-    # Gets if product check is requested
-    def is_only_product_check(self):
-        return self.args.only_check
 
     # Gets CVE value
     def get_cve(self):
@@ -73,16 +66,16 @@ class VulnDBCLIParser:
 
     # Verify command line arguments
     def __verify_args(self):
-        if not self.args.init and not self.args.only_check and not self.args.cve and not self.args.product \
-                and not self.args.product_version and not self.args.bid and not self.args.exploit_db:
+        if not self.args.init and not self.args.cve and not self.args.product and not self.args.product_version \
+                and not self.args.bid and not self.args.exploit_db:
             print(self.parser.prog + ': error: missing arguments.', file=sys.stderr)
             exit(1)
-        elif self.args.init and (self.args.only_check or self.args.cve or self.args.product \
-                                 or self.args.product_version or self.args.bid or self.args.exploit_db):
+        elif self.args.init and (self.args.cve or self.args.product or self.args.product_version \
+                                 or self.args.bid or self.args.exploit_db):
             print(self.parser.prog + ': error: argument --init: this argument must be alone.', file=sys.stderr)
             exit(1)
         elif self.args.cve:
-            if self.args.init or self.args.only_check or self.args.product or self.args.product_version or \
+            if self.args.init or self.args.product or self.args.product_version or \
                     self.args.bid or self.args.exploit_db:
                 print(self.parser.prog + ': error: argument --cve: this argument must be alone.', file=sys.stderr)
                 exit(1)
@@ -94,8 +87,8 @@ class VulnDBCLIParser:
                           file=sys.stderr)
                     exit(2)
         elif self.args.bid:
-            if self.args.init or self.args.only_check or self.args.product or self.args.product_version or \
-                    self.args.cve or self.args.exploit_db:
+            if self.args.init or self.args.product or self.args.product_version or self.args.cve \
+                    or self.args.exploit_db:
                 print(self.parser.prog + ': error: argument --bid: this argument must be alone.', file=sys.stderr)
                 exit(1)
             else:
@@ -104,8 +97,7 @@ class VulnDBCLIParser:
                           file=sys.stderr)
                     exit(2)
         elif self.args.exploit_db:
-            if self.args.init or self.args.only_check or self.args.product or self.args.product_version or \
-                    self.args.cve or self.args.bid:
+            if self.args.init or self.args.product or self.args.product_version or self.args.cve or self.args.bid:
                 print(self.parser.prog + ': error: argument --exploit_db: this argument must be alone.',
                       file=sys.stderr)
                 exit(1)
@@ -115,7 +107,7 @@ class VulnDBCLIParser:
                                              'zero.',
                           file=sys.stderr)
                     exit(2)
-        elif (self.args.product_version or self.args.only_check) and not self.args.product:
-            print(self.parser.prog + ': error: arguments --product_version/--only_check: these arguments requiere the '
+        elif self.args.product_version and not self.args.product:
+            print(self.parser.prog + ': error: argument --product_version: this argument requires the '
                                      '--product argument.', file=sys.stderr)
             exit(1)

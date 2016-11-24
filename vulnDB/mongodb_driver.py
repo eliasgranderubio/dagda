@@ -81,16 +81,6 @@ class MongoDbDriver:
 
     # -- Querying methods
 
-    # Checks if the product has CVEs or BIDs
-    def has_vulnerabilities(self, product, version=None):
-        if not version:
-            return (self.db.cve.count({'product': product}) + self.db.bid.count({'$text': {'$search': product}}) +
-                    self.db.exploit_db.count({'$text': {'$search': product}})) > 0
-        else:
-            return (self.db.cve.count({'product': product, 'version': version}) +
-                    self.db.bid.count({'$text': {'$search': product}, 'version': version}) +
-                    self.db.exploit_db.count({'$text': {'$search': product}, 'version': version})) > 0
-
     # Gets the product vulnerabilities
     def get_vulnerabilities(self, product, version=None):
         if not version:

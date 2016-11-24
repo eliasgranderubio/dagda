@@ -62,7 +62,7 @@ Also, you can run queries on your personal database with this tool. Below, the h
 ```
     usage: vuln_db.py [-h] [--init] [--bid BID] [--cve CVE]
                       [--exploit_db EXPLOIT_DB] [--product PRODUCT]
-                      [--product_version PRODUCT_VERSION] [--only_check] [-v]
+                      [--product_version PRODUCT_VERSION] [-v]
 
     Your personal CVE, BID & ExploitDB database.
 
@@ -90,9 +90,6 @@ Also, you can run queries on your personal database with this tool. Below, the h
                             extra filter for product query about its CVE/BID
                             vulnerabilities and exploits. If this argument is
                             present, the "--product" argument must be present too
-      --only_check          only checks if "--product" with "--product_version"
-                            has CVE/BID vulnerabilities or exploits but they will
-                            not be shown
       -v, --version         show the version message and exit
 ```
 
@@ -156,28 +153,37 @@ The expected output is shown below:
 ```
     {
         "total_products": 182,
-        "ok_products": 161,
-        "vuln_products": 21,
+        "ok_products": 139,
+        "vuln_products": 43,
         "image_name": "jboss/wildfly",
-        "timestamp": "2016-11-15 19:57:57.548829",
+        "timestamp": "2016-11-24 10:46:06.164833",
         "evaluated_packages_info": [{
             "product": "sed",
-            "status": "OK",
             "version": "4.2.2"
+            "is_vulnerable": false,
+            "vulnerabilities": []
         }, {
             "product": "grep",
-            "status": "VULN",
-            "version": "2.20"
-        }, {
+            "version": "2.20",
+            "is_vulnerable": true,
+            "vulnerabilities": [
+                "CVE-2015-1345"
+            ]
+        {
             "product": "lua",
-            "status": "VULN",
-            "version": "5.1.4"
+            "version": "5.1.4",
+            "is_vulnerable": true,
+            "vulnerabilities": [
+                "CVE-2014-5461",
+                "BID-34237"
+            ]
         },
         [...]
         , {
             "product": "sqlite",
-            "status": "OK",
-            "version": "3.7.17"
+            "version": "3.7.17",
+            "is_vulnerable": false,
+            "vulnerabilities": []
         }]
     }
 ```

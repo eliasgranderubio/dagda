@@ -24,12 +24,8 @@ def main(parsed_args):
         print(json.dumps(m.get_products_from_exploit_db_id(parsed_args.get_exploit_db_id()), sort_keys=True, indent=4))
     else:
         m = MongoDbDriver()
-        if parsed_args.is_only_product_check():
-            # Checks if vulnerabilities exists
-            print(m.has_vulnerabilities(parsed_args.get_product(), parsed_args.get_product_version()))
-        else:
-            # Gets CVEs, BIDs and Exploit_DB Ids
-            print(json.dumps(m.get_vulnerabilities(parsed_args.get_product(), parsed_args.get_product_version()),
+        # Gets CVEs, BIDs and Exploit_DB Ids
+        print(json.dumps(m.get_vulnerabilities(parsed_args.get_product(), parsed_args.get_product_version()),
                              sort_keys=True, indent=4))
 
 

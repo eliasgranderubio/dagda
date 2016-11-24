@@ -56,9 +56,12 @@ def evaluate_products(image_name, products):
         p = {}
         p['product'] = product['product']
         p['version'] = product['version']
-        p['status'] = check_cves(product['product'], product['version'])
-        if p['status'] == 'VULN':
+        p['vulnerabilities'] = get_vulnerabilities(product['product'], product['version'])
+        if len(p['vulnerabilities']) > 0:
+            p['is_vulnerable'] = True
             vuln_products += 1
+        else:
+            p['is_vulnerable'] = False
         products_status.append(p)
     data['evaluated_packages_info'] = products_status
     data['total_products'] = len(products_status)
@@ -67,13 +70,10 @@ def evaluate_products(image_name, products):
     return data
 
 
-# Checks if product with version has vulnerabilities
-def check_cves(product, version):
+# Gets vulnerabilities by product and version
+def get_vulnerabilities(product, version):
     m = MongoDbDriver()
-    if m.has_vulnerabilities(product, version):
-        return 'VULN'
-    else:
-        return 'OK'
+    return m.get_vulnerabilities(product, version)
 
 
 # Main function

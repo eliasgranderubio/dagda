@@ -16,7 +16,7 @@ class CheckDockerImageCLIParser:
         self.parser.add_argument('--show_history', action='store_true',
                                  help='the analysis history for the requested docker image will be shown '
                                       'ordered by descending date')
-        self.parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.1.0',
+        self.parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.2.0',
                                  help='show the version message and exit')
         self.args = self.parser.parse_args()
         self.__verify_args()

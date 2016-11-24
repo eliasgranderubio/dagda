@@ -1,5 +1,5 @@
-# check_docker_image
-**check_docker_image** is a tool to perform static analysis of known vulnerabilities in docker images/containers.
+# Dagda
+**Dagda** is a tool to perform static analysis of known vulnerabilities in docker images/containers.
 
 To fulfill its mission, the known vulnerabilities CVEs (Common Vulnerabilities and Exposures) and BIDs (Bugtraq IDs) and exploits from Offensive Security Exploit Database are imported into a MongoDB to facilitate search and processing of these vulnerabilities and exploits.
 
@@ -15,7 +15,7 @@ Finally, each docker image scan result is stored into the same MongoDB for be ca
    * [Bugs and Feedback](#bugs-and-feedback)
 
 ## Requirements
-Before **check_docker_image** usage, you must have installed Python >= 3.4.5 and the requirements:
+Before **Dagda** usage, you must have installed Python >= 3.4.5 and the requirements:
 
 * Python3.4.5 or later
 * MongoDB 2.4 or later
@@ -33,13 +33,13 @@ The requirements can be installed with pip:
 
 ### Installation of Docker
 
-You must have installed Docker for using **check_docker_image**. If you need instructions for Docker installation, see the [How-to install Docker](https://docs.docker.com/engine/getstarted/step_one/) page.
+You must have installed Docker for using **Dagda**. If you need instructions for Docker installation, see the [How-to install Docker](https://docs.docker.com/engine/getstarted/step_one/) page.
 
 To avoid having to use `sudo` when you use the `docker` command, create a Unix group called `docker` and add users to it. When the `docker` daemon starts, it makes the ownership of the Unix socket read/writable by the `docker` group.
 
 ### Installation of MongoDB
 
-You must have installed MongoDB 2.4 or later for using **check_docker_image** because in MongoDB are stored both the vulnerabilities/exploits and the docker images scan results.
+You must have installed MongoDB 2.4 or later for using **Dagda** because in MongoDB are stored both the vulnerabilities/exploits and the docker images scan results.
 
 If you need instructions for MongoDB installation, see the [How-to install MongoDB Community Edition](https://docs.mongodb.com/manual/administration/install-community/) page.
 
@@ -122,7 +122,7 @@ The database is called `vuln_database` and there are 3 collections:
 * exploit_db (Offensive Security - Exploit Database) - source [Offensive Security](https://github.com/offensive-security/exploit-database)
 
 ## Usage
-**IMPORTANT NOTE:** In this **check_docker_image** version, the `docker pull` command must be run out-of-the-box because this functionality is not included. That is way, the docker image must be in the host when you run `check_docker_image`.
+**IMPORTANT NOTE:** In this **Dagda** version, the `docker pull` command must be run out-of-the-box because this functionality is not included. That is way, the docker image must be in the host when you run `check_docker_image`.
 
 Below, the help when you type `python3 check_docker_image.py --help` is shown:
 
@@ -192,7 +192,7 @@ The expected output is shown below:
 
 ### 0.2.0
 
-check_docker_image 0.2.0 is currently in the planning phase.
+Dagda 0.2.0 is currently in the planning phase.
 
 ### 0.1.0 (Work in progress)
 
@@ -211,4 +211,4 @@ The following features are already implemented and included in the 0.1.0 release
 * CLI for querying your personal database which contains the vulnerabilities and the exploits from the imported sources
 
 ## Bugs and Feedback
-For bugs, questions and discussions please use the [Github Issues](https://github.com/eliasgranderubio/check_docker_image/issues) or ping me on Twitter (@3grander).
+For bugs, questions and discussions please use the [Github Issues](https://github.com/eliasgranderubio/dagda/issues) or ping me on Twitter (@3grander).

@@ -13,11 +13,11 @@ def main(parsed_args):
     elif parsed_args.get_cve():
         # Get product from CVE
         m = MongoDbDriver()
-        print(json.dumps(m.get_products_from_CVE(parsed_args.get_cve()), sort_keys=True, indent=4))
+        print(json.dumps(m.get_products_from_cve(parsed_args.get_cve()), sort_keys=True, indent=4))
     elif parsed_args.get_bid():
         # Get product from BID
         m = MongoDbDriver()
-        print(json.dumps(m.get_products_from_BID(parsed_args.get_bid()), sort_keys=True, indent=4))
+        print(json.dumps(m.get_products_from_bid(parsed_args.get_bid()), sort_keys=True, indent=4))
     elif parsed_args.get_exploit_db_id():
         # Get product from Exploit DB Id
         m = MongoDbDriver()
@@ -26,7 +26,7 @@ def main(parsed_args):
         m = MongoDbDriver()
         # Gets CVEs, BIDs and Exploit_DB Ids
         print(json.dumps(m.get_vulnerabilities(parsed_args.get_product(), parsed_args.get_product_version()),
-                             sort_keys=True, indent=4))
+                         sort_keys=True, indent=4))
 
 
 if __name__ == "__main__":

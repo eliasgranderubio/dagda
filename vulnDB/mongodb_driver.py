@@ -69,15 +69,15 @@ class MongoDbDriver:
 
     # Removes cve collection
     def delete_cve_collection(self):
-        self.db.cve.remove()
+        self.db.cve.drop()
 
     # Removes bid collection
     def delete_bid_collection(self):
-        self.db.bid.remove()
+        self.db.bid.drop()
 
     # Removes exploit_db collection
     def delete_exploit_db_collection(self):
-        self.db.exploit_db.remove()
+        self.db.exploit_db.drop()
 
     # -- Querying methods
 
@@ -120,7 +120,7 @@ class MongoDbDriver:
         return output
 
     # Gets products from CVE
-    def get_products_from_CVE(self, cve):
+    def get_products_from_cve(self, cve):
         cursor = self.db.cve.find({'cve_id': cve}, {'cve_id': 0, '_id': 0}).sort([("product", pymongo.ASCENDING),
                                                                                   ("version", pymongo.ASCENDING)])
         # Prepare output
@@ -132,7 +132,7 @@ class MongoDbDriver:
         return output
 
     # Gets products from BID
-    def get_products_from_BID(self, bid):
+    def get_products_from_bid(self, bid):
         cursor = self.db.bid.find({'bugtraq_id': bid}, {'bugtraq_id': 0, '_id': 0}).sort(
             [("product", pymongo.ASCENDING), ("version", pymongo.ASCENDING)])
         # Prepare output

@@ -37,7 +37,7 @@ class MongoDbDriver:
         for product in bid_list:
             splitted_product = product.split("#")
             data = {}
-            data['bugtraq_id'] = splitted_product[0]
+            data['bugtraq_id'] = int(splitted_product[0])
             data['product'] = splitted_product[1]
             data['version'] = splitted_product[2]
             products.append(data)
@@ -51,7 +51,7 @@ class MongoDbDriver:
         for product in exploit_db_list:
             splitted_product = product.split("#")
             data = {}
-            data['exploit_db_id'] = splitted_product[0]
+            data['exploit_db_id'] = int(splitted_product[0])
             data['product'] = splitted_product[1]
             data['version'] = splitted_product[2]
             products.append(data)
@@ -94,34 +94,45 @@ class MongoDbDriver:
     # Gets the product vulnerabilities
     def get_vulnerabilities(self, product, version=None):
         if not version:
-            cve_cursor = self.db.cve.find({'product': product}, {'product': 0, 'version': 0, '_id': 0})
-            bid_cursor = self.db.bid.find({'$text': {'$search': product}}, {'product': 0, 'version': 0, '_id': 0})
+            cve_cursor = self.db.cve.find({'product': product},
+                                          {'product': 0, 'version': 0, '_id': 0}).sort("cve_id", pymongo.ASCENDING)
+            bid_cursor = self.db.bid.find({'$text': {'$search': product}},
+                                          {'product': 0, 'version': 0, '_id': 0}).sort("bugtraq_id", pymongo.ASCENDING)
             exploit_db_cursor = self.db.exploit_db.find({'$text': {'$search': product}},
-                                                        {'product': 0, 'version': 0, '_id': 0})
+                                                        {'product': 0, 'version': 0, '_id': 0}).sort("exploit_db_id",
+                                                                                                     pymongo.ASCENDING)
         else:
-            cve_cursor = self.db.cve.find({'product': product, 'version': version}, {'product': 0, 'version': 0,
-                                                                                     '_id': 0})
-            bid_cursor = self.db.bid.find({'$text': {'$search': product}, 'version': version}, {'product': 0,
-                                                                                                'version': 0, '_id': 0})
+            cve_cursor = self.db.cve.find({'product': product, 'version': version},
+                                          {'product': 0, 'version': 0, '_id': 0}).sort("cve_id", pymongo.ASCENDING)
+            bid_cursor = self.db.bid.find({'$text': {'$search': product}, 'version': version},
+                                          {'product': 0, 'version': 0, '_id': 0}).sort("bugtraq_id", pymongo.ASCENDING)
             exploit_db_cursor = self.db.exploit_db.find({'$text': {'$search': product}, 'version': version},
-                                                        {'product': 0, 'version': 0, '_id': 0})
+                                                        {'product': 0, 'version': 0, '_id': 0}).sort("exploit_db_id",
+                                                                                                     pymongo.ASCENDING)
         # Prepare output
         output = []
         for cve in cve_cursor:
             if cve is not None:
-                output.append(cve['cve_id'])
+                cve_temp = cve['cve_id']
+                if cve_temp not in output:
+                    output.append(cve_temp)
         for bid in bid_cursor:
             if bid is not None:
-                output.append('BID-' + bid['bugtraq_id'])
+                bid_tmp = 'BID-' + str(bid['bugtraq_id'])
+                if bid_tmp not in output:
+                    output.append(bid_tmp)
         for exploit_db in exploit_db_cursor:
             if exploit_db is not None:
-                output.append('EXPLOIT_DB_ID-' + exploit_db['exploit_db_id'])
+                exploit_db_tmp = 'EXPLOIT_DB_ID-' + str(exploit_db['exploit_db_id'])
+                if exploit_db_tmp not in output:
+                    output.append(exploit_db_tmp)
         # Return
         return output
 
     # Gets products from CVE
     def get_products_from_CVE(self, cve):
-        cursor = self.db.cve.find({'cve_id': cve}, {'cve_id': 0, '_id': 0})
+        cursor = self.db.cve.find({'cve_id': cve}, {'cve_id': 0, '_id': 0}).sort([("product", pymongo.ASCENDING),
+                                                                                  ("version", pymongo.ASCENDING)])
         # Prepare output
         output = []
         for product in cursor:
@@ -132,7 +143,8 @@ class MongoDbDriver:
 
     # Gets products from BID
     def get_products_from_BID(self, bid):
-        cursor = self.db.bid.find({'bugtraq_id': str(bid)}, {'bugtraq_id': 0, '_id': 0})
+        cursor = self.db.bid.find({'bugtraq_id': bid}, {'bugtraq_id': 0, '_id': 0}).sort(
+            [("product", pymongo.ASCENDING), ("version", pymongo.ASCENDING)])
         # Prepare output
         output = []
         for product in cursor:
@@ -143,7 +155,8 @@ class MongoDbDriver:
 
     # Gets products from Exploit_db id
     def get_products_from_exploit_db_id(self, exploit_db_id):
-        cursor = self.db.exploit_db.find({'exploit_db_id': str(exploit_db_id)}, {'exploit_db_id': 0, '_id': 0})
+        cursor = self.db.exploit_db.find({'exploit_db_id': exploit_db_id}, {'exploit_db_id': 0, '_id': 0}).sort(
+            [("product", pymongo.ASCENDING), ("version", pymongo.ASCENDING)])
         # Prepare output
         output = []
         for product in cursor:

@@ -1,9 +1,11 @@
 # Dagda
 **Dagda** is a tool to perform static analysis of known vulnerabilities in docker images/containers.
 
-To fulfill its mission, the known vulnerabilities CVEs (Common Vulnerabilities and Exposures) and BIDs (Bugtraq IDs) and exploits from Offensive Security Exploit Database are imported into a MongoDB to facilitate search and processing of these vulnerabilities and exploits.
+In order to fulfill its mission, first the known vulnerabilities as CVEs (Common Vulnerabilities and Exposures) and BIDs (Bugtraq IDs), and the known exploits from Offensive Security database are imported into a MongoDB to facilitate search of these vulnerabilities and exploits when your analysis are in progress.
 
-Finally, each docker image scan result is stored into the same MongoDB for be capable of retrieve the vulnerabilities history of each docker image/container when you need.
+Then, when you run an analysis, **Dagda** retrieves information about the software installed into your analyzed docker image and verifies for each product and its version if it is free of vulnerabilities against the previously stored information into the MongoDB.
+
+Finally, each analysis result of a docker image is stored into the same MongoDB for having available the history of each docker image/container when it is needed.
 
    * [Requirements](#requirements)
   	 * [Installation of Docker](#installation-of-docker)
@@ -15,7 +17,7 @@ Finally, each docker image scan result is stored into the same MongoDB for be ca
    * [Bugs and Feedback](#bugs-and-feedback)
 
 ## Requirements
-Before **Dagda** usage, you must have installed Python >= 3.4.5 and the requirements:
+Before **Dagda** usage, you must have installed Python >= 3.4.5 and the next requirements:
 
 * Python3.4.5 or later
 * MongoDB 2.4 or later
@@ -35,11 +37,11 @@ The requirements can be installed with pip:
 
 You must have installed Docker for using **Dagda**. If you need instructions for Docker installation, see the [How-to install Docker](https://docs.docker.com/engine/getstarted/step_one/) page.
 
-To avoid having to use `sudo` when you use the `docker` command, create a Unix group called `docker` and add users to it. When the `docker` daemon starts, it makes the ownership of the Unix socket read/writable by the `docker` group.
+In order to avoid having to use `sudo` when you use the `docker` command, create a Unix group called `docker` and add users to it. When the `docker` daemon starts, it makes the ownership of the Unix socket read/writable by the `docker` group.
 
 ### Installation of MongoDB
 
-You must have installed MongoDB 2.4 or later for using **Dagda** because in MongoDB are stored both the vulnerabilities/exploits and the docker images scan results.
+You must have installed MongoDB 2.4 or later for using **Dagda** because in MongoDB are stored both the vulnerabilities/exploits and the analysis results.
 
 If you need instructions for MongoDB installation, see the [How-to install MongoDB Community Edition](https://docs.mongodb.com/manual/administration/install-community/) page.
 
@@ -130,7 +132,7 @@ Below, the help when you type `python3 check_docker_image.py --help` is shown:
     usage: check_docker_image.py [-h] [-i DOCKER_IMAGE] [-c CONTAINER_ID]
                                  [--show_history] [-v]
 
-    Your personal docker image security scanner.
+    Your personal docker image security analyzer.
 
     optional arguments:
       -h, --help            show this help message and exit
@@ -138,9 +140,8 @@ Below, the help when you type `python3 check_docker_image.py --help` is shown:
                             the input docker image name
       -c CONTAINER_ID, --container_id CONTAINER_ID
                             the input docker container id
-      --show_history        the security scan history for the requested docker
-                            image will be shown order by date from the newest to
-                            oldest
+      --show_history        the analysis history for the requested docker image
+                            will be shown ordered by descending date
       -v, --version         show the version message and exit
 ```
 
@@ -197,8 +198,9 @@ Dagda 0.2.0 is currently in the planning phase.
 ### 0.1.0 (Work in progress)
 
 The following features are already implemented and included in the 0.1.0 release.
-* Scans both docker images and running containers
-* Docker scan history supported
+* Analyzes the installed software in the Operating System
+* Analyzes both the docker images and the running containers
+* Docker analysis history supported
 * Multiple Linux base images supported
     * Red Hat/CentOS/Fedora
     * Debian/Ubuntu

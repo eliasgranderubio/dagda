@@ -10,12 +10,12 @@ class CheckDockerImageCLIParser:
     def __init__(self):
         super(CheckDockerImageCLIParser, self).__init__()
         self.parser = argparse.ArgumentParser(prog='check_docker_image.py', description='Your personal docker image '
-                                                                                        'security scanner.')
+                                                                                        'security analyzer.')
         self.parser.add_argument('-i', '--docker_image', help='the input docker image name')
         self.parser.add_argument('-c', '--container_id', help='the input docker container id')
         self.parser.add_argument('--show_history', action='store_true',
-                                 help='the security scan history for the requested docker image will be shown '
-                                      'order by date from the newest to oldest')
+                                 help='the analysis history for the requested docker image will be shown '
+                                      'ordered by descending date')
         self.parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.1.0',
                                  help='show the version message and exit')
         self.args = self.parser.parse_args()

@@ -191,11 +191,11 @@ The expected output is shown below:
 
 ## Roadmap
 
-### 0.2.0
+### 0.2.0 (Work in progress)
 
 Dagda 0.2.0 is currently in the planning phase.
 
-### 0.1.0 (Work in progress)
+### 0.1.0 (Released)
 
 The following features are already implemented and included in the 0.1.0 release.
 * Analyzes the installed software in the Operating System

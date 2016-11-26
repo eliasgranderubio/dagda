@@ -19,7 +19,10 @@ class CheckDockerImageCLIParser:
         self.parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.2.0',
                                  help='show the version message and exit')
         self.args = self.parser.parse_args()
-        self.__verify_args()
+        # Verify command line arguments
+        status = self.verify_args(self.parser.prog, self.args)
+        if status != 0:
+            exit(status)
 
     # -- Getters
 
@@ -35,20 +38,21 @@ class CheckDockerImageCLIParser:
     def get_container_id(self):
         return self.args.container_id
 
-    # -- Private methods
+    # -- Static methods
 
     # Verify command line arguments
-    def __verify_args(self):
-        if not self.args.container_id and not self.args.docker_image:
-            print(self.parser.prog + ': error: missing arguments.', file=sys.stderr)
-            exit(1)
-        elif self.args.show_history:
-            if self.args.container_id:
-                print(self.parser.prog + ': error: argument --show_history: This argument only works with docker '
-                                         'image names.',
+    @staticmethod
+    def verify_args(prog, args):
+        if not args.container_id and not args.docker_image:
+            print(prog + ': error: missing arguments.', file=sys.stderr)
+            return 1
+        elif args.show_history:
+            if args.container_id:
+                print(prog + ': error: argument --show_history: This argument only works with docker image names.',
                       file=sys.stderr)
-                exit(1)
-            elif not self.args.docker_image:
-                print(self.parser.prog + ': error: argument --show_history: The docker image name is mandatory.',
-                      file=sys.stderr)
-                exit(1)
+                return 2
+            elif not args.docker_image:
+                print(prog + ': error: argument --show_history: The docker image name is mandatory.', file=sys.stderr)
+                return 3
+        # Else
+        return 0

@@ -1,4 +1,6 @@
 # Dagda
+[![Build Status](https://travis-ci.org/eliasgranderubio/dagda.svg?branch=master)](https://travis-ci.org/eliasgranderubio/dagda.svg?branch=master)
+
 **Dagda** is a tool to perform static analysis of known vulnerabilities in docker images/containers.
 
 In order to fulfill its mission, first the known vulnerabilities as CVEs (Common Vulnerabilities and Exposures) and BIDs (Bugtraq IDs), and the known exploits from Offensive Security database are imported into a MongoDB to facilitate search of these vulnerabilities and exploits when your analysis are in progress.

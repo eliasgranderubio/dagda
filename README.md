@@ -12,6 +12,7 @@ Finally, each analysis result of a docker image is stored into the same MongoDB 
      * [Installation of MongoDB](#installation-of-mongodb)
    * [Populating the database](#populating-the-database)
      * [Database contents](#database-contents)
+   * [Quick install with Docker](#quick-install-with-docker)
    * [Usage](#usage)
    * [Roadmap](#roadmap)
    * [Bugs and Feedback](#bugs-and-feedback)
@@ -122,6 +123,19 @@ The database is called `vuln_database` and there are 3 collections:
 * cve (Common Vulnerabilities and Exposure items) - source NVD NIST
 * bid (BugTraqs Ids items from `http://www.securityfocus.com/`) - source [bidDB_downloader](https://github.com/eliasgranderubio/bidDB_downloader)
 * exploit_db (Offensive Security - Exploit Database) - source [Offensive Security](https://github.com/offensive-security/exploit-database)
+
+## Quick Install with Docker
+
+This section describes the installation of **Dagda** using Docker containers, including the Mongo database and a container for **Dagda**, using ```docker-compose```. The docker socket is shared with the **Dagda** container, so it is possible to check docker images and containers from the host where ```docker-compose``` is executed.
+
+Execute the following commands in the root folder of **Dagda**:
+
+```
+$ docker-compose build
+$ docker-compose run --rm dagda vuln_db.py --init
+$ docker-compose run --rm dagda check_docker_image.py -c <container_id>
+```
+
 
 ## Usage
 **IMPORTANT NOTE:** In this **Dagda** version, the `docker pull` command must be run out-of-the-box because this functionality is not included. That is way, the docker image must be in the host when you run `check_docker_image`.

@@ -1,0 +1,16 @@
+version: '2'
+services:
+  vulndb:
+    image: mongo
+    container_name: vulndb
+    ports:
+      - "27017:27017"
+  dagda:
+    build: .
+    container_name: dagda
+    environment:
+      - VULNDB_HOST=vulndb
+    links:
+        - vulndb
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro

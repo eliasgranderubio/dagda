@@ -17,15 +17,16 @@ class MongoDbDriver:
 
     # -- Inserting and bulk inserting methods
 
-    # Bulk insert the cve list with the next format: <CVE-ID>#<product>#<version>
+    # Bulk insert the cve list with the next format: <CVE-ID>#<vendor>#<product>#<version>
     def bulk_insert_cves(self, cve_list):
         products = []
         for product in cve_list:
             splitted_product = product.split("#")
             data = {}
             data['cve_id'] = splitted_product[0]
-            data['product'] = splitted_product[1]
-            data['version'] = splitted_product[2]
+            data['vendor'] = splitted_product[1]
+            data['product'] = splitted_product[2]
+            data['version'] = splitted_product[3]
             products.append(data)
         # Bulk insert
         self.db.cve.create_index([('product', pymongo.DESCENDING)])

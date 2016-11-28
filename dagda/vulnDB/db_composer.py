@@ -1,13 +1,12 @@
-import requests
-import zlib
 import progressbar
 import json
 import gzip
 import io
 import re
 import time
-import xml.etree.ElementTree as ET
 from vulnDB.mongodb_driver import MongoDbDriver
+from vulnDB.ext_source_util import get_http_resource_content
+from vulnDB.ext_source_util import get_cve_list_from_file
 
 
 class DBComposer:
@@ -32,7 +31,9 @@ class DBComposer:
         time.sleep(1)  # Avoids race condition in stdout
         bar = progressbar.ProgressBar(redirect_stdout=True)
         for i in bar(range(2002, 2017)):
-            self.mongoDbDriver.bulk_insert_cves(self.__get_cve_list_from_file(i))
+            compressed_content = get_http_resource_content(
+                "https://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-" + str(i) + ".xml.gz")
+            self.mongoDbDriver.bulk_insert_cves(get_cve_list_from_file(compressed_content))
 
         # Adding Exploit_db
         time.sleep(1)  # Avoids race condition in stdout
@@ -48,9 +49,8 @@ class DBComposer:
 
     # Gets and inserts BugTraq list from file
     def __get_and_insert_bug_traqs_from_file(self):
-        r = requests.get(
-            "https://github.com/eliasgranderubio/bidDB_downloader/raw/master/bonus_track/20161118_sf_db.json.gz")
-        compressed_file = io.BytesIO(r.content)
+        compressed_file = io.BytesIO(get_http_resource_content(
+            "https://github.com/eliasgranderubio/bidDB_downloader/raw/master/bonus_track/20161118_sf_db.json.gz"))
         decompressed_file = gzip.GzipFile(fileobj=compressed_file)
         bar = progressbar.ProgressBar(redirect_stdout=True, max_value=len(decompressed_file.readlines()))
         decompressed_file.seek(0)
@@ -88,10 +88,11 @@ class DBComposer:
 
     # Gets and inserts Exploit_db list from csv file
     def __get_and_insert_exploit_db_from_csv(self):
-        r = requests.get('https://github.com/offensive-security/exploit-database/raw/master/files.csv')
+        content = get_http_resource_content(
+            'https://github.com/offensive-security/exploit-database/raw/master/files.csv')
         items = set()
         bar = progressbar.ProgressBar(redirect_stdout=True)
-        for line in bar(r.content.decode("utf-8").split("\n")):
+        for line in bar(content.decode("utf-8").split("\n")):
             splitted_line = line.split(',')
             if splitted_line[0] != 'id' and len(splitted_line) > 3:
                 exploit_db_id = splitted_line[0]
@@ -119,24 +120,3 @@ class DBComposer:
         if len(items) > 0:
             self.mongoDbDriver.bulk_insert_exploit_db_ids(list(items))
             items.clear()
-
-    # -- Static methods
-
-    # Generate CVE list from file
-    @staticmethod
-    def __get_cve_list_from_file(year):
-        cve_set = set()
-        r = requests.get("https://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-" + str(year) + ".xml.gz")
-        xml_file_content = zlib.decompress(r.content, 16 + zlib.MAX_WBITS)
-        root = ET.fromstring(xml_file_content)
-        for entry in root.findall("{http://scap.nist.gov/schema/feed/vulnerability/2.0}entry"):
-            vuln_soft_list = entry.find("{http://scap.nist.gov/schema/vulnerability/0.4}vulnerable-software-list")
-            if vuln_soft_list is not None:
-                for vuln_product in vuln_soft_list.findall(
-                        "{http://scap.nist.gov/schema/vulnerability/0.4}product"):
-                    splitted_product = vuln_product.text.split(":")
-                    if len(splitted_product) > 4:
-                        item = entry.attrib.get("id") + "#" + splitted_product[3] + "#" + splitted_product[4]
-                        if item not in cve_set:
-                            cve_set.add(item)
-        return list(cve_set)

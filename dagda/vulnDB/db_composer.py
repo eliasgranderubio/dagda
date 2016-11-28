@@ -7,6 +7,7 @@ import time
 from vulnDB.mongodb_driver import MongoDbDriver
 from vulnDB.ext_source_util import get_http_resource_content
 from vulnDB.ext_source_util import get_cve_list_from_file
+from vulnDB.ext_source_util import get_exploit_db_list_from_csv
 
 
 class DBComposer:
@@ -38,7 +39,9 @@ class DBComposer:
         # Adding Exploit_db
         time.sleep(1)  # Avoids race condition in stdout
         print("\nAdding Exploit_db ...", flush=True)
-        self.__get_and_insert_exploit_db_from_csv()
+        csv_content = get_http_resource_content(
+            'https://github.com/offensive-security/exploit-database/raw/master/files.csv')
+        self.mongoDbDriver.bulk_insert_exploit_db_ids(get_exploit_db_list_from_csv(csv_content.decode("utf-8")))
 
         # Adding BugTraqs
         time.sleep(1)  # Avoids race condition in stdout
@@ -84,39 +87,4 @@ class DBComposer:
         # Final bulk insert
         if len(items) > 0:
             self.mongoDbDriver.bulk_insert_bids(list(items))
-            items.clear()
-
-    # Gets and inserts Exploit_db list from csv file
-    def __get_and_insert_exploit_db_from_csv(self):
-        content = get_http_resource_content(
-            'https://github.com/offensive-security/exploit-database/raw/master/files.csv')
-        items = set()
-        bar = progressbar.ProgressBar(redirect_stdout=True)
-        for line in bar(content.decode("utf-8").split("\n")):
-            splitted_line = line.split(',')
-            if splitted_line[0] != 'id' and len(splitted_line) > 3:
-                exploit_db_id = splitted_line[0]
-                description = splitted_line[2][1:len(splitted_line[2]) - 1]
-                if '-' in description:
-                    description = description[0:description.index('-')].lstrip().rstrip().lower()
-                    iterator = re.finditer("([0-9]+(\.[0-9]+)+)", description)
-                    match = next(iterator, None)
-                    if match:
-                        version = match.group()
-                        description = description[:description.index(version)].rstrip().lstrip()
-                        item = str(exploit_db_id) + "#" + description + "#" + str(version)
-                        if item not in items:
-                            items.add(item)
-                        for match in iterator:
-                            version = match.group()
-                            item = str(exploit_db_id) + "#" + description + "#" + str(version)
-                            if item not in items:
-                                items.add(item)
-                    # Bulk insert
-                    if len(items) > 8000:
-                        self.mongoDbDriver.bulk_insert_exploit_db_ids(list(items))
-                        items.clear()
-        # Final bulk insert
-        if len(items) > 0:
-            self.mongoDbDriver.bulk_insert_exploit_db_ids(list(items))
             items.clear()

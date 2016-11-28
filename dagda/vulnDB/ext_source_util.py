@@ -1,3 +1,5 @@
+import json
+import gzip
 import progressbar
 import re
 import requests
@@ -30,7 +32,7 @@ def get_cve_list_from_file(compressed_content):
     return list(cve_set)
 
 
-# Gets and inserts Exploit_db list from csv file
+# Gets Exploit_db list from csv file
 def get_exploit_db_list_from_csv(csv_content):
     items = set()
     bar = progressbar.ProgressBar(redirect_stdout=True)
@@ -56,3 +58,43 @@ def get_exploit_db_list_from_csv(csv_content):
                             items.add(item)
     # Return
     return list(items)
+
+
+# Gets BugTraq lists from gz file
+def get_bug_traqs_lists_from_file(compressed_file):
+    decompressed_file = gzip.GzipFile(fileobj=compressed_file)
+    bar = progressbar.ProgressBar(redirect_stdout=True, max_value=len(decompressed_file.readlines()))
+    decompressed_file.seek(0)
+    counter = 0
+    items = set()
+    output_array = []
+    for line in decompressed_file:
+        counter += 1
+        bar.update(counter)
+        try:
+            json_data = json.loads(line.decode("utf-8"))
+            bugtraq_id = json_data['bugtraq_id']
+            vuln_products = json_data['vuln_products']
+            for vuln_product in vuln_products:
+                matchObj = re.search("[\s\-]([0-9]+(\.[0-9]+)*)", vuln_product)
+                if matchObj:
+                    version = matchObj.group()
+                    version = version.rstrip().lstrip()
+                    if version.startswith('-'):
+                        version = version[1:]
+                    if version:
+                        product = vuln_product[:vuln_product.index(version) - 1].rstrip().lstrip()
+                        item = str(bugtraq_id) + "#" + product.lower() + "#" + str(version)
+                        if item not in items:
+                            items.add(item)
+        except:
+            None
+        # Bulk insert
+        if len(items) > 8000:
+            output_array.append(list(items))
+            items = set()
+    # Final bulk insert
+    if len(items) > 0:
+        output_array.append(list(items))
+    # Return
+    return output_array

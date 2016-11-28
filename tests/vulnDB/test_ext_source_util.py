@@ -1,7 +1,9 @@
 import unittest
 import base64
+import io
 from dagda.vulnDB.ext_source_util import get_cve_list_from_file
 from dagda.vulnDB.ext_source_util import get_exploit_db_list_from_csv
+from dagda.vulnDB.ext_source_util import get_bug_traqs_lists_from_file
 
 
 # -- Test suite
@@ -23,6 +25,16 @@ class ExtSourceUtilTestCase(unittest.TestCase):
         self.assertTrue("11#apache#2.0.44" in exploit_db_list)
         self.assertTrue("468#pigeon server#3.02.0143" in exploit_db_list)
 
+    def test_get_bug_traqs_lists_from_file(self):
+        output = io.BytesIO(base64.b64decode(mock_bid_gz_file))
+        bid_lists = get_bug_traqs_lists_from_file(output)
+        self.assertEqual(len(bid_lists), 1)
+        self.assertEqual(len(bid_lists[0]), 7)
+        # Check BugTraqs
+        self.assertTrue("1#eric allman sendmail#5.58" in bid_lists[0])
+        self.assertTrue("3#sun sunos#4.0.1" in bid_lists[0])
+        self.assertTrue("4#bsd bsd#4.3" in bid_lists[0])
+
 
 # -- Mock Constants
 
@@ -35,6 +47,8 @@ id,file,description,date,author,platform,type,port
 345,platforms/windows/dos/345.c,"UDP Stress Tester - Denial of Service",2002-09-10,Cys,windows,dos,0
 468,platforms/windows/dos/468.c,"Pigeon Server 3.02.0143 - Denial of Service",2004-09-19,"Luigi Auriemma",windows,dos,0
 """
+
+mock_bid_gz_file = 'H4sICMCvPFgAA2RhdGEuanNvbgCljz0LwjAQhnd/xZFZivYDxE1pcXQouoiU1F5LME3rNVGk+N9NddBqB8HhILzkuefelqWm0MRPicjYHKZjYFpoifbNlkhHlHiFGFVWciEhjJabFWyNVEg8FVLoK7PE2QZJTVVmDrqx5I5FJA6wkLLk6kUHTjBj+9uo7TvdnjMOIReqQMogNXmOBNUZKZfV5Rdvh3fjO+6AyXs3xUatYyBsdEX4y24LwBPynYnjdZ/60fQrGrjB/2xb86a5/Fn2ccxH99EdQJiDLtsBAAA='
 
 if __name__ == '__main__':
     unittest.main()

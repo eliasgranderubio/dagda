@@ -13,7 +13,7 @@ if [ ! -d "$TEST_DIR" ]; then
     source $TEST_DIR/bin/activate
     echo "New virtualenv for UT activated."
     pip install -r $BASEDIR/requirements.txt
+    pip install pytest-cov
 fi
 
-python3 -m unittest discover -s tests
-
+py.test --cov-report term:skip-covered --cov=dagda tests/

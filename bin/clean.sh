@@ -2,5 +2,5 @@
 
 BASEDIR=`dirname $0`/..
 
-rm -rf $BASEDIR/env $BASEDIR/env-test
+rm -rf $BASEDIR/env $BASEDIR/env-test .coverage
 

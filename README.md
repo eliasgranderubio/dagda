@@ -1,5 +1,6 @@
 # Dagda
 [![Build Status](https://travis-ci.org/eliasgranderubio/dagda.svg?branch=master)](https://travis-ci.org/eliasgranderubio/dagda)
+[![Coverage Status](https://coveralls.io/repos/github/eliasgranderubio/dagda/badge.svg?branch=master)](https://coveralls.io/github/eliasgranderubio/dagda?branch=master)
 
 **Dagda** is a tool to perform static analysis of known vulnerabilities in docker images/containers.
 

@@ -1,4 +1,5 @@
 import unittest
+import sys
 from dagda.util.vuln_db_cli_parser import VulnDBCLIParser
 
 
@@ -55,6 +56,12 @@ class VulnDBCliParserTestSuite(unittest.TestCase):
         args = generate_args(False, None, None, None, 'openldap', '2.2.20')
         status = VulnDBCLIParser.verify_args("vuln_db.py", args)
         self.assertEqual(status, 0)
+
+    def test_check_full_happy_path(self):
+        sys.argv = ['vuln_db.py', '--product', 'openldap', '--product_version', '2.2.20']
+        parsed_args = VulnDBCLIParser()
+        self.assertEqual(parsed_args.get_product(), 'openldap')
+        self.assertEqual(parsed_args.get_product_version(), '2.2.20')
 
 
 # -- Util methods

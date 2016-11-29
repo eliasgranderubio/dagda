@@ -1,4 +1,5 @@
 import unittest
+import sys
 from dagda.util.check_docker_cli_parser import CheckDockerCLIParser
 
 
@@ -25,6 +26,11 @@ class CheckDockerImageCLIParserTestSuite(unittest.TestCase):
         args = generate_args(None, '43a6ca974743')
         status = CheckDockerCLIParser.verify_args("check_docker.py", args)
         self.assertEqual(status, 0)
+
+    def test_check_full_happy_path(self):
+        sys.argv = ['check_docker.py', '-i', 'jboss/wildfly']
+        parsed_args = CheckDockerCLIParser()
+        self.assertEqual(parsed_args.get_docker_image_name(), 'jboss/wildfly')
 
 
 # -- Util methods

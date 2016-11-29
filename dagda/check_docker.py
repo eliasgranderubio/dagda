@@ -3,7 +3,7 @@ import json
 import dockerUtil.docker_content_parser
 from dockerUtil.docker_driver import DockerDriver
 from vulnDB.mongodb_driver import MongoDbDriver
-from util.check_docker_image_cli_parser import CheckDockerImageCLIParser
+from util.check_docker_cli_parser import CheckDockerCLIParser
 import sys
 
 
@@ -79,27 +79,24 @@ def get_vulnerabilities(product, version):
 # Main function
 def main(parsed_args):
     m = MongoDbDriver()
-    if not parsed_args.is_history_requested():
-        docker_driver = DockerDriver()
-        # Scans the docker image/container
-        if parsed_args.get_docker_image_name():   # Scan the docker image
-            products = get_soft_from_docker_image(docker_driver, parsed_args.get_docker_image_name())
-            image_name = parsed_args.get_docker_image_name()
-        else:   # Scan the docker container
-            products = get_soft_from_docker_container_id(docker_driver, parsed_args.get_container_id())
-            image_name = docker_driver.get_docker_image_name_from_container_id(parsed_args.get_container_id())
-        # Evaluate the installed software
-        evaluated_docker_image = evaluate_products(image_name, products)
-        # Update the scan history
-        m.insert_docker_image_scan_result_to_history(evaluated_docker_image)
-        # Prepares output
-        evaluated_docker_image['timestamp'] = str(
-            datetime.datetime.utcfromtimestamp(evaluated_docker_image['timestamp']))
-        del evaluated_docker_image['_id']
-        print(json.dumps(evaluated_docker_image, sort_keys=True, indent=4))
-    else:   # Gets the history
-        print(json.dumps(m.get_docker_image_history(parsed_args.get_docker_image_name()), sort_keys=True, indent=4))
+    docker_driver = DockerDriver()
+    # Scans the docker image/container
+    if parsed_args.get_docker_image_name():   # Scan the docker image
+        products = get_soft_from_docker_image(docker_driver, parsed_args.get_docker_image_name())
+        image_name = parsed_args.get_docker_image_name()
+    else:   # Scan the docker container
+        products = get_soft_from_docker_container_id(docker_driver, parsed_args.get_container_id())
+        image_name = docker_driver.get_docker_image_name_from_container_id(parsed_args.get_container_id())
+    # Evaluate the installed software
+    evaluated_docker_image = evaluate_products(image_name, products)
+    # Update the scan history
+    m.insert_docker_image_scan_result_to_history(evaluated_docker_image)
+    # Prepares output
+    evaluated_docker_image['timestamp'] = str(
+        datetime.datetime.utcfromtimestamp(evaluated_docker_image['timestamp']))
+    del evaluated_docker_image['_id']
+    print(json.dumps(evaluated_docker_image, sort_keys=True, indent=4))
 
 
 if __name__ == "__main__":
-    main(CheckDockerImageCLIParser())
+    main(CheckDockerCLIParser())

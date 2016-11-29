@@ -128,15 +128,14 @@ The database is called `vuln_database` and there are 3 collections:
 * exploit_db (Offensive Security - Exploit Database) - source [Offensive Security](https://github.com/offensive-security/exploit-database)
 
 ## Usage
-**IMPORTANT NOTE:** In this **Dagda** version, the `docker pull` command must be run out-of-the-box because this functionality is not included. That is way, the docker image must be in the host when you run `check_docker_image`.
+**IMPORTANT NOTE:** In this **Dagda** version, the `docker pull` command must be run out-of-the-box because this functionality is not included. That is way, the docker image must be in the host when you run `check_docker`.
 
-Below, the help when you type `python3 check_docker_image.py --help` is shown:
+Below, the help when you type `python3 check_docker.py --help` is shown:
 
 ```
-    usage: check_docker_image.py [-h] [-i DOCKER_IMAGE] [-c CONTAINER_ID]
-                                 [--show_history] [-v]
+    usage: check_docker.py [-h] [-i DOCKER_IMAGE] [-c CONTAINER_ID] [-v]
 
-    Your personal docker image security analyzer.
+    Your personal docker security analyzer.
 
     optional arguments:
       -h, --help            show this help message and exit
@@ -144,14 +143,12 @@ Below, the help when you type `python3 check_docker_image.py --help` is shown:
                             the input docker image name
       -c CONTAINER_ID, --container_id CONTAINER_ID
                             the input docker container id
-      --show_history        the analysis history for the requested docker image
-                            will be shown ordered by descending date
       -v, --version         show the version message and exit
 ```
 
 Fulfilling with the described usage, a usage example would be the next one (note that the expected output has been shortened):
 ```
-	python3 check_docker_image.py --docker_image jboss/wildfly
+	python3 check_docker.py --docker_image jboss/wildfly
 ```
 
 The expected output is shown below:
@@ -193,6 +190,22 @@ The expected output is shown below:
     }
 ```
 
+If you want review the history of a concrete docker analysis, you must type `python3 docker_history.py <DOCKER_IMAGE_NAME_HERE>`. Below, the help when you type `python3 docker_history.py --help` is shown:
+
+```
+    usage: docker_history.py [-h] [-v] IMAGE_NAME
+
+    Your personal docker security analyzer history.
+
+    positional arguments:
+      IMAGE_NAME     the analysis history for the requested docker image name will
+                     be shown ordered by descending date
+
+    optional arguments:
+      -h, --help     show this help message and exit
+      -v, --version  show the version message and exit
+```
+
 ## Bonus Track: Quick Start with Docker
 
 This section describes the installation of **Dagda** using Docker containers, including the Mongo database and a container for **Dagda**, using ```docker-compose```. The docker socket is shared with the **Dagda** container, so it is possible to check docker images and containers from the host where ```docker-compose``` is executed.
@@ -202,7 +215,7 @@ Execute the following commands in the root folder of **Dagda** (note that the `d
 ```
     $ docker-compose build
     $ docker-compose run --rm dagda vuln_db.py --init
-    $ docker-compose run --rm dagda check_docker_image.py -c <container_id>
+    $ docker-compose run --rm dagda check_docker.py -c <container_id>
 ```
 
 ## Roadmap

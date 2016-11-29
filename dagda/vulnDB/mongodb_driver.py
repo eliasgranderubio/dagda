@@ -43,7 +43,7 @@ class MongoDbDriver:
             data['version'] = splitted_product[2]
             products.append(data)
         # Bulk insert
-        self.db.bid.create_index([('product', 'text')], default_language='english')
+        self.db.bid.create_index([('product', 'text')], default_language='none')
         self.db.bid.insert_many(products)
 
     # Bulk insert the exploit_db list with the next format: <EXPLOIT_DB-ID>#<product>#<version>
@@ -57,7 +57,7 @@ class MongoDbDriver:
             data['version'] = splitted_product[2]
             products.append(data)
         # Bulk insert
-        self.db.exploit_db.create_index([('product', 'text')], default_language='english')
+        self.db.exploit_db.create_index([('product', 'text')], default_language='none')
         self.db.exploit_db.insert_many(products)
 
     # Inserts the docker image scan result to history
@@ -84,22 +84,33 @@ class MongoDbDriver:
 
     # Gets the product vulnerabilities
     def get_vulnerabilities(self, product, version=None):
+        filt_prod = product.replace("-", " ").replace("_", " ")
         if not version:
-            cve_cursor = self.db.cve.find({'product': product},
-                                          {'product': 0, 'version': 0, '_id': 0}).sort("cve_id", pymongo.ASCENDING)
-            bid_cursor = self.db.bid.find({'$text': {'$search': product}},
-                                          {'product': 0, 'version': 0, '_id': 0}).sort("bugtraq_id", pymongo.ASCENDING)
-            exploit_db_cursor = self.db.exploit_db.find({'$text': {'$search': product}},
-                                                        {'product': 0, 'version': 0, '_id': 0}).sort("exploit_db_id",
-                                                                                                     pymongo.ASCENDING)
+            # Gets CVEs
+            cve_cursor = self.db.cve.find({'product': product}, {'product': 0, 'version': 0, '_id': 0})\
+                                    .sort("cve_id", pymongo.ASCENDING)
+            # Gets BugTraqs
+            bid_cursor = self.db.bid.find({'$text': {'$search': filt_prod, '$language': 'none'}},
+                                          {'product': 0, 'version': 0, '_id': 0})\
+                                    .sort("bugtraq_id", pymongo.ASCENDING)
+            # Gets Exploits
+            exploit_db_cursor = self.db.exploit_db.find({'$text': {'$search': filt_prod, '$language': 'none'}},
+                                                        {'product': 0, 'version': 0, '_id': 0})\
+                                                  .sort("exploit_db_id", pymongo.ASCENDING)
         else:
+            # Gets CVEs
             cve_cursor = self.db.cve.find({'product': product, 'version': version},
-                                          {'product': 0, 'version': 0, '_id': 0}).sort("cve_id", pymongo.ASCENDING)
-            bid_cursor = self.db.bid.find({'$text': {'$search': product}, 'version': version},
-                                          {'product': 0, 'version': 0, '_id': 0}).sort("bugtraq_id", pymongo.ASCENDING)
-            exploit_db_cursor = self.db.exploit_db.find({'$text': {'$search': product}, 'version': version},
-                                                        {'product': 0, 'version': 0, '_id': 0}).sort("exploit_db_id",
-                                                                                                     pymongo.ASCENDING)
+                                          {'product': 0, 'version': 0, '_id': 0})\
+                                    .sort("cve_id", pymongo.ASCENDING)
+            # Gets BugTraqs
+            bid_cursor = self.db.bid.find({'$text': {'$search': filt_prod, '$language': 'none'}, 'version': version},
+                                          {'product': 0, 'version': 0, '_id': 0})\
+                                    .sort("bugtraq_id", pymongo.ASCENDING)
+            # Gets Exploits
+            exploit_db_cursor = self.db.exploit_db.find({'$text': {'$search': filt_prod, '$language': 'none'},
+                                                         'version': version},
+                                                        {'product': 0, 'version': 0, '_id': 0})\
+                                                  .sort("exploit_db_id", pymongo.ASCENDING)
         # Prepare output
         output = []
         for cve in cve_cursor:

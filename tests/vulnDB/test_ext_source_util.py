@@ -20,10 +20,11 @@ class ExtSourceUtilTestCase(unittest.TestCase):
 
     def test_get_exploit_db_list_from_csv(self):
         exploit_db_list = get_exploit_db_list_from_csv(mock_exploit_db_csv_content)
-        self.assertEqual(len(exploit_db_list), 2)
+        self.assertEqual(len(exploit_db_list), 3)
         # Check Exploits
         self.assertTrue("11#apache#2.0.44" in exploit_db_list)
         self.assertTrue("468#pigeon server#3.02.0143" in exploit_db_list)
+        self.assertTrue("37060#microsoft internet explorer#11" in exploit_db_list)
 
     def test_get_bug_traqs_lists_from_file(self):
         output = io.BytesIO(base64.b64decode(mock_bid_gz_file))
@@ -45,6 +46,7 @@ id,file,description,date,author,platform,type,port
 262,platforms/hardware/dos/262.pl,"Cisco Multiple Products - Automated Exploit Tool",2001-01-27,hypoclear,hardware,dos,0
 11,platforms/linux/dos/11.c,"Apache 2.0.44 (Linux) - Remote Denial of Service",2003-04-11,"Daniel Nystram",linux,dos,0
 345,platforms/windows/dos/345.c,"UDP Stress Tester - Denial of Service",2002-09-10,Cys,windows,dos,0
+37060,platforms/windows/dos/37060.html,"Microsoft Internet Explorer 11 - Crash PoC (1)",2015-05-19,Garage4Hackers,windows,dos,0
 468,platforms/windows/dos/468.c,"Pigeon Server 3.02.0143 - Denial of Service",2004-09-19,"Luigi Auriemma",windows,dos,0
 """
 

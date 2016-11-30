@@ -56,6 +56,17 @@ def get_exploit_db_list_from_csv(csv_content):
                         item = str(exploit_db_id) + "#" + description + "#" + str(version)
                         if item not in items:
                             items.add(item)
+                else:
+                    if '<' not in description and '>' not in description:
+                        iterator = re.finditer("\s([0-9])+$", description)
+                        match = next(iterator, None)
+                        if match:
+                            version = match.group()
+                            description = description[:description.index(version)].rstrip().lstrip()
+                            version = version.rstrip().lstrip()
+                            item = str(exploit_db_id) + "#" + description + "#" + str(version)
+                            if item not in items:
+                                items.add(item)
     # Return
     return list(items)
 

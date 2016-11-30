@@ -220,11 +220,18 @@ Execute the following commands in the root folder of **Dagda** (note that the `d
 
 ## Roadmap
 
-### 0.3.0
+### 0.3.0 (Work in progress)
 
 Dagda 0.3.0 is currently in the planning phase.
 
-### 0.2.0 (Work in progress)
+#### Wish list
+
+If you want contribute to this project, feel free to do it. That's why the wish list for this version is shown below:
+* Analyze more software than the installed software in the Operating System
+    * Analyze Java dependencies such as the [OWASP dependency-check](https://github.com/jeremylong/DependencyCheck) project
+    * Analyze Javascript dependencies such as the [Retire.js](https://github.com/RetireJS/retire.js) project
+
+### 0.2.0 (Released)
 
 The following features are already implemented and included in the 0.2.0 release.
 * Minimized the false positives improving the accuracy of the matches between the information retrieved from the docker images and the stored information into the MongoDB
@@ -233,13 +240,6 @@ The following features are already implemented and included in the 0.2.0 release
 * Created a quick starter with Docker
 * **Dagda** project included in a CI environment
 * Added tests for code coverage
-
-#### Wish list
-
-If you want contribute to this project, feel free to do it. That's why the wish list for this version is shown below:
-* Analyze more software than the installed software in the Operating System
-    * Analyze Java dependencies such as the [OWASP dependency-check](https://github.com/jeremylong/DependencyCheck) project
-    * Analyze Javascript dependencies such as the [Retire.js](https://github.com/RetireJS/retire.js) project
 
 ### 0.1.0 (Released)
 

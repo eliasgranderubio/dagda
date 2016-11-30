@@ -228,6 +228,7 @@ Dagda 0.3.0 is currently in the planning phase.
 
 The following features are already implemented and included in the 0.2.0 release.
 * Minimized the false positives improving the accuracy of the matches between the information retrieved from the docker images and the stored information into the MongoDB
+* Improved the user feedback for the long time running processes such as the docker images analysis or the database update
 * Created a quick starter with Docker
 * **Dagda** project included in a CI environment
 * Added tests for code coverage
@@ -239,7 +240,6 @@ If you want contribute to this project, feel free to do it. That's why the wish 
     * Analyze Java dependencies such as the [OWASP dependency-check](https://github.com/jeremylong/DependencyCheck) project
     * Analyze Javascript dependencies such as the [Retire.js](https://github.com/RetireJS/retire.js) project
 * Improve the accuracy of the vulnerabilities/exploits parser, which are taken from the external sources
-* Improve the user feedback for the long time running processes such as the docker images analysis or the database update
 
 ### 0.1.0 (Released)
 

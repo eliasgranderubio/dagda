@@ -1,3 +1,4 @@
+import progressbar
 import datetime
 import json
 import dockerUtil.docker_content_parser
@@ -52,7 +53,8 @@ def evaluate_products(image_name, products):
     data['timestamp'] = datetime.datetime.now().timestamp()
     products_status = []
     vuln_products = 0
-    for product in products:
+    bar = progressbar.ProgressBar(redirect_stdout=True)
+    for product in bar(products):
         p = {}
         p['product'] = product['product']
         p['version'] = product['version']
@@ -67,6 +69,9 @@ def evaluate_products(image_name, products):
     data['total_products'] = len(products_status)
     data['vuln_products'] = vuln_products
     data['ok_products'] = data['total_products'] - vuln_products
+    # Clean stdout
+    clean_progress_bar_from_stdout()
+    # Return
     return data
 
 
@@ -74,6 +79,13 @@ def evaluate_products(image_name, products):
 def get_vulnerabilities(product, version):
     m = MongoDbDriver()
     return m.get_vulnerabilities(product, version)
+
+
+# Cleans the progress bar from stdout
+def clean_progress_bar_from_stdout():
+    cursor_up_one = '\x1b[1A'
+    erase_line = '\x1b[2K'
+    print(cursor_up_one + erase_line, end="")
 
 
 # Main function

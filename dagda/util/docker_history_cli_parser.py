@@ -14,7 +14,7 @@ class DockerHistoryCLIParser:
         self.parser.add_argument('docker_image_name', metavar='IMAGE_NAME', type=str,
                                  help='the analysis history for the requested docker image name will be shown ordered'
                                       ' by descending date')
-        self.parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.2.0',
+        self.parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.3.0',
                                  help='show the version message and exit')
         self.args = self.parser.parse_args()
         # Verify command line arguments

@@ -13,7 +13,7 @@ class CheckDockerCLIParser:
                                                                                   'analyzer.')
         self.parser.add_argument('-i', '--docker_image', help='the input docker image name')
         self.parser.add_argument('-c', '--container_id', help='the input docker container id')
-        self.parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.2.0',
+        self.parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.3.0',
                                  help='show the version message and exit')
         self.args = self.parser.parse_args()
         # Verify command line arguments

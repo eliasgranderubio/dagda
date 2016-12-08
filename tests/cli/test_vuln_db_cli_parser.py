@@ -1,6 +1,6 @@
 import unittest
 import sys
-from dagda.util.vuln_db_cli_parser import VulnDBCLIParser
+from dagda.cli.vuln_db_cli_parser import VulnDBCLIParser
 
 
 # -- Test suite

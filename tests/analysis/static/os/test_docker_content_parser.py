@@ -1,8 +1,9 @@
 import unittest
-from dagda.dockerUtil.docker_content_parser import get_os_name
-from dagda.dockerUtil.docker_content_parser import parse_rpm_output_list
-from dagda.dockerUtil.docker_content_parser import parse_dpkg_output_list
-from dagda.dockerUtil.docker_content_parser import parse_apk_output_list
+
+from dagda.analysis.static.os.docker_content_parser import get_os_name
+from dagda.analysis.static.os.docker_content_parser import parse_apk_output_list
+from dagda.analysis.static.os.docker_content_parser import parse_dpkg_output_list
+from dagda.analysis.static.os.docker_content_parser import parse_rpm_output_list
 
 
 # -- Test suite

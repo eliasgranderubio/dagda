@@ -15,9 +15,9 @@ class DockerDriver:
         containers = self.cli.containers(filters={'id': container_id})
         return containers[0]['Image']
 
-    # Executes docker exec command and return the stdout
-    def docker_exec(self, container_id, cmd):
-        dict = self.cli.exec_create(container=container_id, cmd=cmd, stderr=False)
+    # Executes docker exec command and return the output
+    def docker_exec(self, container_id, cmd, show_stdout, show_stderr):
+        dict = self.cli.exec_create(container=container_id, cmd=cmd, stdout=show_stdout, stderr=show_stderr)
         return (self.cli.exec_start(exec_id=dict.get('Id'))).decode("utf-8", errors="ignore")
 
     # Creates container and return the container id

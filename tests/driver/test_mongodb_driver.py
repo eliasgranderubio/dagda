@@ -1,7 +1,9 @@
 import unittest
 from unittest.mock import Mock
-from dagda.vulnDB.mongodb_driver import MongoDbDriver
+
 import pymongo
+
+from dagda.driver.mongodb_driver import MongoDbDriver
 
 
 # -- Test suite

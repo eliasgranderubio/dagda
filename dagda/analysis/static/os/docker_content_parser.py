@@ -1,4 +1,42 @@
 import re
+import sys
+
+
+# Gets installed software on the OS from docker image
+def get_soft_from_docker_image(docker_driver, image_name):
+    # Start container
+    container_id = docker_driver.create_container(image_name)
+    docker_driver.docker_start(container_id)
+    # Get all installed packages
+    products = get_soft_from_docker_container_id(docker_driver, container_id)
+    # Stop container
+    docker_driver.docker_stop(container_id)
+    # Return packages
+    return products
+
+
+# Gets installed software on the OS from docker container id
+def get_soft_from_docker_container_id(docker_driver, container_id):
+    # Extract Linux image distribution
+    response = get_os_name(docker_driver.docker_exec(container_id, 'cat /etc/os-release', True, False))
+    # Get all installed packages
+    if 'Red Hat' in response or 'CentOS' in response or 'Fedora' in response or 'openSUSE' in response:
+        # Red Hat/CentOS/Fedora/openSUSE
+        packages_info = docker_driver.docker_exec(container_id, 'rpm -aqi', True, False)
+        products = parse_rpm_output_list(packages_info)
+    elif 'Debian' in response or 'Ubuntu' in response:
+        # Debian/Ubuntu
+        packages_info = docker_driver.docker_exec(container_id, 'dpkg -l', True, False)
+        products = parse_dpkg_output_list(packages_info)
+    elif 'Alpine' in response:
+        # Alpine
+        packages_info = docker_driver.docker_exec(container_id, 'apk -v info', True, False)
+        products = parse_apk_output_list(packages_info)
+    else:
+        print('Error: Linux image distribution not supported yet.', file=sys.stderr)
+        exit(1)
+    # Return packages
+    return products
 
 
 # Gets OS name from /etc/os-release file

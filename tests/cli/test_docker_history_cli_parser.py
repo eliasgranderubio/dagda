@@ -1,6 +1,6 @@
 import unittest
 import sys
-from dagda.util.docker_history_cli_parser import DockerHistoryCLIParser
+from dagda.cli.docker_history_cli_parser import DockerHistoryCLIParser
 
 
 # -- Test suite

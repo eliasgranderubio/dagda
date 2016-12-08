@@ -1,7 +1,8 @@
-from util.vuln_db_cli_parser import VulnDBCLIParser
-from vulnDB.db_composer import DBComposer
-from vulnDB.mongodb_driver import MongoDbDriver
 import json
+
+from driver.mongodb_driver import MongoDbDriver
+from cli.vuln_db_cli_parser import VulnDBCLIParser
+from vulnDB.db_composer import DBComposer
 
 
 # Main function

@@ -1,6 +1,7 @@
 import json
-from util.docker_history_cli_parser import DockerHistoryCLIParser
-from vulnDB.mongodb_driver import MongoDbDriver
+
+from driver.mongodb_driver import MongoDbDriver
+from cli.docker_history_cli_parser import DockerHistoryCLIParser
 
 
 # Main function

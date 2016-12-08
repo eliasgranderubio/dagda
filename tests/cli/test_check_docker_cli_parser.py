@@ -1,6 +1,6 @@
 import unittest
 import sys
-from dagda.util.check_docker_cli_parser import CheckDockerCLIParser
+from dagda.cli.check_docker_cli_parser import CheckDockerCLIParser
 
 
 # -- Test suite

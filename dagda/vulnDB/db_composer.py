@@ -1,8 +1,6 @@
 import io
 import time
-
 import progressbar
-
 from driver.mongodb_driver import MongoDbDriver
 from vulnDB.ext_source_util import get_bug_traqs_lists_from_file
 from vulnDB.ext_source_util import get_cve_list_from_file

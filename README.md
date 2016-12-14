@@ -6,7 +6,7 @@
 
 In order to fulfill its mission, first the known vulnerabilities as CVEs (Common Vulnerabilities and Exposures) and BIDs (Bugtraq IDs), and the known exploits from Offensive Security database are imported into a MongoDB to facilitate search of these vulnerabilities and exploits when your analysis are in progress.
 
-Then, when you run an analysis, **Dagda** retrieves information about the software installed into your analyzed docker image and verifies for each product and its version if it is free of vulnerabilities against the previously stored information into the MongoDB.
+Then, when you run an analysis, **Dagda** retrieves information about the software installed into your docker image and verifies for each product and its version if it is free of vulnerabilities against the previously stored information into the MongoDB.
 
 Finally, each analysis result of a docker image is stored into the same MongoDB for having available the history of each docker image/container when it is needed.
 
@@ -17,7 +17,7 @@ Finally, each analysis result of a docker image is stored into the same MongoDB 
      * [Database contents](#database-contents)
    * [Usage](#usage)
    * [Bonus Track: Quick Start with Docker](#bonus-track-quick-start-with-docker)
-   * [Roadmap](#roadmap)
+   * [Change Log](#change-log)
    * [Bugs and Feedback](#bugs-and-feedback)
 
 ## Requirements
@@ -154,39 +154,93 @@ Fulfilling with the described usage, a usage example would be the next one (note
 The expected output is shown below:
 ```
     {
-        "total_products": 182,
-        "ok_products": 141,
-        "vuln_products": 41,
         "image_name": "jboss/wildfly",
-        "timestamp": "2016-11-29 19:01:36.144439",
-        "evaluated_packages_info": [{
-            "product": "sed",
-            "version": "4.2.2"
-            "is_vulnerable": false,
-            "vulnerabilities": []
-        }, {
-            "product": "grep",
-            "version": "2.20",
-            "is_vulnerable": true,
-            "vulnerabilities": [
-                "CVE-2015-1345"
-            ]
-        {
-            "product": "lua",
-            "version": "5.1.4",
-            "is_vulnerable": true,
-            "vulnerabilities": [
-                "CVE-2014-5461",
-                "BID-34237"
-            ]
-        },
-        [...]
-        , {
-            "product": "sqlite",
-            "version": "3.7.17",
-            "is_vulnerable": false,
-            "vulnerabilities": []
-        }]
+        "timestamp": "2016-12-14 13:17:12.802486",
+        "static_analysis": {
+            "os_packages": {
+                "total_os_packages": 182,
+                "vuln_os_packages": 41,
+                "ok_os_packages": 141,
+                "os_packages_details": [
+                    {
+                        "product": "sed",
+                        "version": "4.2.2",
+                        "is_vulnerable": false,
+                        "vulnerabilities": []
+                    },
+                    {
+                        "product": "grep",
+                        "version": "2.20",
+                        "is_vulnerable": true,
+                        "vulnerabilities": [
+                            "CVE-2015-1345"
+                        ]
+                    },
+                    {
+                        "product": "lua",
+                        "version": "5.1.4",
+                        "is_vulnerable": true,
+                        "vulnerabilities": [
+                            "CVE-2014-5461",
+                            "BID-34237"
+                        ]
+                    },
+                    [...]
+                    , {
+                        "is_vulnerable": false,
+                        "product": "sqlite",
+                        "version": "3.7.17",
+                        "vulnerabilities": []
+                    }
+                ]
+            },
+            "prog_lang_dependencies": {
+                "vuln_dependencies": 9,
+                "dependencies_details": {
+                    "java": [
+                        {
+                            "product": "xalan-java",
+                            "version": "2.5.2",
+                            "vulnerabilities": [
+                                "CVE-2014-0107",
+                                "BID-30591",
+                                "BID-32862",
+                                "BID-66397"
+                            ]
+                        },
+                        {
+                            "product": "jboss_wildfly_application_server",
+                            "version": "-",
+                            "vulnerabilities": [
+                                "CVE-2014-0018"
+                            ]
+                        },
+                        [...]
+                        , {
+                            "product": "jboss_weld",
+                            "version": "3.0.0",
+                            "vulnerabilities": [
+                                "CVE-2014-8122",
+                                "BID-74252"
+                            ]
+                        }
+                    ],
+                    "js": [],
+                    "nodejs": [],
+                    "php": [],
+                    "python": [
+                        {
+                            "product": "lxml",
+                            "version": "1.0.1",
+                            "vulnerabilities": [
+                                "CVE-2014-3146"
+                            ]
+                        }
+                    ],
+                    "ruby": []
+                }
+            }
+        }
     }
 ```
 
@@ -218,18 +272,12 @@ Execute the following commands in the root folder of **Dagda** (note that the `d
     $ docker-compose run --rm dagda check_docker.py -c <container_id>
 ```
 
-## Roadmap
+## Change Log
 
 ### 0.3.0 (Work in progress)
 
-Dagda 0.3.0 is currently in the planning phase.
-
-#### Wish list
-
-If you want contribute to this project, feel free to do it. That's why the wish list for this version is shown below:
-* Analyze more software than the installed software in the Operating System
-    * Analyze Java dependencies such as the [OWASP dependency-check](https://github.com/jeremylong/DependencyCheck) project
-    * Analyze Javascript dependencies such as the [Retire.js](https://github.com/RetireJS/retire.js) project
+The following features are already implemented and included in the 0.3.0 release.
+* Added OWASP dependency check + Retire.js for the docker images analysis thanks to Docker dependency checker: [deepfenceio/deepfence_depcheck](https://hub.docker.com/r/deepfenceio/deepfence_depcheck/)
 
 ### 0.2.0 (Released)
 

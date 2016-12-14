@@ -1,5 +1,4 @@
 import json
-
 from driver.mongodb_driver import MongoDbDriver
 from cli.vuln_db_cli_parser import VulnDBCLIParser
 from vulnDB.db_composer import DBComposer

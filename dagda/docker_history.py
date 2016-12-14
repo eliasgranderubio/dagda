@@ -1,5 +1,4 @@
 import json
-
 from driver.mongodb_driver import MongoDbDriver
 from cli.docker_history_cli_parser import DockerHistoryCLIParser
 

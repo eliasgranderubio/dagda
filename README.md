@@ -274,37 +274,7 @@ Execute the following commands in the root folder of **Dagda** (note that the `d
 
 ## Change Log
 
-### 0.3.0 (Work in progress)
-
-The following features are already implemented and included in the 0.3.0 release.
-* Added OWASP dependency check + Retire.js for the docker images analysis thanks to Docker dependency checker: [deepfenceio/deepfence_depcheck](https://hub.docker.com/r/deepfenceio/deepfence_depcheck/)
-
-### 0.2.0 (Released)
-
-The following features are already implemented and included in the 0.2.0 release.
-* Minimized the false positives improving the accuracy of the matches between the information retrieved from the docker images and the stored information into the MongoDB
-* Improved the user feedback for the long time running processes
-* Improved the accuracy of the external vulnerabilities/exploits parser
-* Created a quick starter with Docker
-* **Dagda** project included in a CI environment
-* Added tests for code coverage
-
-### 0.1.0 (Released)
-
-The following features are already implemented and included in the 0.1.0 release.
-* Analyzes the installed software in the Operating System
-* Analyzes both the docker images and the running containers
-* Docker analysis history supported
-* Multiple Linux base images supported
-    * Red Hat/CentOS/Fedora
-    * Debian/Ubuntu
-    * OpenSUSE
-    * Alpine
-* Multiple vulnerabilities and exploits sources
-    * CVEs
-    * BugTraqs
-    * Exploit-db
-* CLI for querying your personal database which contains the vulnerabilities and the exploits from the imported sources
+See the [Change Log](https://github.com/eliasgranderubio/dagda/wiki/Change-Log) page for details.
 
 ## Bugs and Feedback
 For bugs, questions and discussions please use the [Github Issues](https://github.com/eliasgranderubio/dagda/issues) or ping me on Twitter (@3grander).

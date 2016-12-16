@@ -17,6 +17,7 @@ Finally, each analysis result of a docker image is stored into the same MongoDB 
      * [Database contents](#database-contents)
    * [Usage](#usage)
    * [Bonus Track: Quick Start with Docker](#bonus-track-quick-start-with-docker)
+   * [Troubleshooting](#troubleshooting)
    * [Change Log](#change-log)
    * [Bugs and Feedback](#bugs-and-feedback)
 
@@ -271,6 +272,10 @@ Execute the following commands in the root folder of **Dagda** (note that the `d
     $ docker-compose run --rm dagda vuln_db.py --init
     $ docker-compose run --rm dagda check_docker.py -c <container_id>
 ```
+
+## Troubleshooting
+
+Typically, Dagda works fine, but some scenarios can cause problems. If you get some issue, check the [Troubleshooting](https://github.com/eliasgranderubio/dagda/wiki/Troubleshooting) for fix it.
 
 ## Change Log
 

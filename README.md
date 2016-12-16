@@ -275,7 +275,7 @@ Execute the following commands in the root folder of **Dagda** (note that the `d
 
 ## Troubleshooting
 
-Typically, Dagda works fine, but some scenarios can cause problems. If you get some issue, check the [Troubleshooting](https://github.com/eliasgranderubio/dagda/wiki/Troubleshooting) for fix it.
+Typically, Dagda works fine, but some scenarios can cause problems. If you get some issue, check the [Troubleshooting](https://github.com/eliasgranderubio/dagda/wiki/Troubleshooting) page for fixing it.
 
 ## Change Log
 

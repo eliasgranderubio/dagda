@@ -40,7 +40,7 @@ class CheckDockerCLIParser:
             print(prog + ': error: missing arguments.', file=sys.stderr)
             return 1
         elif args.container_id and args.docker_image:
-            print(prog + ': error: arguments ----docker_image/--container_id: Both arguments can not be together.',
+            print(prog + ': error: arguments --docker_image/--container_id: Both arguments can not be together.',
                   file=sys.stderr)
             return 2
         # Else

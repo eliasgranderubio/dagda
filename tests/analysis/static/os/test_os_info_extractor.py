@@ -8,7 +8,7 @@ from dagda.analysis.static.os.os_info_extractor import parse_rpm_output_list
 
 # -- Test suite
 
-class DockerContentParserTestSuite(unittest.TestCase):
+class OSInfoExtractorTestSuite(unittest.TestCase):
 
     def test_get_os_name(self):
         self.assertEqual(get_os_name(mock_os_release_file), "NAME=Fedora")

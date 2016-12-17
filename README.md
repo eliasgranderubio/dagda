@@ -60,16 +60,16 @@ You can also run MongoDB using docker:
 
 For the initial run, you need to populate the vulnerabilities and the exploits in the database by running:
 ```
-    python3 vuln_db.py --init
+    python3 dagda.py vuln --init
 ```
 
 If you need repopulating your database for update with the new vulnerabilities and exploits, you only need rerun the previous command.
 
-Also, you can run queries on your personal database with this tool. Below, the help when you type `python3 vuln_db.py -h` is shown:
+Also, you can run queries on your personal database with this tool. Below, the help when you type `python3 dagda.py vuln -h` is shown:
 ```
-    usage: vuln_db.py [-h] [--init] [--bid BID] [--cve CVE]
-                      [--exploit_db EXPLOIT_DB] [--product PRODUCT]
-                      [--product_version PRODUCT_VERSION] [-v]
+    usage: dagda.py vuln [-h] [--init]
+                      [--bid BID] [--cve CVE] [--exploit_db EXPLOIT_DB]
+                      [--product PRODUCT] [--product_version PRODUCT_VERSION]
 
     Your personal CVE, BID & ExploitDB database.
 
@@ -97,12 +97,11 @@ Also, you can run queries on your personal database with this tool. Below, the h
                             extra filter for product query about its CVE/BID
                             vulnerabilities and exploits. If this argument is
                             present, the "--product" argument must be present too
-      -v, --version         show the version message and exit
 ```
 
 Fulfilling with the described usage, a usage example would be the next one (Keep in mind that `--product_version` is a optional argument)
 ```
-    python3 vuln_db.py --product openldap --product_version 2.2.20
+    python3 dagda.py vuln --product openldap --product_version 2.2.20
 ```
 
 The expected output is shown below:
@@ -129,27 +128,26 @@ The database is called `vuln_database` and there are 3 collections:
 * exploit_db (Offensive Security - Exploit Database) - source [Offensive Security](https://github.com/offensive-security/exploit-database)
 
 ## Usage
-**IMPORTANT NOTE:** In this **Dagda** version, the `docker pull` command must be run out-of-the-box because this functionality is not included. That is way, the docker image must be in the host when you run `check_docker`.
+**IMPORTANT NOTE:** In this **Dagda** version, the `docker pull` command must be run out-of-the-box because this functionality is not included. That is way, the docker image must be in the host when you run `dagda.py check`.
 
-Below, the help when you type `python3 check_docker.py --help` is shown:
+Below, the help when you type `python3 dagda.py check --help` is shown:
 
 ```
-    usage: check_docker.py [-h] [-i DOCKER_IMAGE] [-c CONTAINER_ID] [-v]
+    usage: dagda.py check [-h] [-i DOCKER_IMAGE] [-c CONTAINER_ID]
 
     Your personal docker security analyzer.
 
-    optional arguments:
+    Optional Arguments:
       -h, --help            show this help message and exit
       -i DOCKER_IMAGE, --docker_image DOCKER_IMAGE
                             the input docker image name
       -c CONTAINER_ID, --container_id CONTAINER_ID
                             the input docker container id
-      -v, --version         show the version message and exit
 ```
 
 Fulfilling with the described usage, a usage example would be the next one (note that the expected output has been shortened):
 ```
-	python3 check_docker.py --docker_image jboss/wildfly
+	python3 dagda.py check --docker_image jboss/wildfly
 ```
 
 The expected output is shown below:
@@ -245,20 +243,19 @@ The expected output is shown below:
     }
 ```
 
-If you want review the history of a concrete docker analysis, you must type `python3 docker_history.py <DOCKER_IMAGE_NAME_HERE>`. Below, the help when you type `python3 docker_history.py --help` is shown:
+If you want review the history of a concrete docker analysis, you must type `python3 dagda.py history <DOCKER_IMAGE_NAME_HERE>`. Below, the help when you type `python3 dagda.py history --help` is shown:
 
 ```
-    usage: docker_history.py [-h] [-v] IMAGE_NAME
+    usage: dagda.py history [-h] IMAGE_NAME
 
     Your personal docker security analyzer history.
 
-    positional arguments:
+    Positional Arguments:
       IMAGE_NAME     the analysis history for the requested docker image name will
                      be shown ordered by descending date
 
-    optional arguments:
+    Optional Arguments:
       -h, --help     show this help message and exit
-      -v, --version  show the version message and exit
 ```
 
 ## Bonus Track: Quick Start with Docker
@@ -269,8 +266,8 @@ Execute the following commands in the root folder of **Dagda** (note that the `d
 
 ```
     $ docker-compose build
-    $ docker-compose run --rm dagda vuln_db.py --init
-    $ docker-compose run --rm dagda check_docker.py -c <container_id>
+    $ docker-compose run --rm dagda dagda.py vuln --init
+    $ docker-compose run --rm dagda dagda.py check -c <container_id>
 ```
 
 ## Troubleshooting

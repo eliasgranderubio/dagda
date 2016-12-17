@@ -1,6 +1,6 @@
 import unittest
 import sys
-from dagda.cli.docker_history_cli_parser import DockerHistoryCLIParser
+from dagda.cli.history_cli_parser import HistoryCLIParser
 
 
 # -- Test suite
@@ -9,17 +9,17 @@ class DockerHistoryCLIParserTestCase(unittest.TestCase):
 
     def test_empty_args(self):
         empty_args = generate_args(None)
-        status = DockerHistoryCLIParser.verify_args("docker_history.py", empty_args)
+        status = HistoryCLIParser.verify_args("dagda.py history", empty_args)
         self.assertEqual(status, 1)
 
     def test_ok_args(self):
         empty_args = generate_args('jboss/wildfly')
-        status = DockerHistoryCLIParser.verify_args("docker_history.py", empty_args)
+        status = HistoryCLIParser.verify_args("dagda.py history", empty_args)
         self.assertEqual(status, 0)
 
     def test_check_full_happy_path(self):
-        sys.argv = ['docker_history.py', 'jboss/wildfly']
-        parsed_args = DockerHistoryCLIParser()
+        sys.argv = ['dagda.py', 'history', 'jboss/wildfly']
+        parsed_args = HistoryCLIParser()
         self.assertEqual(parsed_args.get_docker_image_name(), 'jboss/wildfly')
 
 

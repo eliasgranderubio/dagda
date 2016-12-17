@@ -3,37 +3,21 @@ import re
 import sys
 
 
-class VulnDBCLIParser:
+class VulnCLIParser:
 
     # -- Public methods
 
-    # CVEDBCLIParser Constructor
+    # VulnCLIParser Constructor
     def __init__(self):
-        super(VulnDBCLIParser, self).__init__()
-        self.parser = argparse.ArgumentParser(prog='vuln_db.py', description='Your personal CVE, BID & ExploitDB '
-                                                                             'database.')
-        self.parser.add_argument('--init', action='store_true',
-                                 help='initializes your local database with all CVEs provided by NIST publications, '
-                                      'all BugTraqs Ids (BIDs) downloaded from the "http://www.securityfocus.com/"'
-                                      ' pages (See my project "bidDB_downloader" '
-                                      '[https://github.com/eliasgranderubio/bidDB_downloader] for details) and all '
-                                      'exploits from Offensive Security Exploit Database. '
-                                      'If this argument is present, all CVEs, BIDs and exploits of your local '
-                                      'database will be removed and then, will be inserted again with all updated '
-                                      'CVEs, BIDs and exploits.')
-        self.parser.add_argument('--bid', type=int,
-                                 help='all product with this BugTraq Id (BID) vulnerability will be shown')
-        self.parser.add_argument('--cve', help='all products with this CVE vulnerability will be shown')
-        self.parser.add_argument('--exploit_db', type=int,
-                                 help='all products with this Exploit_DB Id vulnerability will be shown')
-        self.parser.add_argument('--product',
-                                 help='all CVE/BID vulnerabilities and exploits of this product will be shown')
-        self.parser.add_argument('--product_version',
-                                 help='extra filter for product query about its CVE/BID vulnerabilities and exploits.'
-                                      ' If this argument is present, the "--product" argument must be present too')
-        self.parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.3.0',
-                                 help='show the version message and exit')
-        self.args = self.parser.parse_args()
+        super(VulnCLIParser, self).__init__()
+        self.parser = DagdaVulnParser(prog='dagda.py vuln', usage=vuln_parser_text)
+        self.parser.add_argument('--init', action='store_true')
+        self.parser.add_argument('--bid', type=int)
+        self.parser.add_argument('--cve', type=str)
+        self.parser.add_argument('--exploit_db', type=int)
+        self.parser.add_argument('--product', type=str)
+        self.parser.add_argument('--product_version', type=str)
+        self.args, self.unknown = self.parser.parse_known_args()
         # Verify command line arguments
         status = self.verify_args(self.parser.prog, self.args)
         if status != 0:
@@ -113,3 +97,52 @@ class VulnDBCLIParser:
             return 9
         # Else
         return 0
+
+
+# Custom parser
+
+class DagdaVulnParser(argparse.ArgumentParser):
+
+    # Overrides the error method
+    def error(self, message):
+        self.print_usage()
+        exit(2)
+
+    # Overrides the format help method
+    def format_help(self):
+        return vuln_parser_text
+
+
+# Custom text
+
+vuln_parser_text = '''usage: dagda.py vuln [-h] [--init]
+                  [--bid BID] [--cve CVE] [--exploit_db EXPLOIT_DB]
+                  [--product PRODUCT] [--product_version PRODUCT_VERSION]
+
+Your personal CVE, BID & ExploitDB database.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --init                initializes your local database with all CVEs provided
+                        by NIST publications, all BugTraqs Ids (BIDs)
+                        downloaded from the "http://www.securityfocus.com/"
+                        pages (See my project "bidDB_downloader"
+                        [https://github.com/eliasgranderubio/bidDB_downloader]
+                        for details) and all exploits from Offensive Security
+                        Exploit Database. If this argument is present, all
+                        CVEs, BIDs and exploits of your local database will be
+                        removed and then, will be inserted again with all
+                        updated CVEs, BIDs and exploits.
+  --bid BID             all product with this BugTraq Id (BID) vulnerability
+                        will be shown
+  --cve CVE             all products with this CVE vulnerability will be shown
+  --exploit_db EXPLOIT_DB
+                        all products with this Exploit_DB Id vulnerability
+                        will be shown
+  --product PRODUCT     all CVE/BID vulnerabilities and exploits of this
+                        product will be shown
+  --product_version PRODUCT_VERSION
+                        extra filter for product query about its CVE/BID
+                        vulnerabilities and exploits. If this argument is
+                        present, the "--product" argument must be present too
+'''

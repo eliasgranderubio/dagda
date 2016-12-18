@@ -211,20 +211,12 @@ The expected output is shown below:
     }
 ```
 
-If you want review the history of a concrete docker analysis, you must type `python3 dagda.py history <DOCKER_IMAGE_NAME_HERE>`. Below, the help when you type `python3 dagda.py history --help` is shown:
-
+If you want review the history of a concrete docker analysis, you must type:
 ```
-    usage: dagda.py history [-h] IMAGE_NAME
-
-    Your personal docker security analyzer history.
-
-    Positional Arguments:
-      IMAGE_NAME     the analysis history for the requested docker image name will
-                     be shown ordered by descending date
-
-    Optional Arguments:
-      -h, --help     show this help message and exit
+    python3 dagda.py history <DOCKER_IMAGE_NAME_HERE>
 ```
+
+For more details about `dagda.py history`, type `python3 dagda.py history --help` or see the [*history* sub-command](https://github.com/eliasgranderubio/dagda/wiki/Usage#history-sub-command) in the wiki page.
 
 ## Bonus Track: Quick Start with Docker
 

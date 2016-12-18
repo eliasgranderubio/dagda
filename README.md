@@ -65,46 +65,12 @@ For the initial run, you need to populate the vulnerabilities and the exploits i
 
 If you need repopulating your database for update with the new vulnerabilities and exploits, you only need rerun the previous command.
 
-Also, you can run queries on your personal database with this tool. Below, the help when you type `python3 dagda.py vuln -h` is shown:
-```
-    usage: dagda.py vuln [-h] [--init]
-                      [--bid BID] [--cve CVE] [--exploit_db EXPLOIT_DB]
-                      [--product PRODUCT] [--product_version PRODUCT_VERSION]
-
-    Your personal CVE, BID & ExploitDB database.
-
-    Optional Arguments:
-      -h, --help            show this help message and exit
-      --init                initializes your local database with all CVEs provided
-                            by NIST publications, all BugTraqs Ids (BIDs)
-                            downloaded from the "http://www.securityfocus.com/"
-                            pages (See my project "bidDB_downloader"
-                            [https://github.com/eliasgranderubio/bidDB_downloader]
-                            for details) and all exploits from Offensive Security
-                            Exploit Database. If this argument is present, all
-                            CVEs, BIDs and exploits of your local database will be
-                            removed and then, will be inserted again with all
-                            updated CVEs, BIDs and exploits.
-      --bid BID             all product with this BugTraq Id (BID) vulnerability
-                            will be shown
-      --cve CVE             all products with this CVE vulnerability will be shown
-      --exploit_db EXPLOIT_DB
-                            all products with this Exploit_DB Id vulnerability
-                            will be shown
-      --product PRODUCT     all CVE/BID vulnerabilities and exploits of this
-                            product will be shown
-      --product_version PRODUCT_VERSION
-                            extra filter for product query about its CVE/BID
-                            vulnerabilities and exploits. If this argument is
-                            present, the "--product" argument must be present too
-```
-
-Fulfilling with the described usage, a usage example would be the next one (Keep in mind that `--product_version` is a optional argument)
+Also, you can run queries on your personal database with `dagda.py vuln`. A usage example would be the next one:
 ```
     python3 dagda.py vuln --product openldap --product_version 2.2.20
 ```
 
-The expected output is shown below:
+The expected output for the previous query is shown below:
 ```
     [
         "CVE-2005-4442",
@@ -118,6 +84,8 @@ The expected output is shown below:
         "BID-83843"
     ]
 ```
+
+If you want to know more details about `dagda.py vuln`, type `python3 dagda.py vuln --help` or see the [*vuln* sub-command](https://github.com/eliasgranderubio/dagda/wiki/Usage#vuln-sub-command) in the wiki page.
 
 ### Database contents
 

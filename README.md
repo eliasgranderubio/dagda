@@ -73,7 +73,7 @@ Also, you can run queries on your personal database with this tool. Below, the h
 
     Your personal CVE, BID & ExploitDB database.
 
-    optional arguments:
+    Optional Arguments:
       -h, --help            show this help message and exit
       --init                initializes your local database with all CVEs provided
                             by NIST publications, all BugTraqs Ids (BIDs)

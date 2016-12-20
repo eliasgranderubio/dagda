@@ -131,8 +131,7 @@ Optional Arguments:
                         for details) and all exploits from Offensive Security
                         Exploit Database. If this argument is present, all
                         CVEs, BIDs and exploits of your local database will be
-                        removed and then, will be inserted again with all
-                        updated CVEs, BIDs and exploits.
+                        updated.
   --bid BID             all product with this BugTraq Id (BID) vulnerability
                         will be shown
   --cve CVE             all products with this CVE vulnerability will be shown

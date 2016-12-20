@@ -121,7 +121,7 @@ vuln_parser_text = '''usage: dagda.py vuln [-h] [--init]
 
 Your personal CVE, BID & ExploitDB database.
 
-optional arguments:
+Optional Arguments:
   -h, --help            show this help message and exit
   --init                initializes your local database with all CVEs provided
                         by NIST publications, all BugTraqs Ids (BIDs)

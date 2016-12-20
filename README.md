@@ -4,11 +4,25 @@
 
 **Dagda** is a tool to perform static analysis of known vulnerabilities in docker images/containers.
 
-In order to fulfill its mission, first the known vulnerabilities as CVEs (Common Vulnerabilities and Exposures) and BIDs (Bugtraq IDs), and the known exploits from Offensive Security database are imported into a MongoDB to facilitate search of these vulnerabilities and exploits when your analysis are in progress.
+In order to fulfill its mission, first the known vulnerabilities as CVEs (Common Vulnerabilities and Exposures) and BIDs (Bugtraq IDs), and the known exploits from Offensive Security database are imported into a MongoDB to facilitate the search of these vulnerabilities and exploits when your analysis are in progress.
 
-Then, when you run an analysis, **Dagda** retrieves information about the software installed into your docker image and verifies for each product and its version if it is free of vulnerabilities against the previously stored information into the MongoDB.
+Then, when you run an analysis, **Dagda** retrieves information about the software installed into your docker image, such as the OS packages and the dependencies of the programming languages, and verifies for each product and its version if it is free of vulnerabilities against the previously stored information into the MongoDB.
 
-Finally, each analysis result of a docker image is stored into the same MongoDB for having available the history of each docker image/container when it is needed.
+**Dagda** supports multiple Linux base images:
+  * Red Hat/CentOS/Fedora
+  * Debian/Ubuntu
+  * OpenSUSE
+  * Alpine
+
+Also, **Dagda** rests on [OWASP dependency check](https://github.com/jeremylong/DependencyCheck) + [Retire.js](https://github.com/retirejs/retire.js/) for analyzing multiple dependencies from:
+  * java
+  * python
+  * nodejs
+  * js
+  * ruby
+  * php
+
+Finally, each analysis report of a docker image is stored into the same MongoDB for having available the history of each docker image/container when it is needed.
 
    * [Requirements](#requirements)
   	 * [Installation of Docker](#installation-of-docker)

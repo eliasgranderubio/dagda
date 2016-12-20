@@ -13,10 +13,11 @@ Finally, each analysis result of a docker image is stored into the same MongoDB 
    * [Requirements](#requirements)
   	 * [Installation of Docker](#installation-of-docker)
      * [Installation of MongoDB](#installation-of-mongodb)
-   * [Populating the database](#populating-the-database)
-     * [Database contents](#database-contents)
    * [Usage](#usage)
-   * [Bonus Track: Quick Start with Docker](#bonus-track-quick-start-with-docker)
+     * [Populating the database](#populating-the-database)
+       * [Database contents](#database-contents)
+     * [Analyzing docker images/containers](#analyzing-docker-images-containers)
+     * [Bonus Track: Quick Start with Docker](#bonus-track-quick-start-with-docker)
    * [Troubleshooting](#troubleshooting)
    * [Change Log](#change-log)
    * [Bugs and Feedback](#bugs-and-feedback)
@@ -56,7 +57,9 @@ You can also run MongoDB using docker:
     docker run -d -p 27017:27017 mongo
 ```
 
-## Populating the database
+## Usage
+
+### Populating the database
 
 For the initial run, you need to populate the vulnerabilities and the exploits in the database by running:
 ```
@@ -87,7 +90,7 @@ The expected output for the previous query is shown below:
 
 If you want to know more details about `dagda.py vuln`, type `python3 dagda.py vuln --help` or see the [*vuln* sub-command](https://github.com/eliasgranderubio/dagda/wiki/Usage#vuln-sub-command) in the wiki page.
 
-### Database contents
+#### Database contents
 
 The database is called `vuln_database` and there are 3 collections:
 
@@ -95,7 +98,7 @@ The database is called `vuln_database` and there are 3 collections:
 * bid (BugTraqs Ids items from `http://www.securityfocus.com/`) - source [bidDB_downloader](https://github.com/eliasgranderubio/bidDB_downloader)
 * exploit_db (Offensive Security - Exploit Database) - source [Offensive Security](https://github.com/offensive-security/exploit-database)
 
-## Usage
+### Analyzing docker images/containers
 
 Below, the help when you type `python3 dagda.py check --help` is shown:
 
@@ -217,7 +220,7 @@ If you want review the history of a concrete docker analysis, you must type:
 
 For more details about `dagda.py history`, type `python3 dagda.py history --help` or see the [*history* sub-command](https://github.com/eliasgranderubio/dagda/wiki/Usage#history-sub-command) in the wiki page.
 
-## Bonus Track: Quick Start with Docker
+### Bonus Track: Quick Start with Docker
 
 This section describes the installation of **Dagda** using Docker containers, including the Mongo database and a container for **Dagda**, using ```docker-compose```. The docker socket is shared with the **Dagda** container, so it is possible to check docker images and containers from the host where ```docker-compose``` is executed.
 

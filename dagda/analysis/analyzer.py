@@ -17,6 +17,12 @@ class Analyzer:
 
     # Evaluate image from image name or container id
     def evaluate_image(self, image_name, container_id):
+        # -- Docker pull from remote registry if it is necessary
+        pulled = False
+        if image_name and not self.dockerDriver.is_docker_image(image_name):
+            self.dockerDriver.docker_pull(image_name)
+            pulled = True
+
         # -- Static analysis
         # Get OS packages
         if image_name:  # Scans the docker image
@@ -26,11 +32,17 @@ class Analyzer:
             image_name = self.dockerDriver.get_docker_image_name_from_container_id(container_id)
         # Get programming language dependencies
         dependencies = dep_info_extractor.get_dependencies_from_docker_image(self.dockerDriver, image_name)
+
         # -- Prepare output
         data = {}
         data['image_name'] = image_name
         data['timestamp'] = datetime.datetime.now().timestamp()
         data['static_analysis'] = self.generate_static_analysis(os_packages, dependencies)
+
+        # -- Cleanup
+        if pulled:
+            self.dockerDriver.docker_remove_image(image_name)
+
         # -- Return
         return data
 

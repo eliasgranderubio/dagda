@@ -15,6 +15,11 @@ class DockerDriver:
         containers = self.cli.containers(filters={'id': container_id})
         return containers[0]['Image']
 
+    # Checks if docker image is in the local machine
+    def is_docker_image(self, image_name):
+        image = self.cli.images(name = image_name)
+        return len(image) > 0
+
     # Executes docker exec command and return the output
     def docker_exec(self, container_id, cmd, show_stdout, show_stderr):
         dict = self.cli.exec_create(container=container_id, cmd=cmd, stdout=show_stdout, stderr=show_stderr)
@@ -34,6 +39,10 @@ class DockerDriver:
     # Docker pull
     def docker_pull(self, image_name):
         self.cli.pull(image_name, tag='latest')
+
+    # Removes the docker image
+    def docker_remove_image(self, image_name):
+        self.cli.remove_image(image=image_name, force=True)
 
     # Start container
     def docker_start(self, container_id):

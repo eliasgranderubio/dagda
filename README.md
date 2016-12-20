@@ -128,7 +128,6 @@ The database is called `vuln_database` and there are 3 collections:
 * exploit_db (Offensive Security - Exploit Database) - source [Offensive Security](https://github.com/offensive-security/exploit-database)
 
 ## Usage
-**IMPORTANT NOTE:** In this **Dagda** version, the `docker pull` command must be run out-of-the-box because this functionality is not included. That is way, the docker image must be in the host when you run `dagda.py check`.
 
 Below, the help when you type `python3 dagda.py check --help` is shown:
 

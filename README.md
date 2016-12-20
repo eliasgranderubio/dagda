@@ -45,7 +45,7 @@ Before **Dagda** usage, you must have installed Python >= 3.4.5 and the next req
 * Pip3
   * PyMongo
   * Requests
-  * Progressbar2
+  * Joblib
   * Docker-py
 
 The requirements can be installed with pip:
@@ -79,8 +79,9 @@ For the initial run, you need to populate the vulnerabilities and the exploits i
 ```
     python3 dagda.py vuln --init
 ```
+The previous command can take several minutes for finishing so be patient.
 
-If you need repopulating your database for update with the new vulnerabilities and exploits, you only need rerun the previous command.
+If you need repopulating your database for updating with the new vulnerabilities and exploits, you only need rerun the previous command.
 
 Also, you can run queries on your personal database with `dagda.py vuln`. A usage example would be the next one:
 ```

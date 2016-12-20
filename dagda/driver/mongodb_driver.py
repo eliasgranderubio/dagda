@@ -27,6 +27,7 @@ class MongoDbDriver:
             data['vendor'] = splitted_product[1]
             data['product'] = splitted_product[2]
             data['version'] = splitted_product[3]
+            data['year'] = int(splitted_product[4])
             products.append(data)
         # Bulk insert
         self.db.cve.create_index([('product', pymongo.DESCENDING)])
@@ -68,19 +69,39 @@ class MongoDbDriver:
 
     # -- Removing methods
 
-    # Removes cve collection
-    def delete_cve_collection(self):
-        self.db.cve.drop()
-
-    # Removes bid collection
-    def delete_bid_collection(self):
-        self.db.bid.drop()
+    # Removes only the cves for updating and return the first year for inserting again
+    def remove_only_cve_for_update(self):
+        if "cve" not in self.db.collection_names() or self.db.cve.count() == 0:
+            return 2002
+        else:
+            last_year_stored = self.db.cve.find({}, {'cve_id': 0, 'product': 0, 'version': 0, 'vendor': 0, '_id': 0})\
+                                          .sort('year', pymongo.DESCENDING).limit(1)
+            last_year = last_year_stored[0]['year'] - 1
+            if last_year <= 2002:
+                self.db.cve.drop()
+                return 2002
+            else:
+                self.db.cve.remove({'year':{'$gte': last_year}})
+                return last_year
 
     # Removes exploit_db collection
     def delete_exploit_db_collection(self):
         self.db.exploit_db.drop()
 
+    # Removes bid collection
+    def delete_bid_collection(self):
+        self.db.bid.drop()
+
     # -- Querying methods
+
+    # Gets the max bid inserted
+    def get_max_bid_inserted(self):
+        if "bid" not in self.db.collection_names() or self.db.bid.count() == 0:
+            return 0
+        else:
+            last_bid = self.db.bid.find({}, {'product': 0, 'version': 0, '_id': 0})\
+                                  .sort('bugtraq_id', pymongo.DESCENDING).limit(1)
+            return last_bid[0]['bugtraq_id']
 
     # Gets the product vulnerabilities
     def get_vulnerabilities(self, product, version=None):

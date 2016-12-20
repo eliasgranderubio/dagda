@@ -11,12 +11,12 @@ from dagda.vulnDB.ext_source_util import get_bug_traqs_lists_from_file
 class ExtSourceUtilTestCase(unittest.TestCase):
 
     def test_get_cve_list_from_file(self):
-        cve_list = get_cve_list_from_file(base64.b64decode(mock_cve_gz_compressed_content))
+        cve_list = get_cve_list_from_file(base64.b64decode(mock_cve_gz_compressed_content), 2003)
         self.assertEqual(len(cve_list), 8258)
         # Check some CVEs
-        self.assertTrue("CVE-2003-0001#linux#linux_kernel#2.4.3" in cve_list)
-        self.assertTrue("CVE-2003-0017#apache#http_server#2.0.37" in cve_list)
-        self.assertTrue("CVE-2003-0694#sendmail#sendmail_switch#2.1.5" in cve_list)
+        self.assertTrue("CVE-2003-0001#linux#linux_kernel#2.4.3#2003" in cve_list)
+        self.assertTrue("CVE-2003-0017#apache#http_server#2.0.37#2003" in cve_list)
+        self.assertTrue("CVE-2003-0694#sendmail#sendmail_switch#2.1.5#2003" in cve_list)
 
     def test_get_exploit_db_list_from_csv(self):
         exploit_db_list = get_exploit_db_list_from_csv(mock_exploit_db_csv_content)

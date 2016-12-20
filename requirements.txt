@@ -1,4 +1,4 @@
 pymongo==3.3.1
 requests==2.11.1
-progressbar2==3.10.1
+joblib==0.10.3
 docker-py

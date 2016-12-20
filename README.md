@@ -16,7 +16,7 @@ Finally, each analysis result of a docker image is stored into the same MongoDB 
    * [Usage](#usage)
      * [Populating the database](#populating-the-database)
        * [Database contents](#database-contents)
-     * [Analyzing docker images/containers](#analyzing-docker-images-containers)
+     * [Analyzing docker images/containers](#analyzing-docker-imagescontainers)
      * [Bonus Track: Quick Start with Docker](#bonus-track-quick-start-with-docker)
    * [Troubleshooting](#troubleshooting)
    * [Change Log](#change-log)
@@ -100,27 +100,13 @@ The database is called `vuln_database` and there are 3 collections:
 
 ### Analyzing docker images/containers
 
-Below, the help when you type `python3 dagda.py check --help` is shown:
-
-```
-    usage: dagda.py check [-h] [-i DOCKER_IMAGE] [-c CONTAINER_ID]
-
-    Your personal docker security analyzer.
-
-    Optional Arguments:
-      -h, --help            show this help message and exit
-      -i DOCKER_IMAGE, --docker_image DOCKER_IMAGE
-                            the input docker image name
-      -c CONTAINER_ID, --container_id CONTAINER_ID
-                            the input docker container id
-```
-
-Fulfilling with the described usage, a usage example would be the next one (note that the expected output has been shortened):
+The main **Dagda** target is perform the analysis of known vulnerabilities in docker images/containers, so if you want perform an analysis over a docker image/container, you must type:
 ```
 	python3 dagda.py check --docker_image jboss/wildfly
 ```
+See the [*check* sub-command](https://github.com/eliasgranderubio/dagda/wiki/Usage#check-sub-command) wiki page for details.
 
-The expected output is shown below:
+The previous command example can take several minutes for finishing, but the expected output looks like as shown below.
 ```
     {
         "image_name": "jboss/wildfly",

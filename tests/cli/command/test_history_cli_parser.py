@@ -1,6 +1,7 @@
-import unittest
 import sys
-from dagda.cli.history_cli_parser import HistoryCLIParser
+import unittest
+
+from cli.command.history_cli_parser import HistoryCLIParser
 
 
 # -- Test suite

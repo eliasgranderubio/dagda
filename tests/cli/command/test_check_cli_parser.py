@@ -1,6 +1,7 @@
-import unittest
 import sys
-from dagda.cli.check_cli_parser import CheckCLIParser
+import unittest
+
+from cli.command.check_cli_parser import CheckCLIParser
 
 
 # -- Test suite

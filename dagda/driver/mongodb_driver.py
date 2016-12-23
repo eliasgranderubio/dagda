@@ -152,8 +152,8 @@ class MongoDbDriver:
         # Return
         return output
 
-    # Gets products from CVE
-    def get_products_from_cve(self, cve):
+    # Gets products by CVE
+    def get_products_by_cve(self, cve):
         cursor = self.db.cve.find({'cve_id': cve}, {'cve_id': 0, '_id': 0}).sort([("product", pymongo.ASCENDING),
                                                                                   ("version", pymongo.ASCENDING)])
         # Prepare output
@@ -164,8 +164,8 @@ class MongoDbDriver:
         # Return
         return output
 
-    # Gets products from BID
-    def get_products_from_bid(self, bid):
+    # Gets products by BID
+    def get_products_by_bid(self, bid):
         cursor = self.db.bid.find({'bugtraq_id': bid}, {'bugtraq_id': 0, '_id': 0}).sort(
             [("product", pymongo.ASCENDING), ("version", pymongo.ASCENDING)])
         # Prepare output
@@ -176,8 +176,8 @@ class MongoDbDriver:
         # Return
         return output
 
-    # Gets products from Exploit_db id
-    def get_products_from_exploit_db_id(self, exploit_db_id):
+    # Gets products by Exploit_db id
+    def get_products_by_exploit_db_id(self, exploit_db_id):
         cursor = self.db.exploit_db.find({'exploit_db_id': exploit_db_id}, {'exploit_db_id': 0, '_id': 0}).sort(
             [("product", pymongo.ASCENDING), ("version", pymongo.ASCENDING)])
         # Prepare output

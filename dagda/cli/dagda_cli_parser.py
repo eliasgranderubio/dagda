@@ -1,8 +1,9 @@
 import argparse
 import sys
-from cli.vuln_cli_parser import VulnCLIParser
-from cli.check_cli_parser import CheckCLIParser
-from cli.history_cli_parser import HistoryCLIParser
+from cli.command.check_cli_parser import CheckCLIParser
+from cli.command.history_cli_parser import HistoryCLIParser
+from cli.command.vuln_cli_parser import VulnCLIParser
+from cli.command.start_cli_parser import StartCLIParser
 
 
 class DagdaCLIParser:
@@ -13,7 +14,7 @@ class DagdaCLIParser:
     def __init__(self):
         super(DagdaCLIParser, self).__init__()
         self.parser = DagdaGlobalParser(prog='dagda.py', usage=dagda_global_parser_text, add_help=False)
-        self.parser.add_argument('command', choices=['vuln', 'check', 'history'])
+        self.parser.add_argument('command', choices=['vuln', 'check', 'history', 'start'])
         self.parser.add_argument('-h', '--help', action=_HelpAction)
         self.parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.4.0')
         self.args, self.unknown = self.parser.parse_known_args()
@@ -23,6 +24,8 @@ class DagdaCLIParser:
             self.extra_args = CheckCLIParser()
         elif self.get_command() == 'history':
             self.extra_args = HistoryCLIParser()
+        elif self.get_command() == 'start':
+            self.extra_args = StartCLIParser()
 
     # -- Getters
 
@@ -40,7 +43,7 @@ class DagdaCLIParser:
 class _HelpAction(argparse._HelpAction):
 
     def __call__(self, parser, namespace, values, option_string=None):
-        if sys.argv[1] != 'vuln' and sys.argv[1] != 'check' and sys.argv[1] != 'history':
+        if sys.argv[1] != 'vuln' and sys.argv[1] != 'check' and sys.argv[1] != 'history' and sys.argv[1] != 'start':
             parser.print_help()
             parser.exit()
 
@@ -61,14 +64,15 @@ class DagdaGlobalParser(argparse.ArgumentParser):
 
 # -- Custom message
 
-dagda_global_parser_text = '''dagda.py [--version] [--help] <command> [args]
+dagda_global_parser_text = '''usage: dagda.py [--version] [--help] <command> [args]
 
 Dagda Commands:
-  vuln                  perform operations over your personal CVE, BID &
-                        ExploitDB database
   check                 perform the analysis of known vulnerabilities in
                         docker images/containers
   history               retrieve the analysis history for the docker images
+  start                 start the Dagda server
+  vuln                  perform operations over your personal CVE, BID &
+                        ExploitDB database
 
 Optional Arguments:
   -h, --help            show this help message and exit

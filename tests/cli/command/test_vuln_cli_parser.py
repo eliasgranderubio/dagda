@@ -1,6 +1,7 @@
-import unittest
 import sys
-from dagda.cli.vuln_cli_parser import VulnCLIParser
+import unittest
+
+from cli.command.vuln_cli_parser import VulnCLIParser
 
 
 # -- Test suite

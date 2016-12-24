@@ -74,6 +74,8 @@ You can also run MongoDB using docker:
 
 ## Usage
 
+Although in this usage documentation only the CLI usage is shown, **Dagda** has a REST API for using it. See [REST API](https://github.com/eliasgranderubio/dagda/wiki/REST-API) documentation page for details.
+
 ### Populating the database
 
 For the initial run, you need to populate the vulnerabilities and the exploits in the database by running:
@@ -104,7 +106,7 @@ The expected output for the previous query is shown below:
     ]
 ```
 
-If you want to know more details about `dagda.py vuln`, type `python3 dagda.py vuln --help` or see the [*vuln* sub-command](https://github.com/eliasgranderubio/dagda/wiki/Usage#vuln-sub-command) in the wiki page.
+If you want to know more details about `dagda.py vuln`, type `python3 dagda.py vuln --help` or see the [*vuln* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#vuln-sub-command) in the wiki page.
 
 #### Database contents
 
@@ -120,7 +122,7 @@ The main **Dagda** target is perform the analysis of known vulnerabilities in do
 ```
 	python3 dagda.py check --docker_image jboss/wildfly
 ```
-See the [*check* sub-command](https://github.com/eliasgranderubio/dagda/wiki/Usage#check-sub-command) wiki page for details.
+See the [*check* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#check-sub-command) wiki page for details.
 
 The previous command example can take several minutes for finishing, but the expected output looks like as shown below.
 ```
@@ -220,7 +222,7 @@ If you want review the history of a concrete docker analysis, you must type:
     python3 dagda.py history <DOCKER_IMAGE_NAME_HERE>
 ```
 
-For more details about `dagda.py history`, type `python3 dagda.py history --help` or see the [*history* sub-command](https://github.com/eliasgranderubio/dagda/wiki/Usage#history-sub-command) in the wiki page.
+For more details about `dagda.py history`, type `python3 dagda.py history --help` or see the [*history* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#history-sub-command) in the wiki page.
 
 ### Bonus Track: Quick Start with Docker
 

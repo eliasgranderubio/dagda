@@ -4,6 +4,7 @@ import io
 from dagda.vulnDB.ext_source_util import get_cve_list_from_file
 from dagda.vulnDB.ext_source_util import get_exploit_db_list_from_csv
 from dagda.vulnDB.ext_source_util import get_bug_traqs_lists_from_file
+from dagda.vulnDB.ext_source_util import get_bug_traqs_lists_from_online_mode
 
 
 # -- Test suite
@@ -36,6 +37,15 @@ class ExtSourceUtilTestCase(unittest.TestCase):
         self.assertTrue("3#sun sunos#4.0.1" in bid_lists[0])
         self.assertTrue("4#bsd bsd#4.3" in bid_lists[0])
 
+    def test_get_bug_traqs_lists_from_online_mode(self):
+        bid_lists = get_bug_traqs_lists_from_online_mode(mock_bid_online_mode)
+        self.assertEqual(len(bid_lists), 1)
+        self.assertEqual(len(bid_lists[0]), 7)
+        # Check BugTraqs
+        self.assertTrue("1#eric allman sendmail#5.58" in bid_lists[0])
+        self.assertTrue("3#sun sunos#4.0.1" in bid_lists[0])
+        self.assertTrue("4#bsd bsd#4.3" in bid_lists[0])
+
 
 # -- Mock Constants
 
@@ -51,6 +61,8 @@ id,file,description,date,author,platform,type,port
 """
 
 mock_bid_gz_file = 'H4sICMCvPFgAA2RhdGEuanNvbgCljz0LwjAQhnd/xZFZivYDxE1pcXQouoiU1F5LME3rNVGk+N9NddBqB8HhILzkuefelqWm0MRPicjYHKZjYFpoifbNlkhHlHiFGFVWciEhjJabFWyNVEg8FVLoK7PE2QZJTVVmDrqx5I5FJA6wkLLk6kUHTjBj+9uo7TvdnjMOIReqQMogNXmOBNUZKZfV5Rdvh3fjO+6AyXs3xUatYyBsdEX4y24LwBPynYnjdZ/60fQrGrjB/2xb86a5/Fn2ccxH99EdQJiDLtsBAAA='
+
+mock_bid_online_mode = ['{"bugtraq_id": 1, "title": "Berkeley Sendmail DEBUG Vulnerability", "vuln_products": ["Eric Allman Sendmail 5.58"]}','{"bugtraq_id": 2, "title": "BSD fingerd buffer overflow Vulnerability", "vuln_products": ["BSD BSD 4.2"]}','{"bugtraq_id": 3, "title": "SunOS restore Vulnerability", "vuln_products": ["Sun SunOS 4.0.3", "Sun SunOS 4.0.1", "Sun SunOS 4.0"]}','{"bugtraq_id": 4, "title": "BSD passwd buffer overflow Vulnerability", "vuln_products": ["BSD BSD 4.3", "BSD BSD 4.2"]}']
 
 if __name__ == '__main__':
     unittest.main()

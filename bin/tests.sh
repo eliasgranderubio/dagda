@@ -13,6 +13,7 @@ if [ ! -d "$TEST_DIR" ]; then
     source $TEST_DIR/bin/activate
     echo "New virtualenv for UT activated."
     pip install -r $BASEDIR/requirements.txt
+    pip install requests-mock==1.2.0
     pip install pytest-cov
 fi
 

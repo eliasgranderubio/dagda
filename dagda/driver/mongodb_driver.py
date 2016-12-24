@@ -8,11 +8,9 @@ class MongoDbDriver:
     # -- Public methods
 
     # MongoDbDriver Constructor
-    def __init__(self):
+    def __init__(self, mongodb_host='127.0.0.1', mongodb_port=27017):
         super(MongoDbDriver, self).__init__()
-        self.__config = ConfigParser()
-        self.client = pymongo.MongoClient('mongodb://' + self.__config.get_mongodb_host() + ':' +
-                                          self.__config.get_mongodb_port() + '/')
+        self.client = pymongo.MongoClient('mongodb://' + mongodb_host + ':' + str(mongodb_port) + '/')
         self.db = self.client.vuln_database
 
     # -- Inserting and bulk inserting methods
@@ -200,24 +198,3 @@ class MongoDbDriver:
                 output.append(scan)
         # Return
         return output
-
-
-class ConfigParser:
-
-    # -- Public methods
-
-    # ConfigParser Constructor
-    def __init__(self):
-        super(ConfigParser, self).__init__()
-        self.config = configparser.ConfigParser()
-        self.config.read('etc/checker.conf')
-
-    # -- Getters
-
-    # Get Mongodb host
-    def get_mongodb_host(self):
-        return self.config['MongoDB']['Host']
-
-    # Get Mongodb port
-    def get_mongodb_port(self):
-        return self.config['MongoDB']['Port']

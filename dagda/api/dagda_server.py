@@ -25,10 +25,10 @@ class DagdaServer:
 
     # 400 Bad Request error handler
     @app.errorhandler(400)
-    def bad_request(error):
+    def bad_request(self):
         return '', 400
 
     # 404 Not Found error handler
     @app.errorhandler(404)
-    def not_found(error):
+    def not_found(self):
         return '', 404

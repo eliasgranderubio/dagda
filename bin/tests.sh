@@ -20,4 +20,12 @@ fi
 py.test --cov-report term:skip-covered --cov=dagda tests/
 
 # Clean up all processes in the current process group
-kill -9 0
+list_orphans ()
+{
+    local orphans=$(ps -ef | grep 'py.test --cov-report term:skip-covered --cov=dagda tests/' |
+                    grep -v 'grep' | awk '{print $2}')
+
+    echo "$orphans"
+}
+
+kill $(list_orphans)

@@ -18,3 +18,6 @@ if [ ! -d "$TEST_DIR" ]; then
 fi
 
 py.test --cov-report term:skip-covered --cov=dagda tests/
+
+# Clean up all processes in the current process group
+kill -9 0

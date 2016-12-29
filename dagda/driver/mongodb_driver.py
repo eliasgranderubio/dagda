@@ -10,7 +10,7 @@ class MongoDbDriver:
     # MongoDbDriver Constructor
     def __init__(self, mongodb_host='127.0.0.1', mongodb_port=27017):
         super(MongoDbDriver, self).__init__()
-        self.client = pymongo.MongoClient('mongodb://' + mongodb_host + ':' + str(mongodb_port) + '/')
+        self.client = pymongo.MongoClient('mongodb://' + mongodb_host + ':' + str(mongodb_port) + '/', connect=False)
         self.db = self.client.vuln_database
 
     # -- Inserting and bulk inserting methods
@@ -64,6 +64,10 @@ class MongoDbDriver:
         if self.db.image_history.count() == 0:
             self.db.image_history.create_index([('image_name', pymongo.DESCENDING)])
         self.db.image_history.insert(scan_result)
+
+    # Inserts the init db process status
+    def insert_init_db_process_status(self, status):
+        self.db.init_db_process_status.insert(status)
 
     # -- Removing methods
 
@@ -198,3 +202,11 @@ class MongoDbDriver:
                 output.append(scan)
         # Return
         return output
+
+    # Gets the init db process status
+    def get_init_db_process_status(self):
+        cursor = self.db.init_db_process_status.find({}, {'_id': 0}).sort("timestamp", pymongo.DESCENDING)
+        for status in cursor:
+            if status is not None:
+                return status
+        return {'status': 'None', 'timestamp': None}

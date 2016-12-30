@@ -1,67 +1,90 @@
-import datetime
 import json
-from analysis.analyzer import Analyzer
-from driver.mongodb_driver import MongoDbDriver
+import os
+import sys
+import requests
 from cli.dagda_cli_parser import DagdaCLIParser
-from vulnDB.db_composer import DBComposer
 from api.dagda_server import DagdaServer
 
 
-# Main function
+# -- Get Dagda server base url
+def get_dagda_base_url():
+    # -- Load env variables
+    try:
+        dagda_host = os.environ['DAGDA_HOST']
+    except KeyError:
+        print('dagda.py: error: DAGDA_HOST environment variable is not set.', file=sys.stderr)
+        exit(1)
+
+    try:
+        dagda_port = os.environ['DAGDA_PORT']
+    except KeyError:
+        print('dagda.py: error: DAGDA_PORT environment variable is not set.', file=sys.stderr)
+        exit(1)
+
+    # -- Return Dagda server base url
+    return 'http://' + dagda_host + ':' + dagda_port + '/v1'
+
+
+# -- Main function
 def main(parsed_args):
-    # Init
-    m = MongoDbDriver()
+    # -- Init
     cmd = parsed_args.get_command()
     parsed_args = parsed_args.get_extra_args()
 
-    # Executes vuln sub-command
-    if cmd == 'vuln':
-        if parsed_args.is_initialization_required():
-            # Init db
-            db_composer = DBComposer()
-            db_composer.compose_vuln_db()
-        else:
-            if parsed_args.get_cve():
-                # Gets products by CVE
-                print(json.dumps(m.get_products_by_cve(parsed_args.get_cve()), sort_keys=True, indent=4))
-            elif parsed_args.get_bid():
-                # Gets products by BID
-                print(json.dumps(m.get_products_by_bid(parsed_args.get_bid()), sort_keys=True, indent=4))
-            elif parsed_args.get_exploit_db_id():
-                # Gets products by Exploit DB Id
-                print(json.dumps(m.get_products_by_exploit_db_id(parsed_args.get_exploit_db_id()),
-                                 sort_keys=True, indent=4))
-            else:
-                # Gets CVEs, BIDs and Exploit_DB Ids by product and version
-                print(json.dumps(m.get_vulnerabilities(parsed_args.get_product(), parsed_args.get_product_version()),
-                                 sort_keys=True, indent=4))
-
-    # Executes check sub-command
-    elif cmd == 'check':
-        analyzer = Analyzer()
-        # Evaluates the docker image
-        evaluated_docker_image = analyzer.evaluate_image(parsed_args.get_docker_image_name(),
-                                                         parsed_args.get_container_id())
-        # Updates the scan history
-        m.insert_docker_image_scan_result_to_history(evaluated_docker_image)
-        # Prepares output
-        evaluated_docker_image['timestamp'] = str(
-            datetime.datetime.utcfromtimestamp(evaluated_docker_image['timestamp']))
-        del evaluated_docker_image['_id']
-        print(json.dumps(evaluated_docker_image, sort_keys=True, indent=4))
-
-    # Executes history sub-command
-    elif cmd == 'history':
-        # Gets the history
-        print(json.dumps(m.get_docker_image_history(parsed_args.get_docker_image_name()), sort_keys=True, indent=4))
-
     # Executes start sub-command
-    elif cmd == 'start':
+    if cmd == 'start':
         ds = DagdaServer(dagda_server_host=parsed_args.get_server_host(),
                          dagda_server_port=parsed_args.get_server_port(),
                          mongodb_host=parsed_args.get_mongodb_host(),
                          mongodb_port=parsed_args.get_mongodb_port())
         ds.run()
+
+    else:
+        dagda_base_url = get_dagda_base_url()
+        # -- Executes vuln sub-command
+        if cmd == 'vuln':
+            if parsed_args.is_initialization_required():
+                # Init db
+                r = requests.post(dagda_base_url + '/vuln/init')
+            elif parsed_args.is_init_status_requested():
+                # Retrieves the init status
+                r = requests.get(dagda_base_url + '/vuln/init-status')
+            else:
+                if parsed_args.get_cve():
+                    # Gets products by CVE
+                    r = requests.get(dagda_base_url + '/vuln/cve/' + parsed_args.get_cve())
+                elif parsed_args.get_bid():
+                    # Gets products by BID
+                    r = requests.get(dagda_base_url + '/vuln/bid/' + str(parsed_args.get_bid()))
+                elif parsed_args.get_exploit_db_id():
+                    # Gets products by Exploit DB Id
+                    r = requests.get(dagda_base_url + '/vuln/exploit/' + str(parsed_args.get_exploit_db_id()))
+                else:
+                    # Gets CVEs, BIDs and Exploit_DB Ids by product and version
+                    if not parsed_args.get_product_version():
+                        r = requests.get(dagda_base_url + '/vuln/products/' + parsed_args.get_product())
+                    else:
+                        r = requests.get(dagda_base_url + '/vuln/products/' + parsed_args.get_product() + '/' +
+                                         parsed_args.get_product_version())
+
+        # Executes check sub-command
+        elif cmd == 'check':
+            if parsed_args.get_docker_image_name():
+                r = requests.post(dagda_base_url + '/check/images/' + parsed_args.get_docker_image_name())
+            else:
+                r = requests.post(dagda_base_url + '/check/containers/' + parsed_args.get_container_id())
+
+        # Executes history sub-command
+        elif cmd == 'history':
+            # Gets the history
+            query_params = ''
+            if parsed_args.get_report_id() is not None:
+                query_params = '?id=' + parsed_args.get_report_id()
+            r = requests.get(dagda_base_url + '/history/' + parsed_args.get_docker_image_name() + query_params)
+
+        # -- Print cmd output
+        if r is not None:
+            print(json.dumps(json.loads(r.content.decode('utf-8')), sort_keys=True, indent=4))
 
 
 if __name__ == "__main__":

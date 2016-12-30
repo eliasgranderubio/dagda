@@ -1,6 +1,6 @@
 import pymongo
 import datetime
-import configparser
+from bson.objectid import ObjectId
 
 
 class MongoDbDriver:
@@ -63,7 +63,12 @@ class MongoDbDriver:
     def insert_docker_image_scan_result_to_history(self, scan_result):
         if self.db.image_history.count() == 0:
             self.db.image_history.create_index([('image_name', pymongo.DESCENDING)])
-        self.db.image_history.insert(scan_result)
+        return self.db.image_history.insert(scan_result)
+
+    # Updates the docker image scan result to history
+    def update_docker_image_scan_result_to_history(self, _id, scan_result):
+        scan_result['_id'] = ObjectId(_id)
+        self.db.image_history.update({'_id': ObjectId(_id)}, scan_result)
 
     # Inserts the init db process status
     def insert_init_db_process_status(self, status):
@@ -191,13 +196,19 @@ class MongoDbDriver:
         return output
 
     # Gets docker image history
-    def get_docker_image_history(self, image_name):
-        cursor = self.db.image_history.find({'image_name': image_name}, {'_id': 0}).sort("timestamp",
-                                                                                         pymongo.DESCENDING)
+    def get_docker_image_history(self, image_name, _id=None):
+        if not _id:
+            cursor = self.db.image_history.find({'image_name': image_name}).sort("timestamp", pymongo.DESCENDING)
+        else:
+            cursor = self.db.image_history.find({'image_name': image_name, '_id': ObjectId(_id)})\
+                                          .sort("timestamp", pymongo.DESCENDING)
+
         # Prepare output
         output = []
         for scan in cursor:
             if scan is not None:
+                scan['id'] = str(scan['_id'])
+                del scan['_id']
                 scan['timestamp'] = str(datetime.datetime.utcfromtimestamp(scan['timestamp']))
                 output.append(scan)
         # Return

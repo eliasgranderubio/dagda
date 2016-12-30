@@ -3,9 +3,11 @@ import json
 import datetime
 from flask import Flask
 from api.internal.internal_server import InternalServer
-from api.service.vuln import vuln_api
+from api.service.check import check_api
 from api.service.history import history_api
+from api.service.vuln import vuln_api
 from vulnDB.db_composer import DBComposer
+from analysis.analyzer import Analyzer
 
 
 # Dagda server class
@@ -15,6 +17,7 @@ class DagdaServer:
     # -- Global attributes
 
     app = Flask(__name__)
+    app.register_blueprint(check_api)
     app.register_blueprint(history_api)
     app.register_blueprint(vuln_api)
 
@@ -36,8 +39,14 @@ class DagdaServer:
                 item = InternalServer.get_dagda_edn().get()
                 if item['msg'] == 'init_db':
                     self._init_or_update_db()
+                elif item['msg'] == 'check_image':
+                    self._check_docker_by_image_name(item)
+                elif item['msg'] == 'check_container':
+                    self._check_docker_by_container_id(item)
         else:
-            DagdaServer.app.run(debug=True, host=self.dagda_server_host, port=self.dagda_server_port)
+            DagdaServer.app.run(debug=False, host=self.dagda_server_host, port=self.dagda_server_port)
+
+    # -- Error handlers
 
     # 400 Bad Request error handler
     @app.errorhandler(400)
@@ -49,10 +58,16 @@ class DagdaServer:
     def not_found(self):
         return json.dumps({'err': 404, 'msg': 'Not Found'}, sort_keys=True), 404
 
+    # 500 Internal Server error handler
+    @app.errorhandler(500)
+    def not_found(self):
+        return json.dumps({'err': 500, 'msg': 'Internal Server Error'}, sort_keys=True), 500
+
     # -- Private methods
 
     # Init or update the vulnerabilities db
-    def _init_or_update_db(self):
+    @staticmethod
+    def _init_or_update_db():
         InternalServer.get_mongodb_driver().insert_init_db_process_status(
             {'status': 'Initializing', 'timestamp': datetime.datetime.now().timestamp()})
         # Init db
@@ -60,3 +75,29 @@ class DagdaServer:
         db_composer.compose_vuln_db()
         InternalServer.get_mongodb_driver().insert_init_db_process_status(
             {'status': 'Updated', 'timestamp': datetime.datetime.now().timestamp()})
+
+    # Check docker by image name
+    @staticmethod
+    def _check_docker_by_image_name(item):
+        analyzer = Analyzer()
+        # -- Evaluates the docker image
+        evaluated_docker_image = analyzer.evaluate_image(item['image_name'], None)
+
+        # -- Updates mongodb report
+        InternalServer.get_mongodb_driver().update_docker_image_scan_result_to_history(item['_id'],
+                                                                                       evaluated_docker_image)
+
+        # -- Cleanup
+        if item['pulled']:
+            InternalServer.get_docker_driver().docker_remove_image(item['image_name'])
+
+    # Check docker by container id
+    @staticmethod
+    def _check_docker_by_container_id(item):
+        analyzer = Analyzer()
+        # -- Evaluates the docker image
+        evaluated_docker_image = analyzer.evaluate_image(None, item['container_id'])
+
+        # -- Updates mongodb report
+        InternalServer.get_mongodb_driver().update_docker_image_scan_result_to_history(item['_id'],
+                                                                                       evaluated_docker_image)

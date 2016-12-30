@@ -74,6 +74,14 @@ You can also run MongoDB using docker:
 
 ## Usage
 
+You must run `python3 dagda.py start` for starting the **Dagda** server. See the [*start* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#start-sub-command) in the wiki page for details.
+
+After the **Dagda** server started and before the **Dagda** CLI usage, you must set the next environment variables as you need:
+```
+    export DAGDA_HOST='127.0.0.1'
+    export DAGDA_PORT=5000
+```
+
 Although in this usage documentation only the CLI usage is shown, **Dagda** has a REST API for using it. See [REST API](https://github.com/eliasgranderubio/dagda/wiki/REST-API) documentation page for details.
 
 ### Populating the database
@@ -124,10 +132,29 @@ The main **Dagda** target is perform the analysis of known vulnerabilities in do
 ```
 See the [*check* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#check-sub-command) wiki page for details.
 
-The previous command example can take several minutes for finishing, but the expected output looks like as shown below.
+
+The expected output for the previous command will be the next one. In this output, **Dagda** responses with the analysis `id`.
 ```
     {
+        "_id": "58667994ed253915723c50e7",
+        "msg": "Accepted the analysis of <jboss/wildfly>"
+    }
+```
+
+
+If you want review a concrete docker analysis, you must type:
+```
+    python3 dagda.py history <DOCKER_IMAGE_NAME_HERE> --id <REPORT_ID_HERE>
+```
+For more details about `dagda.py history`, type `python3 dagda.py history --help` or see the [*history* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#history-sub-command) in the wiki page.
+
+
+The analysis can take several minutes for finishing, so be patient. If you typed the previous command, when you type `python3 dagda.py history jboss/wildfly --id 58667994ed253915723c50e7`, the expected output looks like as shown below.
+```
+    {
+        "id": "58667994ed253915723c50e7",
         "image_name": "jboss/wildfly",
+        "status": "Completed",
         "timestamp": "2016-12-14 13:17:12.802486",
         "static_analysis": {
             "os_packages": {
@@ -216,13 +243,6 @@ The previous command example can take several minutes for finishing, but the exp
         }
     }
 ```
-
-If you want review the history of a concrete docker analysis, you must type:
-```
-    python3 dagda.py history <DOCKER_IMAGE_NAME_HERE>
-```
-
-For more details about `dagda.py history`, type `python3 dagda.py history --help` or see the [*history* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#history-sub-command) in the wiki page.
 
 ### Bonus Track: Quick Start with Docker
 

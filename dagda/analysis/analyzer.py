@@ -1,8 +1,7 @@
 import datetime
-from driver.docker_driver import DockerDriver
-from driver.mongodb_driver import MongoDbDriver
 from analysis.static.os import os_info_extractor
 from analysis.static.dependencies import dep_info_extractor
+from api.internal.internal_server import InternalServer
 
 
 class Analyzer:
@@ -12,17 +11,11 @@ class Analyzer:
     # Analyzer Constructor
     def __init__(self):
         super(Analyzer, self).__init__()
-        self.mongoDbDriver = MongoDbDriver()
-        self.dockerDriver = DockerDriver()
+        self.mongoDbDriver = InternalServer.get_mongodb_driver()
+        self.dockerDriver = InternalServer.get_docker_driver()
 
     # Evaluate image from image name or container id
     def evaluate_image(self, image_name, container_id):
-        # -- Docker pull from remote registry if it is necessary
-        pulled = False
-        if image_name and not self.dockerDriver.is_docker_image(image_name):
-            self.dockerDriver.docker_pull(image_name)
-            pulled = True
-
         # -- Static analysis
         # Get OS packages
         if image_name:  # Scans the docker image
@@ -37,11 +30,8 @@ class Analyzer:
         data = {}
         data['image_name'] = image_name
         data['timestamp'] = datetime.datetime.now().timestamp()
+        data['status'] = 'Completed'
         data['static_analysis'] = self.generate_static_analysis(os_packages, dependencies)
-
-        # -- Cleanup
-        if pulled:
-            self.dockerDriver.docker_remove_image(image_name)
 
         # -- Return
         return data

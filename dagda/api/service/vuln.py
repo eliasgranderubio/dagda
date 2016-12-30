@@ -14,7 +14,10 @@ vuln_api = Blueprint('vuln_api', __name__)
 @vuln_api.route('/v1/vuln/init', methods=['POST'])
 def init_or_update_db():
     InternalServer.get_dagda_edn().put({'msg': 'init_db'})
-    return '', 202
+    # -- Return
+    output = {}
+    output['msg'] = 'Accepted the init db request'
+    return json.dumps(output, sort_keys=True), 202
 
 
 # Get the init db process status

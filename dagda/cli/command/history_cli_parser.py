@@ -11,6 +11,7 @@ class HistoryCLIParser:
         super(HistoryCLIParser, self).__init__()
         self.parser = DagdaHistoryParser(prog='dagda.py history', usage=history_parser_text)
         self.parser.add_argument('docker_image_name', metavar='IMAGE_NAME', type=str)
+        self.parser.add_argument('--id', type=str)
         self.args, self.unknown = self.parser.parse_known_args(sys.argv[2:])
         # Verify command line arguments
         status = self.verify_args(self.parser.prog, self.args)
@@ -22,6 +23,10 @@ class HistoryCLIParser:
     # Gets docker image name
     def get_docker_image_name(self):
         return self.args.docker_image_name
+
+    # Gets report id
+    def get_report_id(self):
+        return self.args.id
 
     # -- Static methods
 
@@ -51,14 +56,15 @@ class DagdaHistoryParser(argparse.ArgumentParser):
 
 # Custom text
 
-history_parser_text = '''usage: dagda.py history [-h] IMAGE_NAME
+history_parser_text = '''usage: dagda.py history [-h] IMAGE_NAME [--id REPORT_ID]
 
 Your personal docker security analyzer history.
 
 Positional Arguments:
-  IMAGE_NAME     the analysis history for the requested docker image name will
-                 be shown ordered by descending date
+  IMAGE_NAME     the full analysis history for the requested docker image name
+                 will be shown ordered by descending date
 
 Optional Arguments:
-  -h, --help     show this help message and exit
+  -h, --help            show this help message and exit
+  --id REPORT_ID        the report with this id will be shown
 '''

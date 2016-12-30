@@ -3,6 +3,7 @@ import sys
 
 
 class CheckCLIParser:
+
     # -- Public methods
 
     # CheckDockerCLIParser Constructor

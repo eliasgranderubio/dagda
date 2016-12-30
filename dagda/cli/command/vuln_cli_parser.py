@@ -12,6 +12,7 @@ class VulnCLIParser:
         super(VulnCLIParser, self).__init__()
         self.parser = DagdaVulnParser(prog='dagda.py vuln', usage=vuln_parser_text)
         self.parser.add_argument('--init', action='store_true')
+        self.parser.add_argument('--init_status', action='store_true')
         self.parser.add_argument('--bid', type=int)
         self.parser.add_argument('--cve', type=str)
         self.parser.add_argument('--exploit_db', type=int)
@@ -28,6 +29,10 @@ class VulnCLIParser:
     # Gets if initialization is required
     def is_initialization_required(self):
         return self.args.init
+
+    # Gets if init status is requested
+    def is_init_status_requested(self):
+        return self.args.init_status
 
     # Gets CVE value
     def get_cve(self):
@@ -55,46 +60,51 @@ class VulnCLIParser:
     @staticmethod
     def verify_args(prog, args):
         if not args.init and not args.cve and not args.product and not args.product_version and not args.bid \
-                and not args.exploit_db:
+                and not args.exploit_db and not args.init_status:
             print(prog + ': error: missing arguments.', file=sys.stderr)
             return 1
-        elif args.init and (args.cve or args.product or args.product_version or args.bid or args.exploit_db):
+        elif args.init and (args.cve or args.product or args.product_version or args.bid or args.exploit_db \
+                            or args.init_status):
             print(prog + ': error: argument --init: this argument must be alone.', file=sys.stderr)
             return 2
+        elif args.init_status and (args.cve or args.product or args.product_version or args.bid or args.exploit_db \
+                                   or args.init):
+            print(prog + ': error: argument --init_status: this argument must be alone.', file=sys.stderr)
+            return 3
         elif args.cve:
-            if args.init or args.product or args.product_version or args.bid or args.exploit_db:
+            if args.init or args.init_status or args.product or args.product_version or args.bid or args.exploit_db:
                 print(prog + ': error: argument --cve: this argument must be alone.', file=sys.stderr)
-                return 3
+                return 4
             else:
                 regex = r"(CVE-[0-9]{4}-[0-9]{4})"
                 search_obj = re.search(regex, args.cve)
                 if not search_obj or len(search_obj.group(0)) != len(args.cve):
                     print(prog + ': error: argument --cve: The cve format must look like to CVE-2002-1234.',
                           file=sys.stderr)
-                    return 4
+                    return 5
         elif args.bid:
-            if args.init or args.product or args.product_version or args.cve or args.exploit_db:
+            if args.init or args.init_status or args.product or args.product_version or args.cve or args.exploit_db:
                 print(prog + ': error: argument --bid: this argument must be alone.', file=sys.stderr)
-                return 5
+                return 6
             else:
                 if args.bid <= 0:
                     print(prog + ': error: argument --bid: The bid argument must be greater than zero.',
                           file=sys.stderr)
-                    return 6
+                    return 7
         elif args.exploit_db:
-            if args.init or args.product or args.product_version or args.cve or args.bid:
+            if args.init or args.init_status or args.product or args.product_version or args.cve or args.bid:
                 print(prog + ': error: argument --exploit_db: this argument must be alone.',
                       file=sys.stderr)
-                return 7
+                return 8
             else:
                 if args.exploit_db <= 0:
                     print(prog + ': error: argument --exploit_db: The bid argument must be greater than zero.',
                           file=sys.stderr)
-                    return 8
+                    return 9
         elif args.product_version and not args.product:
             print(prog + ': error: argument --product_version: this argument requires the --product argument.',
                   file=sys.stderr)
-            return 9
+            return 10
         # Else
         return 0
 
@@ -115,7 +125,7 @@ class DagdaVulnParser(argparse.ArgumentParser):
 
 # Custom text
 
-vuln_parser_text = '''usage: dagda.py vuln [-h] [--init]
+vuln_parser_text = '''usage: dagda.py vuln [-h] [--init] [--init_status]
                   [--bid BID] [--cve CVE] [--exploit_db EXPLOIT_DB]
                   [--product PRODUCT] [--product_version PRODUCT_VERSION]
 
@@ -132,6 +142,7 @@ Optional Arguments:
                         Exploit Database. If this argument is present, all
                         CVEs, BIDs and exploits of your local database will be
                         updated.
+  --init_status         retrieves the initialization status
   --bid BID             all product with this BugTraq Id (BID) vulnerability
                         will be shown
   --cve CVE             all products with this CVE vulnerability will be shown

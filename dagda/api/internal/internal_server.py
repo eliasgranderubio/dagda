@@ -1,5 +1,6 @@
 import multiprocessing
 from driver.mongodb_driver import MongoDbDriver
+from driver.docker_driver import DockerDriver
 
 
 # Internal Dagda server class
@@ -10,6 +11,7 @@ class InternalServer:
 
     _dagda_edn = multiprocessing.Queue()
     _mongodb_driver = MongoDbDriver()
+    _docker_driver = DockerDriver()
 
     # -- Static methods
 
@@ -31,3 +33,8 @@ class InternalServer:
         if not mongodb_port:
             mongodb_port = 27017
         InternalServer._mongodb_driver = MongoDbDriver(mongodb_host, mongodb_port)
+
+    # Gets Docker Driver
+    @staticmethod
+    def get_docker_driver():
+        return InternalServer._docker_driver

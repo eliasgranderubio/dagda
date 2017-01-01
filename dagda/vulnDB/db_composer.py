@@ -1,11 +1,11 @@
 import io
-from driver.mongodb_driver import MongoDbDriver
+from datetime import date
+from api.internal.internal_server import InternalServer
 from vulnDB.ext_source_util import get_bug_traqs_lists_from_file
 from vulnDB.ext_source_util import get_bug_traqs_lists_from_online_mode
 from vulnDB.ext_source_util import get_cve_list_from_file
 from vulnDB.ext_source_util import get_exploit_db_list_from_csv
 from vulnDB.ext_source_util import get_http_resource_content
-from datetime import date
 from vulnDB.bid_downloader import bid_downloader
 
 
@@ -21,7 +21,7 @@ class DBComposer:
     # DBComposer Constructor
     def __init__(self):
         super(DBComposer, self).__init__()
-        self.mongoDbDriver = MongoDbDriver()
+        self.mongoDbDriver = InternalServer.get_mongodb_driver()
 
     # Compose vuln DB
     def compose_vuln_db(self):
@@ -31,7 +31,9 @@ class DBComposer:
         for i in range(first_year, next_year):
             compressed_content = get_http_resource_content(
                 "https://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-" + str(i) + ".xml.gz")
-            self.mongoDbDriver.bulk_insert_cves(get_cve_list_from_file(compressed_content, i))
+            cve_list = get_cve_list_from_file(compressed_content, i)
+            if len(cve_list) > 0:
+                self.mongoDbDriver.bulk_insert_cves(cve_list)
 
         # -- Exploit DB
         # Adding or updating Exploit_db
@@ -54,6 +56,8 @@ class DBComposer:
             for bid_items_list in bid_items_array:
                 self.mongoDbDriver.bulk_insert_bids(bid_items_list)
                 bid_items_list.clear()
+            # Set the new max bid
+            max_bid = 94417
         # Updating BugTraqs from http://www.securityfocus.com/
         bid_items_array = get_bug_traqs_lists_from_online_mode(bid_downloader(first_bid=max_bid+1, last_bid=95500))
         for bid_items_list in bid_items_array:

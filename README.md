@@ -248,12 +248,11 @@ The analysis can take several minutes for finishing, so be patient. If you typed
 
 This section describes the installation of **Dagda** using Docker containers, including the Mongo database and a container for **Dagda**, using ```docker-compose```. The docker socket is shared with the **Dagda** container, so it is possible to check docker images and containers from the host where ```docker-compose``` is executed.
 
-Execute the following commands in the root folder of **Dagda** (note that the `docker-compose run` commands can be replaced for any supported command described in this documentation):
+Execute the following commands in the root folder of **Dagda** and then, the **Dagda** server will start listening at port 5000:
 
 ```
     $ docker-compose build
-    $ docker-compose run --rm dagda dagda.py vuln --init
-    $ docker-compose run --rm dagda dagda.py check -c <container_id>
+    $ docker-compose run --service-ports dagda
 ```
 
 ## Troubleshooting

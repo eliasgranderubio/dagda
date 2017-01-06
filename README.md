@@ -2,11 +2,11 @@
 [![Build Status](https://travis-ci.org/eliasgranderubio/dagda.svg?branch=master)](https://travis-ci.org/eliasgranderubio/dagda)
 [![Coverage Status](https://coveralls.io/repos/github/eliasgranderubio/dagda/badge.svg?branch=master)](https://coveralls.io/github/eliasgranderubio/dagda?branch=master)
 
-**Dagda** is a tool to perform static analysis of known vulnerabilities in docker images/containers.
+**Dagda** is a tool to perform static analysis of known vulnerabilities in docker images/containers and to monitor runtime docker containers for detecting anomalous activities.
 
 In order to fulfill its mission, first the known vulnerabilities as CVEs (Common Vulnerabilities and Exposures) and BIDs (Bugtraq IDs), and the known exploits from Offensive Security database are imported into a MongoDB to facilitate the search of these vulnerabilities and exploits when your analysis are in progress.
 
-Then, when you run an analysis, **Dagda** retrieves information about the software installed into your docker image, such as the OS packages and the dependencies of the programming languages, and verifies for each product and its version if it is free of vulnerabilities against the previously stored information into the MongoDB.
+Then, when you run a static analysis of known vulnerabilities, **Dagda** retrieves information about the software installed into your docker image, such as the OS packages and the dependencies of the programming languages, and verifies for each product and its version if it is free of vulnerabilities against the previously stored information into the MongoDB.
 
 **Dagda** supports multiple Linux base images:
   * Red Hat/CentOS/Fedora
@@ -22,15 +22,20 @@ Also, **Dagda** rests on [OWASP dependency check](https://github.com/jeremylong/
   * ruby
   * php
 
-Finally, each analysis report of a docker image is stored into the same MongoDB for having available the history of each docker image/container when it is needed.
+On the other hand, **Dagda** is integrated with [Sysdig Falco](http://www.sysdig.org/falco/) for monitoring runtime docker containers to detect anomalous activities.
+
+Finally, each analysis report of a docker image/container, included all static analysis and all runtime monitoring, is stored into the same MongoDB for having available the history of each docker image/container when it is needed.
 
    * [Requirements](#requirements)
   	 * [Installation of Docker](#installation-of-docker)
      * [Installation of MongoDB](#installation-of-mongodb)
+     * [Installation of kernel headers in the host OS](#installation-of-kernel-headers-in-the-host-os)
    * [Usage](#usage)
      * [Populating the database](#populating-the-database)
        * [Database contents](#database-contents)
      * [Analyzing docker images/containers](#analyzing-docker-imagescontainers)
+       * [Performing static analysis of known vulnerabilities](#performing-static-analysis-of-known-vulnerabilities)
+       * [Monitoring running containers for detecting anomalous activities](#monitoring-running-containers-for-detecting-anomalous-activities)
      * [Bonus Track: Quick Start with Docker](#bonus-track-quick-start-with-docker)
    * [Troubleshooting](#troubleshooting)
    * [Change Log](#change-log)
@@ -71,6 +76,19 @@ You can also run MongoDB using docker:
 ```
     docker pull mongo
     docker run -d -p 27017:27017 mongo
+```
+
+### Installation of kernel headers in the host OS
+
+You must have installed the kernel headers in the host OS because **Dagda** is integrated with [Sysdig Falco](http://www.sysdig.org/falco/) for monitoring runtime docker containers to detect anomalous activities.
+
+This can usually be done on Debian-like distributions with: `apt-get -y install linux-headers-$(uname -r)`
+
+Or, on RHEL-like distributions: `yum -y install kernel-devel-$(uname -r)`
+
+After that, run the command `/usr/lib/dkms/dkms_autoinstaller start` is recommended for avoiding the next Sysdig Falco error trace:
+```
+rmmod: ERROR: Module sysdig_probe is not currently loaded
 ```
 
 ## Usage
@@ -127,7 +145,10 @@ The database is called `vuln_database` and there are 3 collections:
 
 ### Analyzing docker images/containers
 
-The main **Dagda** target is perform the analysis of known vulnerabilities in docker images/containers, so if you want perform an analysis over a docker image/container, you must type:
+In the next subsections, both, performing static analysis of known vulnerabilities and monitoring running docker containers for detecting anomalous activities will be described in depth.
+
+#### Performing static analysis of known vulnerabilities
+One of the main **Dagda** targets is perform the analysis of known vulnerabilities in docker images/containers, so if you want perform an analysis over a docker image/container, you must type:
 ```
 	python3 dagda.py check --docker_image jboss/wildfly
 ```
@@ -244,6 +265,61 @@ The analysis can take several minutes for finishing, so be patient. If you typed
         }
     }
 ```
+
+#### Monitoring running containers for detecting anomalous activities
+Another of the main **Dagda** targets is perform the monitoring of runtime docker containers for detecting anomalous activities, so if you want perform the monitoring over a running docker container, you must type:
+```
+    python3 dagda.py monitor 69dbf26ab368 --start
+```
+See the [*monitor* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#monitor-sub-command) wiki page for details.
+
+
+The expected output looks like as shown below:
+```
+	{
+      "id": "586f7631ed25396a829baaf4",
+      "image_name": "jboss/wildfly",
+      "msg": "Monitoring of docker container with id <69dbf26ab368> started"
+	}
+```
+
+You can stop the monitoring when you want if you type:
+```
+    python3 dagda.py monitor 69dbf26ab368 --stop
+```
+
+The expected output when you stop the monitoring over a running container looks like as shown below:
+```
+  {
+      "id": "586f7631ed25396a829baaf4",
+      "image_name": "jboss/wildfly",
+      "timestamp": "2017-01-06 10:49:21.212508",
+      "status": "Completed",
+      "runtime_analysis": {
+          "container_id": "69dbf26ab368",
+          "start_timestamp": "2017-01-06 10:49:21.212508",
+          "stop_timestamp": "2017-01-06 10:50:16.343847",
+          "anomalous_activities_detected": {
+              "anomalous_counts_by_severity": {
+                  "Warning": 2
+              },
+              "anomalous_activities_details": [{
+                  "output": "10:49:47.492517329: Warning Unexpected setuid call by non-sudo, non-root program (user=<NA> command=ping 8.8.8.8 uid=<NA>) container=thirsty_spence (id=69dbf26ab368)",
+                  "priority": "Warning",
+                  "rule": "Non sudo setuid",
+                  "time": "2017-01-06 10:49:47.492516"
+              }, {
+                  "output": "10:49:53.181654702: Warning Unexpected setuid call by non-sudo, non-root program (user=<NA> command=ping 8.8.4.4 uid=<NA>) container=thirsty_spence (id=69dbf26ab368)",
+                  "priority": "Warning",
+                  "rule": "Non sudo setuid",
+                  "time": "2017-01-06 10:49:53.181653"
+              }]
+          }
+      }
+  }
+```
+
+If you want review all your reports, see the [*history*](#history-sub-command) command.
 
 ### Bonus Track: Quick Start with Docker
 

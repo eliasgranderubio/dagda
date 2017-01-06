@@ -12,7 +12,8 @@ class DockerDriver:
         try:
             self.cli = docker.Client(base_url='unix://var/run/docker.sock', version="auto", timeout=3600)
         except docker.errors.DockerException:
-            print('dagda.py: Error while fetching server API version: Assumming Travis CI tests.', file=sys.stderr)
+            print('dagda.py: Error while fetching Docker server API version: Assumming Travis CI tests.',
+                  file=sys.stderr)
             self.cli = None
 
     # Gets the docker image name from a running container

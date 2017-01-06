@@ -74,6 +74,8 @@ Positional Arguments:
 
 Optional Arguments:
   -h, --help            show this help message and exit
-  --start               start the monitoring over the container with the input id
-  --stop                stop the monitoring over the container with the input id
+  --start               start the monitoring over the container with
+                        the input id
+  --stop                stop the monitoring over the container with the
+                        input id
 '''

@@ -82,6 +82,13 @@ def main(parsed_args):
                 query_params = '?id=' + parsed_args.get_report_id()
             r = requests.get(dagda_base_url + '/history/' + parsed_args.get_docker_image_name() + query_params)
 
+        # Executes monitor sub-command
+        elif cmd == 'monitor':
+            if parsed_args.is_start():
+                r = requests.post(dagda_base_url + '/monitor/containers/' + parsed_args.get_container_id() + '/start')
+            elif parsed_args.is_stop():
+                r = requests.post(dagda_base_url + '/monitor/containers/' + parsed_args.get_container_id() + '/stop')
+
         # -- Print cmd output
         if r is not None:
             print(json.dumps(json.loads(r.content.decode('utf-8')), sort_keys=True, indent=4))

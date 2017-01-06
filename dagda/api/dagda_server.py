@@ -5,9 +5,11 @@ from flask import Flask
 from api.internal.internal_server import InternalServer
 from api.service.check import check_api
 from api.service.history import history_api
+from api.service.monitor import monitor_api
 from api.service.vuln import vuln_api
 from vulnDB.db_composer import DBComposer
 from analysis.analyzer import Analyzer
+from analysis.runtime.sysdig_falco_monitor import SysdigFalcoMonitor
 
 
 # Dagda server class
@@ -19,6 +21,7 @@ class DagdaServer:
     app = Flask(__name__)
     app.register_blueprint(check_api)
     app.register_blueprint(history_api)
+    app.register_blueprint(monitor_api)
     app.register_blueprint(vuln_api)
 
     # -- Public methods
@@ -30,21 +33,36 @@ class DagdaServer:
         self.dagda_server_host = dagda_server_host
         self.dagda_server_port = dagda_server_port
         InternalServer.set_mongodb_driver(mongodb_host, mongodb_port)
+        self.sysdig_falco_monitor = SysdigFalcoMonitor(InternalServer.get_docker_driver(),
+                                                       InternalServer.get_mongodb_driver())
 
     # Runs DagdaServer
     def run(self):
-        new_pid = os.fork()
-        if new_pid == 0:
-            while True:
-                item = InternalServer.get_dagda_edn().get()
-                if item['msg'] == 'init_db':
-                    self._init_or_update_db()
-                elif item['msg'] == 'check_image':
-                    self._check_docker_by_image_name(item)
-                elif item['msg'] == 'check_container':
-                    self._check_docker_by_container_id(item)
+        edn_pid = os.fork()
+        if edn_pid == 0:
+            try:
+                while True:
+                    item = InternalServer.get_dagda_edn().get()
+                    if item['msg'] == 'init_db':
+                        self._init_or_update_db()
+                    elif item['msg'] == 'check_image':
+                        self._check_docker_by_image_name(item)
+                    elif item['msg'] == 'check_container':
+                        self._check_docker_by_container_id(item)
+            except KeyboardInterrupt:
+                # Pressed CTRL+C to quit, so nothing to do
+                None
         else:
-            DagdaServer.app.run(debug=False, host=self.dagda_server_host, port=self.dagda_server_port)
+            sysdig_falco_monitor_pid = os.fork()
+            if sysdig_falco_monitor_pid == 0:
+                try:
+                    self.sysdig_falco_monitor.pre_check()
+                    self.sysdig_falco_monitor.run()
+                except KeyboardInterrupt:
+                    # Pressed CTRL+C to quit
+                    InternalServer.get_docker_driver().docker_stop(self.sysdig_falco_monitor.get_running_container_id())
+            else:
+                DagdaServer.app.run(debug=False, host=self.dagda_server_host, port=self.dagda_server_port)
 
     # -- Error handlers
 

@@ -35,7 +35,7 @@ def check_docker_by_image_name(image_name):
 
     # -- Return
     output = {}
-    output['_id'] = str(_id)
+    output['id'] = str(_id)
     output['msg'] = 'Accepted the analysis of <' + image_name + '>'
     return json.dumps(output, sort_keys=True), 202
 
@@ -63,6 +63,6 @@ def check_docker_by_container_id(container_id):
 
     # -- Return
     output = {}
-    output['_id'] = str(_id)
+    output['id'] = str(_id)
     output['msg'] = 'Accepted the analysis of <' + image_name + '> with id: ' + container_id
     return json.dumps(output, sort_keys=True), 202

@@ -4,6 +4,7 @@ from cli.command.check_cli_parser import CheckCLIParser
 from cli.command.history_cli_parser import HistoryCLIParser
 from cli.command.vuln_cli_parser import VulnCLIParser
 from cli.command.start_cli_parser import StartCLIParser
+from cli.command.monitor_cli_parser import MonitorCLIParser
 
 
 class DagdaCLIParser:
@@ -14,7 +15,7 @@ class DagdaCLIParser:
     def __init__(self):
         super(DagdaCLIParser, self).__init__()
         self.parser = DagdaGlobalParser(prog='dagda.py', usage=dagda_global_parser_text, add_help=False)
-        self.parser.add_argument('command', choices=['vuln', 'check', 'history', 'start'])
+        self.parser.add_argument('command', choices=['vuln', 'check', 'history', 'start', 'monitor'])
         self.parser.add_argument('-h', '--help', action=_HelpAction)
         self.parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.5.0')
         self.args, self.unknown = self.parser.parse_known_args()
@@ -26,6 +27,8 @@ class DagdaCLIParser:
             self.extra_args = HistoryCLIParser()
         elif self.get_command() == 'start':
             self.extra_args = StartCLIParser()
+        elif self.get_command() == 'monitor':
+            self.extra_args = MonitorCLIParser()
 
     # -- Getters
 
@@ -43,7 +46,8 @@ class DagdaCLIParser:
 class _HelpAction(argparse._HelpAction):
 
     def __call__(self, parser, namespace, values, option_string=None):
-        if sys.argv[1] != 'vuln' and sys.argv[1] != 'check' and sys.argv[1] != 'history' and sys.argv[1] != 'start':
+        if sys.argv[1] != 'vuln' and sys.argv[1] != 'check' and sys.argv[1] != 'history' and sys.argv[1] != 'start' \
+                and sys.argv[1] != 'monitor':
             parser.print_help()
             parser.exit()
 
@@ -70,6 +74,8 @@ Dagda Commands:
   check                 perform the analysis of known vulnerabilities in
                         docker images/containers
   history               retrieve the analysis history for the docker images
+  monitor               perform the monitoring of anomalous activities in
+                        running docker containers
   start                 start the Dagda server
   vuln                  perform operations over your personal CVE, BID &
                         ExploitDB database

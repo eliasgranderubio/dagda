@@ -45,6 +45,7 @@ Before **Dagda** usage, you must have installed Python >= 3.4.5 and the next req
 * Pip3
   * PyMongo
   * Requests
+  * Python-dateutil
   * Joblib
   * Docker-py
   * Flask
@@ -136,7 +137,7 @@ See the [*check* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI
 The expected output for the previous command will be the next one. In this output, **Dagda** responses with the analysis `id`.
 ```
     {
-        "_id": "58667994ed253915723c50e7",
+        "id": "58667994ed253915723c50e7",
         "msg": "Accepted the analysis of <jboss/wildfly>"
     }
 ```

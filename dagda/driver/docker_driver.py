@@ -20,9 +20,21 @@ class DockerDriver:
         containers = self.cli.containers(filters={'id': container_id})
         return containers[0]['Image']
 
+    # Gets the docker container ids from image name
+    def get_docker_container_ids_from_image_name(self, image_name):
+        ids = []
+        try:
+            containers = self.cli.containers()
+            for c in containers:
+                if c['Image'] == image_name:
+                    ids = c['Id']
+        except docker.errors.NotFound:
+            None
+        return ids
+
     # Checks if docker image is in the local machine
     def is_docker_image(self, image_name):
-        image = self.cli.images(name = image_name)
+        image = self.cli.images(name=image_name)
         return len(image) > 0
 
     # Executes docker exec command and return the output

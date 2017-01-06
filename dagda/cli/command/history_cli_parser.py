@@ -61,8 +61,8 @@ history_parser_text = '''usage: dagda.py history [-h] IMAGE_NAME [--id REPORT_ID
 Your personal docker security analyzer history.
 
 Positional Arguments:
-  IMAGE_NAME     the full analysis history for the requested docker image name
-                 will be shown ordered by descending date
+  IMAGE_NAME            the full analysis history for the requested docker image name
+                        will be shown ordered by descending date
 
 Optional Arguments:
   -h, --help            show this help message and exit

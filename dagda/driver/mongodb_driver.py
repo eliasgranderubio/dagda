@@ -1,5 +1,6 @@
 import pymongo
 import datetime
+import dateutil.parser
 from bson.objectid import ObjectId
 
 
@@ -59,6 +60,23 @@ class MongoDbDriver:
         self.db.exploit_db.create_index([('product', 'text')], default_language='none')
         self.db.exploit_db.insert_many(products)
 
+    # Bulk insert the sysdig/falco events
+    def bulk_insert_sysdig_falco_events(self, events):
+        sysdig_falco_events = []
+        for event in events:
+            data = {}
+            data['container_id'] = event['container_id']
+            data['image_name'] = event['image_name']
+            data['priority'] = event['priority']
+            data['time'] = dateutil.parser.parse(event['time']).timestamp()
+            data['rule'] = event['rule']
+            data['output'] = event['output']
+            sysdig_falco_events.append(data)
+        # Bulk insert
+        if self.db.falco_events.count() == 0:
+            self.db.falco_events.create_index([('container_id', pymongo.DESCENDING)])
+        self.db.falco_events.insert_many(sysdig_falco_events)
+
     # Inserts the docker image scan result to history
     def insert_docker_image_scan_result_to_history(self, scan_result):
         if self.db.image_history.count() == 0:
@@ -66,9 +84,9 @@ class MongoDbDriver:
         return self.db.image_history.insert(scan_result)
 
     # Updates the docker image scan result to history
-    def update_docker_image_scan_result_to_history(self, _id, scan_result):
-        scan_result['_id'] = ObjectId(_id)
-        self.db.image_history.update({'_id': ObjectId(_id)}, scan_result)
+    def update_docker_image_scan_result_to_history(self, id, scan_result):
+        scan_result['_id'] = ObjectId(id)
+        self.db.image_history.update({'_id': ObjectId(id)}, scan_result)
 
     # Inserts the init db process status
     def insert_init_db_process_status(self, status):
@@ -88,7 +106,7 @@ class MongoDbDriver:
                 self.db.cve.drop()
                 return 2002
             else:
-                self.db.cve.remove({'year':{'$gte': last_year}})
+                self.db.cve.remove({'year': {'$gte': last_year}})
                 return last_year
 
     # Removes exploit_db collection
@@ -98,6 +116,10 @@ class MongoDbDriver:
     # Removes bid collection
     def delete_bid_collection(self):
         self.db.bid.drop()
+
+    # Removes falco_events collection
+    def delete_falco_events_collection(self):
+        self.db.falco_events.drop()
 
     # -- Querying methods
 
@@ -196,17 +218,27 @@ class MongoDbDriver:
         return output
 
     # Gets docker image history
-    def get_docker_image_history(self, image_name, _id=None):
-        if not _id:
+    def get_docker_image_history(self, image_name, id=None):
+        if not id:
             cursor = self.db.image_history.find({'image_name': image_name}).sort("timestamp", pymongo.DESCENDING)
         else:
-            cursor = self.db.image_history.find({'image_name': image_name, '_id': ObjectId(_id)})\
+            cursor = self.db.image_history.find({'image_name': image_name, '_id': ObjectId(id)})\
                                           .sort("timestamp", pymongo.DESCENDING)
 
         # Prepare output
         output = []
         for scan in cursor:
             if scan is not None:
+                if scan['runtime_analysis'] is not None:
+                    if self.is_there_a_started_monitoring(scan['runtime_analysis']['container_id']):
+                        self.update_runtime_monitoring_analysis(scan['runtime_analysis']['container_id'])
+                        scan = self.get_a_started_monitoring(scan['runtime_analysis']['container_id'])
+                    scan['runtime_analysis']['start_timestamp'] = \
+                        str(datetime.datetime.utcfromtimestamp(
+                            scan['runtime_analysis']['start_timestamp']))
+                    if scan['runtime_analysis']['stop_timestamp'] is not None:
+                        scan['runtime_analysis']['stop_timestamp'] = \
+                            str(datetime.datetime.utcfromtimestamp(scan['runtime_analysis']['stop_timestamp']))
                 scan['id'] = str(scan['_id'])
                 del scan['_id']
                 scan['timestamp'] = str(datetime.datetime.utcfromtimestamp(scan['timestamp']))
@@ -221,3 +253,57 @@ class MongoDbDriver:
             if status is not None:
                 return status
         return {'status': 'None', 'timestamp': None}
+
+    # Gets if there is a started monitoring for a concrete container id
+    def is_there_a_started_monitoring(self, container_id):
+        return self.db.image_history.count({'runtime_analysis.container_id': container_id,
+                                            'status': 'Monitoring'}) != 0
+
+    # Gets a started monitoring for a concrete container id
+    def get_a_started_monitoring(self, container_id):
+        return self.db.image_history.find_one({'runtime_analysis.container_id': container_id,
+                                               'status': 'Monitoring'})
+
+    # Updates the runtime analysis field
+    def update_runtime_monitoring_analysis(self, container_id):
+        image_history = self.db.image_history.find_one({'runtime_analysis.container_id': container_id,
+                                                        'status': 'Monitoring'})
+        # -- Process falco events
+        if image_history:
+            events = []
+            priorities = []
+            start_timestamp = image_history['runtime_analysis']['start_timestamp']
+            cursor = self.db.falco_events.find({'container_id': container_id[:12],
+                                                'image_name': image_history['image_name'],
+                                                'time': {'$gte': start_timestamp}})
+            for event in cursor:
+                if event is not None:
+                    del event['container_id']
+                    del event['image_name']
+                    del event['_id']
+                    event['time'] = str(datetime.datetime.utcfromtimestamp(event['time']))
+                    events.append(event)
+                    priorities.append(event['priority'])
+
+            # Prepare anomalous_activities_detected field
+            if len(events) > 0:
+                anomalous_activities_detected = self._generate_anomalous_activities_detected_field(events, priorities)
+                image_history['runtime_analysis']['anomalous_activities_detected'] = anomalous_activities_detected
+                # -- Update history
+                self.update_docker_image_scan_result_to_history(str(image_history['_id']), image_history)
+
+    # -- Private methods
+
+    # Generates the anomalous_activities_detected field
+    def _generate_anomalous_activities_detected_field(self, events, priorities):
+        data = {}
+        data['anomalous_counts_by_severity'] = {}
+        data['anomalous_activities_details'] = []
+        for priority in priorities:
+            try:
+                data['anomalous_counts_by_severity'][priority] = data['anomalous_counts_by_severity'][priority] + 1
+            except KeyError:
+                data['anomalous_counts_by_severity'][priority] = 1
+        for event in events:
+            data['anomalous_activities_details'].append(event)
+        return data

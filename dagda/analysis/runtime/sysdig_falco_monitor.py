@@ -1,5 +1,6 @@
 import io
 import os
+import sys
 import time
 import json
 import platform
@@ -26,20 +27,24 @@ class SysdigFalcoMonitor:
         uname_r = os.uname().release
 
         # Check requirements
-        if 'Red Hat' == linux_distro or 'CentOS' == linux_distro or 'Fedora' == linux_distro \
-                or 'openSUSE' == linux_distro:
-            # Red Hat/CentOS/Fedora/openSUSE
-            return_code = subprocess.call(["rpm", "-q", "kernel-devel-" + uname_r],
-                                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        elif 'Debian' == linux_distro or 'Ubuntu' == linux_distro:
-            # Debian/Ubuntu
-            return_code = subprocess.call(["dpkg", "-l", "linux-headers-" + uname_r],
-                                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        else:
-            raise OSError('Error: Linux distribution not supported yet.')
+        if not os.path.isfile('/.dockerenv'):  # I'm living in real world!
+            if 'Red Hat' == linux_distro or 'CentOS' == linux_distro or 'Fedora' == linux_distro \
+                    or 'openSUSE' == linux_distro:
+                # Red Hat/CentOS/Fedora/openSUSE
+                return_code = subprocess.call(["rpm", "-q", "kernel-devel-" + uname_r],
+                                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            elif 'Debian' == linux_distro or 'Ubuntu' == linux_distro:
+                # Debian/Ubuntu
+                return_code = subprocess.call(["dpkg", "-l", "linux-headers-" + uname_r],
+                                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            else:
+                raise OSError('Error: Linux distribution not supported yet.')
 
-        if return_code != 0:
-            raise OSError('Error: The kernel headers are not installed in the host operating system.')
+            if return_code != 0:
+                raise OSError('Error: The kernel headers are not installed in the host operating system.')
+        else:  # I'm running inside a docker container
+            print("dagda.py: warning: I'm running inside a docker container, so I can't check if the kernel headers "
+                  "are installed in the host operating system. Please, review it!!", file=sys.stderr)
 
         # Docker pull for ensuring the sysdig/falco image
         self.docker_driver.docker_pull('sysdig/falco')

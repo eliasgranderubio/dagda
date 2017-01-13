@@ -12,6 +12,10 @@ monitor_api = Blueprint('monitor_api', __name__)
 # Starts monitor by container id
 @monitor_api.route('/v1/monitor/containers/<string:container_id>/start', methods=['POST'])
 def start_monitor_by_container_id(container_id):
+    # -- Check runtime monitor status
+    if not InternalServer.is_runtime_analysis_enabled():
+        return json.dumps({'err': 503, 'msg': 'Behaviour analysis service unavailable'}, sort_keys=True), 503
+
     # -- Checks input
     if not container_id:
         return json.dumps({'err': 400, 'msg': 'Bad container id'}, sort_keys=True), 400
@@ -50,6 +54,10 @@ def start_monitor_by_container_id(container_id):
 # Stop monitor by container id
 @monitor_api.route('/v1/monitor/containers/<string:container_id>/stop', methods=['POST'])
 def stop_monitor_by_container_id(container_id):
+    # -- Check runtime monitor status
+    if not InternalServer.is_runtime_analysis_enabled():
+        return json.dumps({'err': 503, 'msg': 'Behaviour analysis service unavailable'}, sort_keys=True), 503
+
     # -- Checks input
     if not container_id:
         return json.dumps({'err': 400, 'msg': 'Bad container id'}, sort_keys=True), 400

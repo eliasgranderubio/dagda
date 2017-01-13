@@ -8,12 +8,12 @@ class MonitorCLIParserTestCase(unittest.TestCase):
 
     def test_empty_args(self):
         empty_args = generate_args('69dbf26ab368', False, False)
-        status = MonitorCLIParser.verify_args("dagda.py monitor", empty_args)
+        status = MonitorCLIParser.verify_args(empty_args)
         self.assertEqual(status, 1)
 
     def test_all_args(self):
         empty_args = generate_args('69dbf26ab368', True, True)
-        status = MonitorCLIParser.verify_args("dagda.py monitor", empty_args)
+        status = MonitorCLIParser.verify_args(empty_args)
         self.assertEqual(status, 2)
 
     def test_check_full_happy_path(self):

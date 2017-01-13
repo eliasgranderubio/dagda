@@ -1,5 +1,5 @@
 import argparse
-import sys
+from log.dagda_logger import DagdaLogger
 
 
 class CheckCLIParser:
@@ -14,7 +14,7 @@ class CheckCLIParser:
         self.parser.add_argument('-c', '--container_id', type=str)
         self.args, self.unknown = self.parser.parse_known_args()
         # Verify command line arguments
-        status = self.verify_args(self.parser.prog, self.args)
+        status = self.verify_args(self.args)
         if status != 0:
             exit(status)
 
@@ -32,13 +32,13 @@ class CheckCLIParser:
 
     # Verify command line arguments
     @staticmethod
-    def verify_args(prog, args):
+    def verify_args(args):
         if not args.container_id and not args.docker_image:
-            print(prog + ': error: missing arguments.', file=sys.stderr)
+            DagdaLogger.get_logger().error('Missing arguments.')
             return 1
         elif args.container_id and args.docker_image:
-            print(prog + ': error: arguments --docker_image/--container_id: Both arguments can not be together.',
-                  file=sys.stderr)
+            DagdaLogger.get_logger().error('Arguments --docker_image/--container_id: Both arguments '
+                                           'can not be together.')
             return 2
         # Else
         return 0

@@ -1,5 +1,6 @@
 import argparse
 import sys
+from log.dagda_logger import DagdaLogger
 
 
 class HistoryCLIParser:
@@ -14,7 +15,7 @@ class HistoryCLIParser:
         self.parser.add_argument('--id', type=str)
         self.args, self.unknown = self.parser.parse_known_args(sys.argv[2:])
         # Verify command line arguments
-        status = self.verify_args(self.parser.prog, self.args)
+        status = self.verify_args(self.args)
         if status != 0:
             exit(status)
 
@@ -32,9 +33,9 @@ class HistoryCLIParser:
 
     # Verify command line arguments
     @staticmethod
-    def verify_args(prog, args):
+    def verify_args(args):
         if not args.docker_image_name:
-            print(prog + ': error: missing arguments.', file=sys.stderr)
+            DagdaLogger.get_logger().error('Missing arguments.')
             return 1
         # Else
         return 0

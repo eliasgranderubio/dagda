@@ -1,9 +1,9 @@
 import json
 import os
-import sys
 import requests
 from cli.dagda_cli_parser import DagdaCLIParser
 from api.dagda_server import DagdaServer
+from log.dagda_logger import DagdaLogger
 
 
 # -- Get Dagda server base url
@@ -12,13 +12,13 @@ def get_dagda_base_url():
     try:
         dagda_host = os.environ['DAGDA_HOST']
     except KeyError:
-        print('dagda.py: error: DAGDA_HOST environment variable is not set.', file=sys.stderr)
+        DagdaLogger.get_logger().error('DAGDA_HOST environment variable is not set.')
         exit(1)
 
     try:
         dagda_port = os.environ['DAGDA_PORT']
     except KeyError:
-        print('dagda.py: error: DAGDA_PORT environment variable is not set.', file=sys.stderr)
+        DagdaLogger.get_logger().error('DAGDA_PORT environment variable is not set.')
         exit(1)
 
     # -- Return Dagda server base url

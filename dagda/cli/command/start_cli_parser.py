@@ -1,5 +1,6 @@
 import argparse
 import sys
+from log.dagda_logger import DagdaLogger
 
 
 class StartCLIParser:
@@ -16,7 +17,7 @@ class StartCLIParser:
         self.parser.add_argument('-mp', '--mongodb_port', type=int)
         self.args, self.unknown = self.parser.parse_known_args(sys.argv[2:])
         # Verify command line arguments
-        status = self.verify_args(self.parser.prog, self.args)
+        status = self.verify_args(self.args)
         if status != 0:
             exit(status)
 
@@ -42,13 +43,12 @@ class StartCLIParser:
 
     # Verify command line arguments
     @staticmethod
-    def verify_args(prog, args):
+    def verify_args(args):
         if args.server_port and args.server_port not in range(1, 65536):
-            print(prog + ': error: arguments -p/--server_port: The port must be between 1 and 65535.', file=sys.stderr)
+            DagdaLogger.get_logger().error('Arguments -p/--server_port: The port must be between 1 and 65535.')
             return 1
         elif args.mongodb_port and args.mongodb_port not in range(1, 65536):
-            print(prog + ': error: arguments -mp/--mongodb_port: The port must be between 1 and 65535.',
-                  file=sys.stderr)
+            DagdaLogger.get_logger().error('Arguments -mp/--mongodb_port: The port must be between 1 and 65535.')
             return 2
         # Else
         return 0

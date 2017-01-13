@@ -10,6 +10,8 @@ from api.service.vuln import vuln_api
 from vulnDB.db_composer import DBComposer
 from analysis.analyzer import Analyzer
 from analysis.runtime.sysdig_falco_monitor import SysdigFalcoMonitor
+from exception.dagda_error import DagdaError
+from log.dagda_logger import DagdaLogger
 
 
 # Dagda server class
@@ -58,6 +60,9 @@ class DagdaServer:
                 try:
                     self.sysdig_falco_monitor.pre_check()
                     self.sysdig_falco_monitor.run()
+                except DagdaError as e:
+                    DagdaLogger.get_logger().error(e.get_message())
+                    DagdaLogger.get_logger().warning('Runtime behaviour monitor disabled.')
                 except KeyboardInterrupt:
                     # Pressed CTRL+C to quit
                     InternalServer.get_docker_driver().docker_stop(self.sysdig_falco_monitor.get_running_container_id())

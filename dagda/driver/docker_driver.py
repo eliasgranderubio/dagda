@@ -1,5 +1,5 @@
 import docker
-import sys
+from log.dagda_logger import DagdaLogger
 
 
 class DockerDriver:
@@ -12,8 +12,7 @@ class DockerDriver:
         try:
             self.cli = docker.Client(base_url='unix://var/run/docker.sock', version="auto", timeout=3600)
         except docker.errors.DockerException:
-            print('dagda.py: Error while fetching Docker server API version: Assumming Travis CI tests.',
-                  file=sys.stderr)
+            DagdaLogger.get_logger().error('Error while fetching Docker server API version: Assumming Travis CI tests.')
             self.cli = None
 
     # Gets the docker image name from a running container

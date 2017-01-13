@@ -1,5 +1,6 @@
 import re
 import sys
+from exception.dagda_error import DagdaError
 
 
 # Gets installed software on the OS from docker image
@@ -33,8 +34,7 @@ def get_soft_from_docker_container_id(docker_driver, container_id):
         packages_info = docker_driver.docker_exec(container_id, 'apk -v info', True, False)
         products = parse_apk_output_list(packages_info)
     else:
-        print('Error: Linux image distribution not supported yet.', file=sys.stderr)
-        exit(1)
+        raise DagdaError('Linux image distribution not supported yet.')
     # Return packages
     return products
 

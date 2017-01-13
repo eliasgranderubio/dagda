@@ -1,5 +1,6 @@
 import argparse
 import sys
+from log.dagda_logger import DagdaLogger
 
 
 class MonitorCLIParser:
@@ -15,7 +16,7 @@ class MonitorCLIParser:
         self.parser.add_argument('--stop', action='store_true')
         self.args, self.unknown = self.parser.parse_known_args(sys.argv[2:])
         # Verify command line arguments
-        status = self.verify_args(self.parser.prog, self.args)
+        status = self.verify_args(self.args)
         if status != 0:
             exit(status)
 
@@ -37,13 +38,12 @@ class MonitorCLIParser:
 
     # Verify command line arguments
     @staticmethod
-    def verify_args(prog, args):
+    def verify_args(args):
         if not args.start and not args.stop:
-            print(prog + ': error: missing arguments.', file=sys.stderr)
+            DagdaLogger.get_logger().error('Missing arguments.')
             return 1
         elif args.start and args.stop:
-            print(prog + ': error: arguments --start & --stop: Both arguments can not be together.',
-                  file=sys.stderr)
+            DagdaLogger.get_logger().error('Arguments --start & --stop: Both arguments can not be together.')
             return 2
         # Else
         return 0

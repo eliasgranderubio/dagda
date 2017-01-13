@@ -8,22 +8,22 @@ class StartCLIParserTestCase(unittest.TestCase):
 
     def test_ok_empty_args(self):
         args = generate_args(None, None, None, None)
-        status = StartCLIParser.verify_args("dagda.py start", args)
+        status = StartCLIParser.verify_args(args)
         self.assertEqual(status, 0)
 
     def test_ok_server_ports(self):
         args = generate_args(None, 5555, None, 27017)
-        status = StartCLIParser.verify_args("dagda.py start", args)
+        status = StartCLIParser.verify_args(args)
         self.assertEqual(status, 0)
 
     def test_fail_server_port(self):
         args = generate_args(None, 65536, None, None)
-        status = StartCLIParser.verify_args("dagda.py start", args)
+        status = StartCLIParser.verify_args(args)
         self.assertEqual(status, 1)
 
     def test_fail_mongodb_port(self):
         args = generate_args(None, None, None, 65536)
-        status = StartCLIParser.verify_args("dagda.py start", args)
+        status = StartCLIParser.verify_args(args)
         self.assertEqual(status, 2)
 
 # -- Util methods

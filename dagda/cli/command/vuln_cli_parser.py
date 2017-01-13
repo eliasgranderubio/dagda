@@ -1,6 +1,6 @@
 import argparse
 import re
-import sys
+from log.dagda_logger import DagdaLogger
 
 
 class VulnCLIParser:
@@ -20,7 +20,7 @@ class VulnCLIParser:
         self.parser.add_argument('--product_version', type=str)
         self.args, self.unknown = self.parser.parse_known_args()
         # Verify command line arguments
-        status = self.verify_args(self.parser.prog, self.args)
+        status = self.verify_args(self.args)
         if status != 0:
             exit(status)
 
@@ -58,52 +58,47 @@ class VulnCLIParser:
 
     # Verify command line arguments
     @staticmethod
-    def verify_args(prog, args):
+    def verify_args(args):
         if not args.init and not args.cve and not args.product and not args.product_version and not args.bid \
                 and not args.exploit_db and not args.init_status:
-            print(prog + ': error: missing arguments.', file=sys.stderr)
+            DagdaLogger.get_logger().error('Missing arguments.')
             return 1
         elif args.init and (args.cve or args.product or args.product_version or args.bid or args.exploit_db \
                             or args.init_status):
-            print(prog + ': error: argument --init: this argument must be alone.', file=sys.stderr)
+            DagdaLogger.get_logger().error('Argument --init: this argument must be alone.')
             return 2
         elif args.init_status and (args.cve or args.product or args.product_version or args.bid or args.exploit_db \
                                    or args.init):
-            print(prog + ': error: argument --init_status: this argument must be alone.', file=sys.stderr)
+            DagdaLogger.get_logger().error('Argument --init_status: this argument must be alone.')
             return 3
         elif args.cve:
             if args.init or args.init_status or args.product or args.product_version or args.bid or args.exploit_db:
-                print(prog + ': error: argument --cve: this argument must be alone.', file=sys.stderr)
+                DagdaLogger.get_logger().error('Argument --cve: this argument must be alone.')
                 return 4
             else:
                 regex = r"(CVE-[0-9]{4}-[0-9]{4})"
                 search_obj = re.search(regex, args.cve)
                 if not search_obj or len(search_obj.group(0)) != len(args.cve):
-                    print(prog + ': error: argument --cve: The cve format must look like to CVE-2002-1234.',
-                          file=sys.stderr)
+                    DagdaLogger.get_logger().error('Argument --cve: The cve format must look like to CVE-2002-1234.')
                     return 5
         elif args.bid:
             if args.init or args.init_status or args.product or args.product_version or args.cve or args.exploit_db:
-                print(prog + ': error: argument --bid: this argument must be alone.', file=sys.stderr)
+                DagdaLogger.get_logger().error('Argument --bid: this argument must be alone.')
                 return 6
             else:
                 if args.bid <= 0:
-                    print(prog + ': error: argument --bid: The bid argument must be greater than zero.',
-                          file=sys.stderr)
+                    DagdaLogger.get_logger().error('Argument --bid: The bid argument must be greater than zero.')
                     return 7
         elif args.exploit_db:
             if args.init or args.init_status or args.product or args.product_version or args.cve or args.bid:
-                print(prog + ': error: argument --exploit_db: this argument must be alone.',
-                      file=sys.stderr)
+                DagdaLogger.get_logger().error('Argument --exploit_db: this argument must be alone.')
                 return 8
             else:
                 if args.exploit_db <= 0:
-                    print(prog + ': error: argument --exploit_db: The bid argument must be greater than zero.',
-                          file=sys.stderr)
+                    DagdaLogger.get_logger().error('Argument --exploit_db: The bid argument must be greater than zero.')
                     return 9
         elif args.product_version and not args.product:
-            print(prog + ': error: argument --product_version: this argument requires the --product argument.',
-                  file=sys.stderr)
+            DagdaLogger.get_logger().error('Argument --product_version: this argument requires the --product argument.')
             return 10
         # Else
         return 0

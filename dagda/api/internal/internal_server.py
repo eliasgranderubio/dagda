@@ -38,3 +38,9 @@ class InternalServer:
     @staticmethod
     def get_docker_driver():
         return InternalServer._docker_driver
+
+    # Is runtime analysis enabled
+    @staticmethod
+    def is_runtime_analysis_enabled():
+        return len(InternalServer._docker_driver.get_docker_container_ids_from_image_name('sysdig/falco')) > 0
+

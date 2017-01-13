@@ -229,7 +229,7 @@ class MongoDbDriver:
         output = []
         for scan in cursor:
             if scan is not None:
-                if scan['runtime_analysis'] is not None:
+                if 'runtime_analysis' in scan:
                     if self.is_there_a_started_monitoring(scan['runtime_analysis']['container_id']):
                         self.update_runtime_monitoring_analysis(scan['runtime_analysis']['container_id'])
                         scan = self.get_a_started_monitoring(scan['runtime_analysis']['container_id'])

@@ -1,15 +1,20 @@
 import io
 import os
-import sys
 import time
 import json
 import platform
 import subprocess
+from exception.dagda_error import DagdaError
+from log.dagda_logger import DagdaLogger
 
 
 # Sysdig Falco monitor class
 
 class SysdigFalcoMonitor:
+
+    # -- Private attributes
+
+    _falco_output_filename = '/tmp/falco_output.json'
 
     # -- Public methods
 
@@ -38,13 +43,13 @@ class SysdigFalcoMonitor:
                 return_code = subprocess.call(["dpkg", "-l", "linux-headers-" + uname_r],
                                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             else:
-                raise OSError('Error: Linux distribution not supported yet.')
+                raise DagdaError('Linux distribution not supported yet.')
 
             if return_code != 0:
-                raise OSError('Error: The kernel headers are not installed in the host operating system.')
+                raise DagdaError('The kernel headers are not installed in the host operating system.')
         else:  # I'm running inside a docker container
-            print("dagda.py: warning: I'm running inside a docker container, so I can't check if the kernel headers "
-                  "are installed in the host operating system. Please, review it!!", file=sys.stderr)
+            DagdaLogger.get_logger().warning("I'm running inside a docker container, so I can't check if the kernel "
+                                             "headers are installed in the host operating system. Please, review it!!")
 
         # Docker pull for ensuring the sysdig/falco image
         self.docker_driver.docker_pull('sysdig/falco')
@@ -66,13 +71,19 @@ class SysdigFalcoMonitor:
         if "Runtime error: error opening device /host/dev/sysdig0" not in logs:
             self.docker_driver.docker_stop(self.running_container_id)
         else:
-            raise OSError('Runtime error: error opening device /host/dev/sysdig0.')
+            raise DagdaError('Runtime error opening device /host/dev/sysdig0.')
 
     # Runs SysdigFalcoMonitor
     def run(self):
         self.running_container_id = self._start_container('falco -pc -o json_output=true -o file_output.enabled=true '
-                                                          '      -o file_output.filename=/host/tmp/falco_output.json')
-        with open('/tmp/falco_output.json', 'rb', ) as f:
+                                                          '      -o file_output.filename=/host' +
+                                                          SysdigFalcoMonitor._falco_output_filename)
+        # Check file
+        if not os.path.isfile(SysdigFalcoMonitor._falco_output_filename):
+            raise DagdaError('Sysdig/falco output file not found.')
+
+        # Read file
+        with open(SysdigFalcoMonitor._falco_output_filename, 'rb', ) as f:
             last_file_position = 0
             fbuf = io.BufferedReader(f)
             while True:

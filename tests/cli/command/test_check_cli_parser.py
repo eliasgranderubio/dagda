@@ -10,22 +10,22 @@ class CheckDockerImageCLIParserTestSuite(unittest.TestCase):
 
     def test_empty_args(self):
         empty_args = generate_args(None, None)
-        status = CheckCLIParser.verify_args("dagda.py check", empty_args)
+        status = CheckCLIParser.verify_args(empty_args)
         self.assertEqual(status, 1)
 
     def test_both_arguments(self):
         args = generate_args('jboss/wildfly', '43a6ca974743')
-        status = CheckCLIParser.verify_args("dagda.py check", args)
+        status = CheckCLIParser.verify_args(args)
         self.assertEqual(status, 2)
 
     def test_ok_only_image_name(self):
         args = generate_args('jboss/wildfly', None)
-        status = CheckCLIParser.verify_args("dagda.py check", args)
+        status = CheckCLIParser.verify_args(args)
         self.assertEqual(status, 0)
 
     def test_ok_only_container_id(self):
         args = generate_args(None, '43a6ca974743')
-        status = CheckCLIParser.verify_args("dagda.py check", args)
+        status = CheckCLIParser.verify_args(args)
         self.assertEqual(status, 0)
 
     def test_check_full_happy_path(self):

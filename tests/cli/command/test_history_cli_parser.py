@@ -10,12 +10,12 @@ class DockerHistoryCLIParserTestCase(unittest.TestCase):
 
     def test_empty_args(self):
         empty_args = generate_args(None)
-        status = HistoryCLIParser.verify_args("dagda.py history", empty_args)
+        status = HistoryCLIParser.verify_args(empty_args)
         self.assertEqual(status, 1)
 
     def test_ok_args(self):
         empty_args = generate_args('jboss/wildfly')
-        status = HistoryCLIParser.verify_args("dagda.py history", empty_args)
+        status = HistoryCLIParser.verify_args(empty_args)
         self.assertEqual(status, 0)
 
     def test_check_full_happy_path(self):

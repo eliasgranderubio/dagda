@@ -78,6 +78,10 @@ class SysdigFalcoMonitor:
         self.running_container_id = self._start_container('falco -pc -o json_output=true -o file_output.enabled=true '
                                                           '      -o file_output.filename=/host' +
                                                           SysdigFalcoMonitor._falco_output_filename)
+
+        # Wait 3 seconds for sysdig/falco start up and creates the output file
+        time.sleep(3)
+
         # Check file
         if not os.path.isfile(SysdigFalcoMonitor._falco_output_filename):
             raise DagdaError('Sysdig/falco output file not found.')

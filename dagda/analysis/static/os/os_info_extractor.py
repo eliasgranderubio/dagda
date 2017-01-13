@@ -6,7 +6,7 @@ from exception.dagda_error import DagdaError
 # Gets installed software on the OS from docker image
 def get_soft_from_docker_image(docker_driver, image_name):
     # Start container
-    container_id = docker_driver.create_container(image_name)
+    container_id = docker_driver.create_container(image_name, entrypoint='sleep 30')
     docker_driver.docker_start(container_id)
     # Get all installed packages
     products = get_soft_from_docker_container_id(docker_driver, container_id)

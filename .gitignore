@@ -115,3 +115,6 @@ bin/
 
 # NetBeans specific files/directories
 .nbattrs
+
+# database
+db/

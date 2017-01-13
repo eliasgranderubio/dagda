@@ -6,7 +6,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - /Users/jaguasch/Documents/mydev/dagda/db:/data/db
+      - ./db:/data/db
   dagda:
     build: .
     container_name: dagda

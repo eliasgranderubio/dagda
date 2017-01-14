@@ -55,7 +55,7 @@ class SysdigFalcoMonitor:
         self.docker_driver.docker_pull('sysdig/falco')
 
         # Stops sysdig/falco containers if there are any
-        container_ids = self.docker_driver.get_docker_container_ids_from_image_name('sysdig/falco')
+        container_ids = self.docker_driver.get_docker_container_ids_by_image_name('sysdig/falco')
         if len(container_ids) > 0:
             for container_id in container_ids:
                 self.docker_driver.docker_stop(container_id)
@@ -100,7 +100,7 @@ class SysdigFalcoMonitor:
                     container_id = json_data['output'].split(" (id=")[1].replace(")", "")
                     if container_id != 'host':
                         try:
-                            image_name = self.docker_driver.get_docker_image_name_from_container_id(container_id)
+                            image_name = self.docker_driver.get_docker_image_name_by_container_id(container_id)
                             json_data['container_id'] = container_id
                             json_data['image_name'] = image_name
                             sysdig_falco_events.append(json_data)

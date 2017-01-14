@@ -22,7 +22,7 @@ class Analyzer:
             os_packages = os_info_extractor.get_soft_from_docker_image(self.dockerDriver, image_name)
         else:  # Scans the docker container
             os_packages = os_info_extractor.get_soft_from_docker_container_id(self.dockerDriver, container_id)
-            image_name = self.dockerDriver.get_docker_image_name_from_container_id(container_id)
+            image_name = self.dockerDriver.get_docker_image_name_by_container_id(container_id)
         # Get programming language dependencies
         dependencies = dep_info_extractor.get_dependencies_from_docker_image(self.dockerDriver, image_name)
 

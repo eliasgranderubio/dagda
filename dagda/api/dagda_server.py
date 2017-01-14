@@ -4,6 +4,7 @@ import datetime
 from flask import Flask
 from api.internal.internal_server import InternalServer
 from api.service.check import check_api
+from api.service.docker import docker_api
 from api.service.history import history_api
 from api.service.monitor import monitor_api
 from api.service.vuln import vuln_api
@@ -22,6 +23,7 @@ class DagdaServer:
 
     app = Flask(__name__)
     app.register_blueprint(check_api)
+    app.register_blueprint(docker_api)
     app.register_blueprint(history_api)
     app.register_blueprint(monitor_api)
     app.register_blueprint(vuln_api)

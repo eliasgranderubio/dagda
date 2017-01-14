@@ -16,12 +16,12 @@ class DockerDriver:
             self.cli = None
 
     # Gets the docker image name from a running container
-    def get_docker_image_name_from_container_id(self, container_id):
+    def get_docker_image_name_by_container_id(self, container_id):
         containers = self.cli.containers(filters={'id': container_id})
         return containers[0]['Image']
 
     # Gets the docker container ids from image name
-    def get_docker_container_ids_from_image_name(self, image_name):
+    def get_docker_container_ids_by_image_name(self, image_name):
         ids = []
         try:
             containers = self.cli.containers()
@@ -72,3 +72,7 @@ class DockerDriver:
     # Gets docker client
     def get_docker_client(self):
         return self.cli
+
+
+
+

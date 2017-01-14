@@ -11,7 +11,7 @@ class MonitorApiTestCase(unittest.TestCase):
     # -- Mock internal classes
 
     class MockDockerDriver():
-        def get_docker_image_name_from_container_id(self, id):
+        def get_docker_image_name_by_container_id(self, id):
             return 'redis'
 
     class MockMongoDriverStartTrue():

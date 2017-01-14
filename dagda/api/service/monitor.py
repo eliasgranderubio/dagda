@@ -22,7 +22,7 @@ def start_monitor_by_container_id(container_id):
 
     # -- Retrieves docker image name
     try:
-        image_name = InternalServer.get_docker_driver().get_docker_image_name_from_container_id(container_id)
+        image_name = InternalServer.get_docker_driver().get_docker_image_name_by_container_id(container_id)
     except:
         return json.dumps({'err': 404, 'msg': 'Container Id not found'}, sort_keys=True), 404
 
@@ -64,7 +64,7 @@ def stop_monitor_by_container_id(container_id):
 
     # -- Retrieves docker image name
     try:
-        image_name = InternalServer.get_docker_driver().get_docker_image_name_from_container_id(container_id)
+        image_name = InternalServer.get_docker_driver().get_docker_image_name_by_container_id(container_id)
     except:
         return json.dumps({'err': 404, 'msg': 'Container Id not found'}, sort_keys=True), 404
 

@@ -14,6 +14,10 @@ class MonitorApiTestCase(unittest.TestCase):
         def get_docker_image_name_by_container_id(self, id):
             return 'redis'
 
+    class MockDockerDriverException():
+        def get_docker_image_name_by_container_id(self, id):
+            raise IndexError
+
     class MockMongoDriverStartTrue():
         def is_there_a_started_monitoring(self, id):
             return True
@@ -60,12 +64,14 @@ class MonitorApiTestCase(unittest.TestCase):
         self.assertEqual(code, 400)
 
     @patch('api.internal.internal_server.InternalServer.is_runtime_analysis_enabled', return_value=True)
-    def test_start_monitor_by_container_id_404(self, m):
+    @patch('api.internal.internal_server.InternalServer.get_docker_driver', return_value=MockDockerDriverException())
+    def test_start_monitor_by_container_id_404(self, m1, m2):
         response, code = start_monitor_by_container_id('fake_id')
         self.assertEqual(code, 404)
 
     @patch('api.internal.internal_server.InternalServer.is_runtime_analysis_enabled', return_value=True)
-    def test_stop_monitor_by_container_id_404(self, m):
+    @patch('api.internal.internal_server.InternalServer.get_docker_driver', return_value=MockDockerDriverException())
+    def test_stop_monitor_by_container_id_404(self, m1, m2):
         response, code = stop_monitor_by_container_id('fake_id')
         self.assertEqual(code, 404)
 

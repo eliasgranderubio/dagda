@@ -55,21 +55,21 @@ class CheckApiTestCase(unittest.TestCase):
 
     @patch('api.internal.internal_server.InternalServer.get_docker_driver', return_value=MockDockerDriver())
     @patch('api.internal.internal_server.InternalServer.get_mongodb_driver', return_value=MockMongoDriver())
-    @patch('api.internal.internal_server.InternalServer.get_mongodb_driver', return_value=MockDagdaEdn())
+    @patch('api.internal.internal_server.InternalServer.get_dagda_edn', return_value=MockDagdaEdn())
     def test_check_docker_by_image_name_202(self, m1, m2, m3):
         response, code = check_docker_by_image_name('fake_id')
         self.assertEqual(code, 202)
 
     @patch('api.internal.internal_server.InternalServer.get_docker_driver', return_value=MockDockerDriverPull())
     @patch('api.internal.internal_server.InternalServer.get_mongodb_driver', return_value=MockMongoDriver())
-    @patch('api.internal.internal_server.InternalServer.get_mongodb_driver', return_value=MockDagdaEdn())
+    @patch('api.internal.internal_server.InternalServer.get_dagda_edn', return_value=MockDagdaEdn())
     def test_check_docker_by_image_name_202_and_pull(self, m1, m2, m3):
         response, code = check_docker_by_image_name('fake_id')
         self.assertEqual(code, 202)
 
     @patch('api.internal.internal_server.InternalServer.get_docker_driver', return_value=MockDockerDriver())
     @patch('api.internal.internal_server.InternalServer.get_mongodb_driver', return_value=MockMongoDriver())
-    @patch('api.internal.internal_server.InternalServer.get_mongodb_driver', return_value=MockDagdaEdn())
+    @patch('api.internal.internal_server.InternalServer.get_dagda_edn', return_value=MockDagdaEdn())
     def test_check_docker_by_container_id_202(self, m1, m2, m3):
         response, code = check_docker_by_container_id('fake_id')
         self.assertEqual(code, 202)

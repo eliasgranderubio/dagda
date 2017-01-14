@@ -1,6 +1,8 @@
 import json
 import datetime
 from flask import Blueprint
+from exception.dagda_error import DagdaError
+from log.dagda_logger import DagdaLogger
 from api.internal.internal_server import InternalServer
 
 # -- Global
@@ -19,7 +21,11 @@ def check_docker_by_image_name(image_name):
     try:
         pulled = False
         if not InternalServer.get_docker_driver().is_docker_image(image_name):
-            InternalServer.get_docker_driver().docker_pull(image_name)
+            output = InternalServer.get_docker_driver().docker_pull(image_name)
+            if 'errorDetail' in output:
+                msg = 'Error: image library/'+ image_name + ':latest not found'
+                DagdaLogger.get_logger().error(msg)
+                raise DagdaError(msg)
             pulled = True
     except:
         return json.dumps({'err': 404, 'msg': 'Image name not found'}, sort_keys=True), 404
@@ -29,13 +35,13 @@ def check_docker_by_image_name(image_name):
     data['image_name'] = image_name
     data['timestamp'] = datetime.datetime.now().timestamp()
     data['status'] = 'Analyzing'
-    _id = InternalServer.get_mongodb_driver().insert_docker_image_scan_result_to_history(data)
-    InternalServer.get_dagda_edn().put({'msg': 'check_image', 'image_name': image_name, '_id': str(_id),
+    id = InternalServer.get_mongodb_driver().insert_docker_image_scan_result_to_history(data)
+    InternalServer.get_dagda_edn().put({'msg': 'check_image', 'image_name': image_name, '_id': str(id),
                                         'pulled': pulled})
 
     # -- Return
     output = {}
-    output['id'] = str(_id)
+    output['id'] = str(id)
     output['msg'] = 'Accepted the analysis of <' + image_name + '>'
     return json.dumps(output, sort_keys=True), 202
 
@@ -58,11 +64,11 @@ def check_docker_by_container_id(container_id):
     data['image_name'] = image_name
     data['timestamp'] = datetime.datetime.now().timestamp()
     data['status'] = 'Analyzing'
-    _id = InternalServer.get_mongodb_driver().insert_docker_image_scan_result_to_history(data)
-    InternalServer.get_dagda_edn().put({'msg': 'check_container', 'container_id': container_id, '_id': str(_id)})
+    id = InternalServer.get_mongodb_driver().insert_docker_image_scan_result_to_history(data)
+    InternalServer.get_dagda_edn().put({'msg': 'check_container', 'container_id': container_id, '_id': str(id)})
 
     # -- Return
     output = {}
-    output['id'] = str(_id)
+    output['id'] = str(id)
     output['msg'] = 'Accepted the analysis of <' + image_name + '> with id: ' + container_id
     return json.dumps(output, sort_keys=True), 202

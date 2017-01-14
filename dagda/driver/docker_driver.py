@@ -55,7 +55,7 @@ class DockerDriver:
 
     # Docker pull
     def docker_pull(self, image_name):
-        self.cli.pull(image_name, tag='latest')
+        return self.cli.pull(image_name, tag='latest')
 
     # Removes the docker image
     def docker_remove_image(self, image_name):
@@ -72,7 +72,3 @@ class DockerDriver:
     # Gets docker client
     def get_docker_client(self):
         return self.cli
-
-
-
-

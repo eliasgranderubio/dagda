@@ -92,6 +92,10 @@ def main(parsed_args):
             elif parsed_args.is_stop():
                 r = requests.post(dagda_base_url + '/monitor/containers/' + parsed_args.get_container_id() + '/stop')
 
+        # Executes docker sub-command
+        elif cmd == 'docker':
+            r = requests.get(dagda_base_url + '/docker/' + parsed_args.get_command())
+
         # -- Print cmd output
         if r is not None:
             print(json.dumps(json.loads(r.content.decode('utf-8')), sort_keys=True, indent=4))

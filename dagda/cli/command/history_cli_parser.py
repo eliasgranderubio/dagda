@@ -1,6 +1,5 @@
 import argparse
 import sys
-from log.dagda_logger import DagdaLogger
 
 
 class HistoryCLIParser:
@@ -11,13 +10,9 @@ class HistoryCLIParser:
     def __init__(self):
         super(HistoryCLIParser, self).__init__()
         self.parser = DagdaHistoryParser(prog='dagda.py history', usage=history_parser_text)
-        self.parser.add_argument('docker_image_name', metavar='IMAGE_NAME', type=str)
+        self.parser.add_argument('docker_image_name', metavar='IMAGE_NAME', type=str, nargs='?')
         self.parser.add_argument('--id', type=str)
         self.args, self.unknown = self.parser.parse_known_args(sys.argv[2:])
-        # Verify command line arguments
-        status = self.verify_args(self.args)
-        if status != 0:
-            exit(status)
 
     # -- Getters
 
@@ -28,17 +23,6 @@ class HistoryCLIParser:
     # Gets report id
     def get_report_id(self):
         return self.args.id
-
-    # -- Static methods
-
-    # Verify command line arguments
-    @staticmethod
-    def verify_args(args):
-        if not args.docker_image_name:
-            DagdaLogger.get_logger().error('Missing arguments.')
-            return 1
-        # Else
-        return 0
 
 
 # Custom parser
@@ -57,13 +41,14 @@ class DagdaHistoryParser(argparse.ArgumentParser):
 
 # Custom text
 
-history_parser_text = '''usage: dagda.py history [-h] IMAGE_NAME [--id REPORT_ID]
+history_parser_text = '''usage: dagda.py history [-h] [IMAGE_NAME] [--id REPORT_ID]
 
 Your personal docker security analyzer history.
 
 Positional Arguments:
   IMAGE_NAME            the full analysis history for the requested docker image name
-                        will be shown ordered by descending date
+                        will be shown ordered by descending date. If the image name is
+                        not present, a full analysis history resume will be shown
 
 Optional Arguments:
   -h, --help            show this help message and exit

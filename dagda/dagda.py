@@ -77,10 +77,13 @@ def main(parsed_args):
         # Executes history sub-command
         elif cmd == 'history':
             # Gets the history
-            query_params = ''
-            if parsed_args.get_report_id() is not None:
-                query_params = '?id=' + parsed_args.get_report_id()
-            r = requests.get(dagda_base_url + '/history/' + parsed_args.get_docker_image_name() + query_params)
+            if not parsed_args.get_docker_image_name():
+                r = requests.get(dagda_base_url + '/history')
+            else:
+                query_params = ''
+                if parsed_args.get_report_id() is not None:
+                    query_params = '?id=' + parsed_args.get_report_id()
+                r = requests.get(dagda_base_url + '/history/' + parsed_args.get_docker_image_name() + query_params)
 
         # Executes monitor sub-command
         elif cmd == 'monitor':

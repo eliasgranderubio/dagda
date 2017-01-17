@@ -217,7 +217,7 @@ class MongoDbDriver:
         # Return
         return output
 
-    # Gets docker image history
+    # Gets docker specific image history
     def get_docker_image_history(self, image_name, id=None):
         if not id:
             cursor = self.db.image_history.find({'image_name': image_name}).sort("timestamp", pymongo.DESCENDING)
@@ -243,6 +243,48 @@ class MongoDbDriver:
                 del scan['_id']
                 scan['timestamp'] = str(datetime.datetime.utcfromtimestamp(scan['timestamp']))
                 output.append(scan)
+        # Return
+        return output
+
+    # Gets docker all images history
+    def get_docker_image_all_history(self):
+        cursor = self.db.image_history.find({}).sort("timestamp", pymongo.DESCENDING)
+
+        # Prepare output
+        output = []
+        for scan in cursor:
+            if scan is not None:
+                # if 'runtime_analysis' in scan:
+                #     if self.is_there_a_started_monitoring(scan['runtime_analysis']['container_id']):
+                #         self.update_runtime_monitoring_analysis(scan['runtime_analysis']['container_id'])
+                #         scan = self.get_a_started_monitoring(scan['runtime_analysis']['container_id'])
+                #     scan['runtime_analysis']['start_timestamp'] = \
+                #         str(datetime.datetime.utcfromtimestamp(
+                #             scan['runtime_analysis']['start_timestamp']))
+                #     if scan['runtime_analysis']['stop_timestamp'] is not None:
+                #         scan['runtime_analysis']['stop_timestamp'] = \
+                #             str(datetime.datetime.utcfromtimestamp(scan['runtime_analysis']['stop_timestamp']))
+                # scan['id'] = str(scan['_id'])
+                # del scan['_id']
+                # scan['timestamp'] = str(datetime.datetime.utcfromtimestamp(scan['timestamp']))
+                report = {}
+                report['reportid'] = str(scan['_id'])
+                report['image_name'] = scan['image_name']
+                report['status'] = scan['status']
+                report['start_date'] = str(datetime.datetime.utcfromtimestamp(scan['timestamp']))
+                report['os_vulns'] = 0
+                report['libs_vulns'] = 0
+                report['anomalies'] = 0
+
+                if 'static_analysis' in scan:
+                    if 'os_packages' in scan['static_analysis']:
+                        report['os_vulns'] = scan['static_analysis']['os_packages']['vuln_os_packages']
+                    if 'prog_lang_dependencies' in scan['static_analysis']:
+                        report['libs_vulns'] = scan['static_analysis']['prog_lang_dependencies']['vuln_dependencies']
+                if 'runtime_analysis' in scan:
+                    anomalous_counts = sum(scan['runtime_analysis']['anomalous_activities_detected']['anomalous_counts_by_severity'].values())
+                    report['anomalies'] = anomalous_counts
+                output.append(report)
         # Return
         return output
 

@@ -115,3 +115,7 @@ bin/
 
 # NetBeans specific files/directories
 .nbattrs
+
+db/*
+!db/.gitkeep
+

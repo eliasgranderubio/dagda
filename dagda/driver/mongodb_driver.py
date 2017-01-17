@@ -217,7 +217,7 @@ class MongoDbDriver:
         # Return
         return output
 
-    # Gets docker image history
+    # Gets docker specific image history
     def get_docker_image_history(self, image_name, id=None):
         if not id:
             cursor = self.db.image_history.find({'image_name': image_name}).sort("timestamp", pymongo.DESCENDING)
@@ -243,6 +243,43 @@ class MongoDbDriver:
                 del scan['_id']
                 scan['timestamp'] = str(datetime.datetime.utcfromtimestamp(scan['timestamp']))
                 output.append(scan)
+        # Return
+        return output
+
+    # Gets all docker images history
+    def get_docker_image_all_history(self):
+        cursor = self.db.image_history.find({}).sort("timestamp", pymongo.DESCENDING)
+
+        # Prepare output
+        output = []
+        for scan in cursor:
+            if scan is not None:
+                report = {}
+                report['reportid'] = str(scan['_id'])
+                report['image_name'] = scan['image_name']
+                report['status'] = scan['status']
+                report['start_date'] = str(datetime.datetime.utcfromtimestamp(scan['timestamp']))
+                report['os_vulns'] = 0
+                report['libs_vulns'] = 0
+                report['anomalies'] = 0
+
+                # Gets static analysis info
+                if 'static_analysis' in scan:
+                    if 'os_packages' in scan['static_analysis']:
+                        report['os_vulns'] = scan['static_analysis']['os_packages']['vuln_os_packages']
+                    if 'prog_lang_dependencies' in scan['static_analysis']:
+                        report['libs_vulns'] = scan['static_analysis']['prog_lang_dependencies']['vuln_dependencies']
+
+                # Gets runtime analysis info
+                if 'runtime_analysis' in scan and scan['runtime_analysis'] is not None and \
+                   'anomalous_activities_detected' in scan['runtime_analysis'] and \
+                    scan['runtime_analysis']['anomalous_activities_detected'] is not None and \
+                   'anomalous_counts_by_severity' in scan['runtime_analysis']['anomalous_activities_detected'] and \
+                    scan['runtime_analysis']['anomalous_activities_detected']['anomalous_counts_by_severity'] is not None:
+                        anomalous_counts = sum(scan['runtime_analysis']['anomalous_activities_detected']
+                                               ['anomalous_counts_by_severity'].values())
+                        report['anomalies'] = anomalous_counts
+                output.append(report)
         # Return
         return output
 

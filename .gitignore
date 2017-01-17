@@ -118,5 +118,4 @@ bin/
 
 # database
 db/*
-
 !db/.gitkeep

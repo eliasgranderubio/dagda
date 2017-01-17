@@ -54,6 +54,7 @@ Before **Dagda** usage, you must have installed Python >= 3.4.5 and the next req
   * Joblib
   * Docker-py
   * Flask
+  * Flask-cors
 
 The requirements can be installed with pip:
 ```

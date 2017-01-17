@@ -2,6 +2,7 @@ import os
 import json
 import datetime
 from flask import Flask
+from flask_cors import CORS, cross_origin
 from api.internal.internal_server import InternalServer
 from api.service.check import check_api
 from api.service.docker import docker_api
@@ -22,6 +23,7 @@ class DagdaServer:
     # -- Global attributes
 
     app = Flask(__name__)
+    CORS(app)
     app.register_blueprint(check_api)
     app.register_blueprint(docker_api)
     app.register_blueprint(history_api)

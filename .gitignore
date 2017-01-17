@@ -117,4 +117,6 @@ bin/
 .nbattrs
 
 # database
-db/
+db/*
+
+!db/.gitkeep

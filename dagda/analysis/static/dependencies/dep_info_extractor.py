@@ -1,4 +1,6 @@
 import json
+import os
+from exception.dagda_error import DagdaError
 
 
 # Gets programming languages dependencies from docker image
@@ -23,9 +25,10 @@ def get_dependencies_from_docker_image(docker_driver, image_name):
                                                                 '/tmp:/tmp:rw'
                                                                 ]))
     docker_driver.docker_start(container_id)
+    # Wait for depcheck
+    docker_driver.docker_logs(container_id, True, False, True)
     # Get dependencies info
-    raw_info = docker_driver.docker_logs(container_id, True, False, True)
-    dependencies_info = raw_info_to_json_array(raw_info)
+    dependencies_info = raw_info_to_json_array(read_depcheck_output_file(image_name))
     # Stop container
     docker_driver.docker_stop(container_id)
     # Return
@@ -58,3 +61,23 @@ def get_filtered_dependencies_info(dependencies):
                 if data not in output_set:
                     output_set.add(data)
     return list(output_set)
+
+
+# Reads the depcheck output file
+def read_depcheck_output_file(image_name):
+    image_name = image_name.replace("/", '_')
+    filename = '/tmp/depcheck/' + image_name
+
+    # Check file
+    if not os.path.isfile(filename):
+        raise DagdaError('Depcheck output file [' + filename + '] not found.')
+
+    # Read file
+    with open(filename, 'rb') as f:
+        lines = f.readlines()
+        raw_data = ''
+        for line in lines:
+            raw_data += line.decode('utf-8')
+
+    # Return
+    return raw_data

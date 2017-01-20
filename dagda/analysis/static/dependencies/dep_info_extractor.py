@@ -9,8 +9,8 @@ def get_dependencies_from_docker_image(docker_driver, image_name):
     docker_driver.docker_pull('deepfenceio/deepfence_depcheck')
     # Start container
     container_id = docker_driver.create_container('deepfenceio/deepfence_depcheck',
-                                                  '/usr/local/bin/start_services.sh -t all -i ' + image_name +
-                                                  ' -j true',
+                                                  "bash -c '/usr/local/bin/start_services.sh -t all -i " + image_name +
+                                                  " -j true; sleep 5'",
                                                   [
                                                          '/var/run/docker.sock',
                                                          '/fenced/mnt/host/var/lib/docker/',

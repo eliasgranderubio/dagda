@@ -2,7 +2,10 @@ import datetime
 from analysis.static.os import os_info_extractor
 from analysis.static.dependencies import dep_info_extractor
 from api.internal.internal_server import InternalServer
+from log.dagda_logger import DagdaLogger
 
+
+# Analyzer class
 
 class Analyzer:
 
@@ -16,6 +19,9 @@ class Analyzer:
 
     # Evaluate image from image name or container id
     def evaluate_image(self, image_name, container_id):
+        # Init
+        data = {}
+
         # -- Static analysis
         # Get OS packages
         if image_name:  # Scans the docker image
@@ -24,13 +30,23 @@ class Analyzer:
             os_packages = os_info_extractor.get_soft_from_docker_container_id(self.dockerDriver, container_id)
             image_name = self.dockerDriver.get_docker_image_name_by_container_id(container_id)
         # Get programming language dependencies
-        dependencies = dep_info_extractor.get_dependencies_from_docker_image(self.dockerDriver, image_name)
+        dependencies = None
+        try:
+            raise ValueError
+            dependencies = dep_info_extractor.get_dependencies_from_docker_image(self.dockerDriver, image_name)
+        except Exception as ex:
+            message = "Unexpected exception of type {0} occured: {1!r}".format(type(ex).__name__,  ex.args)
+            DagdaLogger.get_logger().error(message)
+            data['status'] = message
 
         # -- Prepare output
-        data = {}
+        if dependencies is not None:
+            data['status'] = 'Completed'
+        else:
+            dependencies = []
+
         data['image_name'] = image_name
         data['timestamp'] = datetime.datetime.now().timestamp()
-        data['status'] = 'Completed'
         data['static_analysis'] = self.generate_static_analysis(os_packages, dependencies)
 
         # -- Return

@@ -95,13 +95,19 @@ class DagdaServer:
     # Init or update the vulnerabilities db
     @staticmethod
     def _init_or_update_db():
-        InternalServer.get_mongodb_driver().insert_init_db_process_status(
-            {'status': 'Initializing', 'timestamp': datetime.datetime.now().timestamp()})
-        # Init db
-        db_composer = DBComposer()
-        db_composer.compose_vuln_db()
-        InternalServer.get_mongodb_driver().insert_init_db_process_status(
-            {'status': 'Updated', 'timestamp': datetime.datetime.now().timestamp()})
+        try:
+            InternalServer.get_mongodb_driver().insert_init_db_process_status(
+                {'status': 'Initializing', 'timestamp': datetime.datetime.now().timestamp()})
+            # Init db
+            db_composer = DBComposer()
+            db_composer.compose_vuln_db()
+            InternalServer.get_mongodb_driver().insert_init_db_process_status(
+                {'status': 'Updated', 'timestamp': datetime.datetime.now().timestamp()})
+        except Exception as ex:
+            message = "Unexpected exception of type {0} occured: {1!r}".format(type(ex).__name__,  ex.args)
+            DagdaLogger.get_logger().error(message)
+            InternalServer.get_mongodb_driver().insert_init_db_process_status(
+                    {'status': message, 'timestamp': datetime.datetime.now().timestamp()})
 
     # Check docker by image name
     @staticmethod

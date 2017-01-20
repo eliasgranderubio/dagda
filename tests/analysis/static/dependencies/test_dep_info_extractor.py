@@ -1,8 +1,9 @@
 import unittest
 import json
-
+import os
 from dagda.analysis.static.dependencies.dep_info_extractor import get_filtered_dependencies_info
 from dagda.analysis.static.dependencies.dep_info_extractor import raw_info_to_json_array
+from dagda.analysis.static.dependencies.dep_info_extractor import read_depcheck_output_file
 
 
 # -- Test suite
@@ -31,6 +32,32 @@ class DepInfoExtractorTestSuite(unittest.TestCase):
         self.assertTrue('python#lxml#1.0.1' in filtered_dep)
         self.assertTrue('java#cxf#2.6.0' in filtered_dep)
         self.assertTrue('java#navigator#4.08' in filtered_dep)
+
+    def test_read_depcheck_output_file_exception(self):
+        msg = ''
+        try:
+            read_depcheck_output_file('no_image_name')
+        except Exception as ex:
+            msg = ex.get_message()
+        self.assertEqual(msg, 'Depcheck output file [/tmp/depcheck/no_image_name] not found.')
+
+    def test_read_depcheck_empty_output_file(self):
+        # Prepare test
+        try:
+            os.makedirs('/tmp/depcheck')
+            created = True
+        except OSError:
+            created = False
+        with open('/tmp/depcheck/empty_output_file', 'w') as f:
+            None
+        # Run
+        raw_info = read_depcheck_output_file('empty_output_file')
+        # Clean up
+        os.remove('/tmp/depcheck/empty_output_file')
+        if created:
+            os.removedirs('/tmp/depcheck')
+        # Check
+        self.assertEqual(raw_info, '')
 
 
 # -- Mock Constants

@@ -36,7 +36,8 @@ def main(parsed_args):
         ds = DagdaServer(dagda_server_host=parsed_args.get_server_host(),
                          dagda_server_port=parsed_args.get_server_port(),
                          mongodb_host=parsed_args.get_mongodb_host(),
-                         mongodb_port=parsed_args.get_mongodb_port())
+                         mongodb_port=parsed_args.get_mongodb_port(),
+                         falco_rules_filename=parsed_args.get_falco_rules_filename())
         ds.run()
 
     else:

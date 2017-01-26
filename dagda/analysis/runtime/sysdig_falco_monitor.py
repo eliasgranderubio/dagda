@@ -4,6 +4,8 @@ import time
 import json
 import platform
 import subprocess
+import datetime
+from shutil import copyfile
 from exception.dagda_error import DagdaError
 from log.dagda_logger import DagdaLogger
 
@@ -15,15 +17,21 @@ class SysdigFalcoMonitor:
     # -- Private attributes
 
     _falco_output_filename = '/tmp/falco_output.json'
+    _falco_custom_rules_filename = '/tmp/custom_falco_rules.yaml'
 
     # -- Public methods
 
     # SysdigFalcoMonitor Constructor
-    def __init__(self, docker_driver, mongodb_driver):
+    def __init__(self, docker_driver, mongodb_driver, falco_rules_filename):
         super(SysdigFalcoMonitor, self).__init__()
         self.mongodb_driver = mongodb_driver
         self.docker_driver = docker_driver
         self.running_container_id = ''
+        if falco_rules_filename is None:
+            self.falco_rules = ''
+        else:
+            copyfile(falco_rules_filename, SysdigFalcoMonitor._falco_custom_rules_filename)
+            self.falco_rules = ' -o rules_file=/host' + SysdigFalcoMonitor._falco_custom_rules_filename
 
     # Pre check for Sysdig falco container
     def pre_check(self):
@@ -75,19 +83,26 @@ class SysdigFalcoMonitor:
 
     # Runs SysdigFalcoMonitor
     def run(self):
-        self.running_container_id = self._start_container('falco -pc -o json_output=true -o file_output.enabled=true '
-                                                          '      -o file_output.filename=/host' +
-                                                          SysdigFalcoMonitor._falco_output_filename)
+        self.running_container_id = self._start_container('falco -pc -o json_output=true -o file_output.enabled=true ' +
+                                                          '-o file_output.filename=/host' +
+                                                          SysdigFalcoMonitor._falco_output_filename +
+                                                          self.falco_rules)
 
         # Wait 3 seconds for sysdig/falco start up and creates the output file
         time.sleep(3)
 
-        # Check file
-        if not os.path.isfile(SysdigFalcoMonitor._falco_output_filename):
+        # Check output file and running docker container
+        if not os.path.isfile(SysdigFalcoMonitor._falco_output_filename) or \
+           len(self.docker_driver.get_docker_container_ids_by_image_name('sysdig/falco')) == 0:
             raise DagdaError('Sysdig/falco output file not found.')
 
+        # Review sysdig/falco logs after rules parser
+        sysdig_falco_logs = self.docker_driver.docker_logs(self.running_container_id, True, True, False)
+        if "Rule " in sysdig_falco_logs:
+            self._parse_log_and_show_dagda_warnings(sysdig_falco_logs)
+
         # Read file
-        with open(SysdigFalcoMonitor._falco_output_filename, 'rb', ) as f:
+        with open(SysdigFalcoMonitor._falco_output_filename, 'rb') as f:
             last_file_position = 0
             fbuf = io.BufferedReader(f)
             while True:
@@ -138,10 +153,24 @@ class SysdigFalcoMonitor:
                                                                   '/dev:/host/dev',
                                                                   '/proc:/host/proc:ro',
                                                                   '/boot:/host/boot:ro',
-                                                                  '/lib/modules:/host/lib/modules:ro',
+                                                                  '/lib/modules:/host/lib/modules:rw',
                                                                   '/usr:/host/usr:ro',
                                                                   '/tmp:/host/tmp:rw'
                                                               ],
                                                               privileged=True))
         self.docker_driver.docker_start(container_id)
         return container_id
+
+    # Parse sysdig/falco logs after rules parser
+    def _parse_log_and_show_dagda_warnings(self, sysdig_falco_logs):
+        date_prefix = datetime.datetime.now().strftime("%A")[:3] + ' '
+        lines = sysdig_falco_logs.split("\n")
+        warning = ''
+        for line in lines:
+            if line.startswith(date_prefix) is not True:
+                line = line.strip()
+                if line.startswith('Rule '):
+                    if warning:
+                        DagdaLogger.get_logger().warning(warning.strip())
+                    warning = ''
+                warning+=' ' + line

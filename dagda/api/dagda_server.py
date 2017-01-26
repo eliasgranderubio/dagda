@@ -34,13 +34,14 @@ class DagdaServer:
 
     # DagdaServer Constructor
     def __init__(self, dagda_server_host='127.0.0.1', dagda_server_port=5000, mongodb_host='127.0.0.1',
-                 mongodb_port=27017):
+                 mongodb_port=27017, falco_rules_filename=None):
         super(DagdaServer, self).__init__()
         self.dagda_server_host = dagda_server_host
         self.dagda_server_port = dagda_server_port
         InternalServer.set_mongodb_driver(mongodb_host, mongodb_port)
         self.sysdig_falco_monitor = SysdigFalcoMonitor(InternalServer.get_docker_driver(),
-                                                       InternalServer.get_mongodb_driver())
+                                                       InternalServer.get_mongodb_driver(),
+                                                       falco_rules_filename)
 
     # Runs DagdaServer
     def run(self):

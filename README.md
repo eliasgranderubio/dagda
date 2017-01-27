@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/eliasgranderubio/dagda.svg?branch=master)](https://travis-ci.org/eliasgranderubio/dagda)
 [![Coverage Status](https://coveralls.io/repos/github/eliasgranderubio/dagda/badge.svg?branch=master)](https://coveralls.io/github/eliasgranderubio/dagda?branch=master)
 
-**Dagda** is a tool to perform static analysis of known vulnerabilities in docker images/containers and to monitor runtime docker containers for detecting anomalous activities.
+**Dagda** is a tool to perform static analysis of known vulnerabilities in docker images/containers and to monitor running docker containers for detecting anomalous activities.
 
 In order to fulfill its mission, first the known vulnerabilities as CVEs (Common Vulnerabilities and Exposures) and BIDs (Bugtraq IDs), and the known exploits from Offensive Security database are imported into a MongoDB to facilitate the search of these vulnerabilities and exploits when your analysis are in progress.
 
@@ -22,7 +22,7 @@ Also, **Dagda** rests on [OWASP dependency check](https://github.com/jeremylong/
   * ruby
   * php
 
-On the other hand, **Dagda** is integrated with [Sysdig Falco](http://www.sysdig.org/falco/) for monitoring runtime docker containers to detect anomalous activities.
+On the other hand, **Dagda** is integrated with [Sysdig Falco](http://www.sysdig.org/falco/) for monitoring running docker containers to detect anomalous activities.
 
 Finally, each analysis report of a docker image/container, included all static analysis and all runtime monitoring, is stored into the same MongoDB for having available the history of each docker image/container when it is needed.
 
@@ -82,7 +82,7 @@ You can also run MongoDB using docker:
 
 ### Installation of kernel headers in the host OS
 
-You must have installed the kernel headers in the host OS because **Dagda** is integrated with [Sysdig Falco](http://www.sysdig.org/falco/) for monitoring runtime docker containers to detect anomalous activities.
+You must have installed the kernel headers in the host OS because **Dagda** is integrated with [Sysdig Falco](http://www.sysdig.org/falco/) for monitoring running docker containers to detect anomalous activities.
 
 This can usually be done on Debian-like distributions with: `apt-get -y install linux-headers-$(uname -r)`
 
@@ -269,7 +269,7 @@ The analysis can take several minutes for finishing, so be patient. If you typed
 ```
 
 #### Monitoring running containers for detecting anomalous activities
-Another of the main **Dagda** targets is perform the monitoring of runtime docker containers for detecting anomalous activities, so if you want perform the monitoring over a running docker container, you must type:
+Another of the main **Dagda** targets is perform the monitoring of running docker containers for detecting anomalous activities, so if you want perform the monitoring over a running docker container, you must type:
 ```
     python3 dagda.py monitor 69dbf26ab368 --start
 ```

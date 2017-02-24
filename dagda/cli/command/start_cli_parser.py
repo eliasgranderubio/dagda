@@ -43,7 +43,10 @@ class StartCLIParser:
 
     # Gets falco rules
     def get_falco_rules_filename(self):
-        return self.args.falco_rules_file.name
+        if self.args.falco_rules_file is None:
+            return None
+        else:
+            return self.args.falco_rules_file.name
 
     # -- Static methods
 

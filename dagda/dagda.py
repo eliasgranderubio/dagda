@@ -2,7 +2,6 @@ import json
 import os
 import requests
 from cli.dagda_cli_parser import DagdaCLIParser
-from api.dagda_server import DagdaServer
 from log.dagda_logger import DagdaLogger
 
 
@@ -33,6 +32,7 @@ def main(parsed_args):
 
     # Executes start sub-command
     if cmd == 'start':
+        from api.dagda_server import DagdaServer
         ds = DagdaServer(dagda_server_host=parsed_args.get_server_host(),
                          dagda_server_port=parsed_args.get_server_port(),
                          mongodb_host=parsed_args.get_mongodb_host(),

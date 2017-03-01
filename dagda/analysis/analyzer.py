@@ -32,7 +32,6 @@ class Analyzer:
         # Get programming language dependencies
         dependencies = None
         try:
-            raise ValueError
             dependencies = dep_info_extractor.get_dependencies_from_docker_image(self.dockerDriver, image_name)
         except Exception as ex:
             message = "Unexpected exception of type {0} occured: {1!r}".format(type(ex).__name__,  ex.args)

@@ -34,7 +34,10 @@ def get_all_docker_images():
     output = []
     for image in images:
         i = {}
-        i['tags'] = list(set(image['RepoTags']))
+        if image['RepoTags'] is None:
+            i['tags'] = list(['None:None'])
+        else:
+            i['tags'] = list(set(image['RepoTags']))
         i['id'] = image['Id'][7:][:12]
         i['created'] = str(datetime.datetime.utcfromtimestamp(image['Created']))
         i['size'] = sizeof_fmt(image['VirtualSize'])

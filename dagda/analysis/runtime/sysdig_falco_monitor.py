@@ -55,7 +55,7 @@ class SysdigFalcoMonitor:
     # Pre check for Sysdig falco container
     def pre_check(self):
         # Init
-        linux_distro = platform.linux_distribution()[0]
+        linux_distro = self._get_linux_distro()
         uname_r = os.uname().release
 
         # Check requirements
@@ -193,3 +193,12 @@ class SysdigFalcoMonitor:
                         DagdaLogger.get_logger().warning(warning.strip())
                     warning = ''
                 warning+=' ' + line
+
+    # Avoids the "platform.linux_distribution()" method which is deprecated in Python 3.5
+    def _get_linux_distro(self):
+        with open('/etc/os-release', 'r') as f:
+            lines = f.readlines()
+        for line in lines:
+            if line.startswith('NAME='):
+                name = line.replace('NAME=', '').replace("\n", '').replace("'", '').replace('"', '')
+                return name

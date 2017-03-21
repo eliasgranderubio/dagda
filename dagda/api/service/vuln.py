@@ -72,6 +72,17 @@ def get_products_by_cve(cve_id):
         return json.dumps({'err': 404, 'msg': 'CVE not found'}, sort_keys=True), 404
     return json.dumps(products, sort_keys=True)
 
+# Gets products by CVE
+@vuln_api.route('/v1/vuln/cveinfo/<string:cve_id>', methods=['GET'])
+def get_cve_info_by_cve_id(cve_id):
+    regex = r"(CVE-[0-9]{4}-[0-9]{4})"
+    search_obj = re.search(regex, cve_id)
+    if not search_obj or len(search_obj.group(0)) != len(cve_id):
+        return json.dumps({'err': 400, 'msg': 'Bad cve format'}, sort_keys=True), 400
+    cveinfo = InternalServer.get_mongodb_driver().get_cve_info_by_cve_id(cve_id)
+    if len(cveinfo) == 0:
+        return json.dumps({'err': 404, 'msg': 'CVE not found'}, sort_keys=True), 404
+    return json.dumps(cveinfo, sort_keys=True)
 
 # Gets products by BID
 @vuln_api.route('/v1/vuln/bid/<int:bid_id>', methods=['GET'])

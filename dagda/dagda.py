@@ -73,6 +73,8 @@ def main(parsed_args):
                 if parsed_args.get_cve():
                     # Gets products by CVE
                     r = requests.get(dagda_base_url + '/vuln/cve/' + parsed_args.get_cve())
+                elif parsed_args.get_cveinfo():
+                    r = requests.get(dagda_base_url + '/vuln/cveinfo/' + parsed_args.get_cveinfo())
                 elif parsed_args.get_bid():
                     # Gets products by BID
                     r = requests.get(dagda_base_url + '/vuln/bid/' + str(parsed_args.get_bid()))

@@ -7,7 +7,7 @@ TEST_DIR=${BASEDIR}/env-test
 
 echo "$TEST_DIR"
 if [ ! -d "$TEST_DIR" ]; then
-    virtualenv -p python3 -q $TEST_DIR
+    python3 -m venv $TEST_DIR
     echo "New virtualenv for UT created."
 
     source $TEST_DIR/bin/activate

@@ -226,16 +226,6 @@ class MongoDbDriver:
                     exploit_tmp = ""
                     info[exploit_db_tmp] = exploit_tmp
                     output.append(info)
-        # for bid in bid_cursor:
-        #     if bid is not None:
-        #         bid_tmp = 'BID-' + str(bid['bugtraq_id'])
-        #         if bid_tmp not in output:
-        #             output.append(bid_tmp)
-        # for exploit_db in exploit_db_cursor:
-        #     if exploit_db is not None:
-        #         exploit_db_tmp = 'EXPLOIT_DB_ID-' + str(exploit_db['exploit_db_id'])
-        #         if exploit_db_tmp not in output:
-        #             output.append(exploit_db_tmp)
         # Return
         return output
 

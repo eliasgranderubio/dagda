@@ -60,12 +60,12 @@ class SysdigFalcoMonitor:
 
         # Check requirements
         if not os.path.isfile('/.dockerenv'):  # I'm living in real world!
-            if 'Red Hat' == linux_distro or 'CentOS' == linux_distro or 'Fedora' == linux_distro \
-                    or 'openSUSE' == linux_distro:
+            if 'Red Hat' in linux_distro or 'CentOS' in linux_distro or 'Fedora' in linux_distro \
+                    or 'openSUSE' in linux_distro:
                 # Red Hat/CentOS/Fedora/openSUSE
                 return_code = subprocess.call(["rpm", "-q", "kernel-devel-" + uname_r],
                                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            elif 'Debian' == linux_distro or 'Ubuntu' == linux_distro:
+            elif 'Debian' in linux_distro or 'Ubuntu' in linux_distro:
                 # Debian/Ubuntu
                 return_code = subprocess.call(["dpkg", "-l", "linux-headers-" + uname_r],
                                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

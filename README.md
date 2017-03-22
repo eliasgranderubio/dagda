@@ -93,6 +93,8 @@ After that, run the command `/usr/lib/dkms/dkms_autoinstaller start` is recommen
 rmmod: ERROR: Module sysdig_probe is not currently loaded
 ```
 
+**Important to note:** In some distributions it has been detected that [Sysdig](http://www.sysdig.org/) installation is required, so if you need instructions for Sysdig installation, see the [How-to install Sysdig for Linux](https://github.com/draios/sysdig/wiki/How-to-Install-Sysdig-for-Linux) page.
+
 ## Usage
 
 You must run `python3 dagda.py start` for starting the **Dagda** server. See the [*start* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#start-sub-command) in the wiki page for details.

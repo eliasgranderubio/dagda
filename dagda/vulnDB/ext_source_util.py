@@ -111,7 +111,7 @@ def get_cve_description_from_file(compressed_content):
                                     }
         except KeyError:
             # Any error continue
-            print (cveid + KeyError)
+            None
     return dict(cve_info_set)
 
 

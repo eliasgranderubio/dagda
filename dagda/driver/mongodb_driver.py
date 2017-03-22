@@ -201,43 +201,41 @@ class MongoDbDriver:
                 if cve_temp not in output:
                     info = {}
                     cve_info = {}
-                    cves = self.db.cves.find({'cveid': cve_temp}).sort(
-                        [("cves", pymongo.ASCENDING), ("cvss_base", pymongo.ASCENDING)])
-                    for cve in cves:
-                        if cve is not None:
-                            # delte objectid and convert datetime to str
-                            del cve['_id']
-                            cve['mod_date']=cve['mod_date'].strftime('%d-%m-%Y')
-                            cve['pub_date']=cve['pub_date'].strftime('%d-%m-%Y')
-                            cve_info = cve
+                    cve_data = self.db.cves.find_one({'cveid': cve_temp})
+                    if cve_data is not None:
+                        # delte objectid and convert datetime to str
+                        cve_info = cve_data.copy()
+                        cve_info['mod_date'] = cve_data['mod_date'].strftime('%d-%m-%Y')
+                        cve_info['pub_date'] = cve_data['pub_date'].strftime('%d-%m-%Y')
+                        del cve_info["_id"]
                     info[cve_temp] = cve_info
+                    output.append(info)
+        for bid in bid_cursor:
+            if bid is not None:
+                bid_tmp = 'BID-' + str(bid['bugtraq_id'])
+                if bid_tmp not in output:
+                    info = {}
+                    bid_info = ""
+                    info[bid_tmp] = bid_info
+                    output.append(info)
+        for exploit_db in exploit_db_cursor:
+            if exploit_db is not None:
+                exploit_db_tmp = 'EXPLOIT_DB_ID-' + str(exploit_db['exploit_db_id'])
+                if exploit_db_tmp not in output:
+                    info = {}
+                    exploit_tmp = ""
+                    info[exploit_db_tmp] = exploit_tmp
                     output.append(info)
         # for bid in bid_cursor:
         #     if bid is not None:
         #         bid_tmp = 'BID-' + str(bid['bugtraq_id'])
         #         if bid_tmp not in output:
-        #             info = {}
-        #             bid_info = {}
-        #             info[bid_tmp] = bid_info
-        #             output.append(info)
+        #             output.append(bid_tmp)
         # for exploit_db in exploit_db_cursor:
         #     if exploit_db is not None:
         #         exploit_db_tmp = 'EXPLOIT_DB_ID-' + str(exploit_db['exploit_db_id'])
         #         if exploit_db_tmp not in output:
-        #             info={}
-        #             exploit_tmp = {}
-        #             info[exploit_db_tmp] = exploit_tmp
-        #             output.append(info)
-        for bid in bid_cursor:
-            if bid is not None:
-                bid_tmp = 'BID-' + str(bid['bugtraq_id'])
-                if bid_tmp not in output:
-                    output.append(bid_tmp)
-        for exploit_db in exploit_db_cursor:
-            if exploit_db is not None:
-                exploit_db_tmp = 'EXPLOIT_DB_ID-' + str(exploit_db['exploit_db_id'])
-                if exploit_db_tmp not in output:
-                    output.append(exploit_db_tmp)
+        #             output.append(exploit_db_tmp)
         # Return
         return output
 

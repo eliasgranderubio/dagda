@@ -90,12 +90,12 @@ class VulnCLIParser:
                             or args.init_status):
             DagdaLogger.get_logger().error('Argument --init: this argument must be alone.')
             return 2
-        elif args.init_status and (args.cve or args.product or args.product_version or args.bid or args.exploit_db \
+        elif args.init_status and (args.cve or args.product or args.product_version or args.bid or args.cve or args.cveinfo or args.exploit_db \
                                    or args.init):
             DagdaLogger.get_logger().error('Argument --init_status: this argument must be alone.')
             return 3
         elif args.cve:
-            if args.init or args.init_status or args.product or args.product_version or args.bid or args.exploit_db:
+            if args.init or args.init_status or args.product or args.product_version or args.bid or args.cveinfo or args.exploit_db:
                 DagdaLogger.get_logger().error('Argument --cve: this argument must be alone.')
                 return 4
             else:
@@ -115,7 +115,7 @@ class VulnCLIParser:
                     DagdaLogger.get_logger().error('Argument --cve_info: The cve format must look like to CVE-2002-1234.')
                     return 7
         elif args.bid:
-            if args.init or args.init_status or args.product or args.product_version or args.cve or args.cve_info or args.exploit_db:
+            if args.init or args.init_status or args.product or args.product_version or args.cve or args.cveinfo or args.exploit_db:
                 DagdaLogger.get_logger().error('Argument --bid: this argument must be alone.')
                 return 8
             else:
@@ -123,7 +123,7 @@ class VulnCLIParser:
                     DagdaLogger.get_logger().error('Argument --bid: The bid argument must be greater than zero.')
                     return 9
         elif args.exploit_db:
-            if args.init or args.init_status or args.product or args.product_version or args.cve or args.cve_info or args.bid:
+            if args.init or args.init_status or args.product or args.product_version or args.cve or args.cveinfo or args.bid:
                 DagdaLogger.get_logger().error('Argument --exploit_db: this argument must be alone.')
                 return 10
             else:

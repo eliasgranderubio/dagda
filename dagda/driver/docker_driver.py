@@ -18,6 +18,8 @@
 #
 
 import docker
+from docker.errors import DockerException
+from docker.errors import NotFound
 from log.dagda_logger import DagdaLogger
 
 
@@ -29,8 +31,8 @@ class DockerDriver:
     def __init__(self):
         super(DockerDriver, self).__init__()
         try:
-            self.cli = docker.Client(base_url='unix://var/run/docker.sock', version="auto", timeout=3600)
-        except docker.errors.DockerException:
+            self.cli = docker.APIClient(base_url='unix://var/run/docker.sock', version="auto", timeout=3600)
+        except DockerException:
             DagdaLogger.get_logger().error('Error while fetching Docker server API version: Assumming Travis CI tests.')
             self.cli = None
 
@@ -47,7 +49,8 @@ class DockerDriver:
             for c in containers:
                 if c['Image'] == image_name:
                     ids = c['Id']
-        except docker.errors.NotFound:
+        except NotFound:
+            # Nothing to do
             None
         return ids
 

@@ -51,6 +51,15 @@ class MongoDbDriver:
         self.db.cve.create_index([('product', pymongo.DESCENDING)])
         self.db.cve.insert_many(products)
 
+    # Bulk insert the cve info dict format
+    def bulk_insert_cves_info(self, cves_info):
+        cves = []
+        for cve in cves_info:
+            cves.append(cves_info[cve])
+        # Bulk insert
+        self.db.cves.create_index([('cve', pymongo.DESCENDING)], default_language='none')
+        self.db.cves.insert_many(cves)
+
     # Bulk insert the bid list with the next format: <BID-ID>#<product>#<version>
     def bulk_insert_bids(self, bid_list):
         products = []
@@ -128,6 +137,10 @@ class MongoDbDriver:
                 self.db.cve.remove({'year': {'$gte': last_year}})
                 return last_year
 
+    # Removes cves collection
+    def delete_cves_collection(self):
+        self.db.cves.drop()
+
     # Removes exploit_db collection
     def delete_exploit_db_collection(self):
         self.db.exploit_db.drop()
@@ -186,17 +199,33 @@ class MongoDbDriver:
             if cve is not None:
                 cve_temp = cve['cve_id']
                 if cve_temp not in output:
-                    output.append(cve_temp)
+                    info = {}
+                    cve_info = {}
+                    cve_data = self.db.cves.find_one({'cveid': cve_temp})
+                    if cve_data is not None:
+                        # delte objectid and convert datetime to str
+                        cve_info = cve_data.copy()
+                        cve_info['mod_date'] = cve_data['mod_date'].strftime('%d-%m-%Y')
+                        cve_info['pub_date'] = cve_data['pub_date'].strftime('%d-%m-%Y')
+                        del cve_info["_id"]
+                    info[cve_temp] = cve_info
+                    output.append(info)
         for bid in bid_cursor:
             if bid is not None:
                 bid_tmp = 'BID-' + str(bid['bugtraq_id'])
                 if bid_tmp not in output:
-                    output.append(bid_tmp)
+                    info = {}
+                    bid_info = ""
+                    info[bid_tmp] = bid_info
+                    output.append(info)
         for exploit_db in exploit_db_cursor:
             if exploit_db is not None:
                 exploit_db_tmp = 'EXPLOIT_DB_ID-' + str(exploit_db['exploit_db_id'])
                 if exploit_db_tmp not in output:
-                    output.append(exploit_db_tmp)
+                    info = {}
+                    exploit_tmp = ""
+                    info[exploit_db_tmp] = exploit_tmp
+                    output.append(info)
         # Return
         return output
 
@@ -233,6 +262,22 @@ class MongoDbDriver:
         for product in cursor:
             if product is not None:
                 output.append(product)
+        # Return
+        return output
+
+    # Gest CVE description by id
+    def get_cve_info_by_cve_id(self, cve_id):
+        cursor = self.db.cves.find({'cveid': cve_id}).sort(
+            [("cves", pymongo.ASCENDING), ("cvss_base", pymongo.ASCENDING)])
+        # Prepare output
+        output = []
+        for info in cursor:
+            if info is not None:
+                # delte objectid and convert datetime to str
+                del info['_id']
+                info['mod_date']=info['mod_date'].strftime('%d-%m-%Y')
+                info['pub_date']=info['pub_date'].strftime('%d-%m-%Y')
+                output.append(info)
         # Return
         return output
 

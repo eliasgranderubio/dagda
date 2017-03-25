@@ -124,17 +124,227 @@ Also, you can run queries on your personal database with `dagda.py vuln`. A usag
 
 The expected output for the previous query is shown below:
 ```
-    [
-        "CVE-2005-4442",
-        "CVE-2006-2754",
-        "CVE-2006-5779",
-        "CVE-2006-6493",
-        "CVE-2007-5707",
-        "CVE-2007-5708",
-        "CVE-2011-4079",
-        "BID-83610",
-        "BID-83843"
-    ]
+roduct_version 2.2.20
+[
+{
+    "CVE-2005-4442": {
+        "cveid": "CVE-2005-4442",
+        "cvss_access_complexity": "Low",
+        "cvss_access_vector": "Local access",
+        "cvss_authentication": "None required",
+        "cvss_availability_impact": "Complete",
+        "cvss_base": 7.2,
+        "cvss_confidentiality_impact": "Complete",
+        "cvss_exploit": 3.9,
+        "cvss_impact": 10.0,
+        "cvss_integrity_impact": "Complete",
+        "cvss_vector": [
+            "AV:L",
+            "AC:L",
+            "Au:N",
+            "C:C",
+            "I:C",
+            "A:C"
+        ],
+        "cweid": "CWE-0",
+        "mod_date": "05-09-2008",
+        "pub_date": "20-12-2005",
+        "summary": "Untrusted search path vulnerability in OpenLDAP before 2.2.28-r3 on Gentoo Linux allows local users in the portage group to gain privileges via a malicious shared object in the Portage temporary build directory, which is part of the RUNPATH."
+    }
+},
+{
+    "CVE-2006-2754": {
+        "cveid": "CVE-2006-2754",
+        "cvss_access_complexity": "Low",
+        "cvss_access_vector": "Network",
+        "cvss_authentication": "None required",
+        "cvss_availability_impact": "None",
+        "cvss_base": 5.0,
+        "cvss_confidentiality_impact": "None",
+        "cvss_exploit": 10.0,
+        "cvss_impact": 2.9,
+        "cvss_integrity_impact": "Partial",
+        "cvss_vector": [
+            "AV:N",
+            "AC:L",
+            "Au:N",
+            "C:N",
+            "I:P",
+            "A:N"
+        ],
+        "cweid": "CWE-0",
+        "mod_date": "07-03-2011",
+        "pub_date": "01-06-2006",
+        "summary": "Stack-based buffer overflow in st.c in slurpd for OpenLDAP before 2.3.22 might allow attackers to execute arbitrary code via a long hostname."
+    }
+},
+{
+    "CVE-2006-5779": {
+        "cveid": "CVE-2006-5779",
+        "cvss_access_complexity": "Low",
+        "cvss_access_vector": "Network",
+        "cvss_authentication": "None required",
+        "cvss_availability_impact": "Partial",
+        "cvss_base": 5.0,
+        "cvss_confidentiality_impact": "None",
+        "cvss_exploit": 10.0,
+        "cvss_impact": 2.9,
+        "cvss_integrity_impact": "None",
+        "cvss_vector": [
+            "AV:N",
+            "AC:L",
+            "Au:N",
+            "C:N",
+            "I:N",
+            "A:P"
+        ],
+        "cweid": "CWE-399",
+        "mod_date": "26-08-2011",
+        "pub_date": "07-11-2006",
+        "summary": "OpenLDAP before 2.3.29 allows remote attackers to cause a denial of service (daemon crash) via LDAP BIND requests with long authcid names, which triggers an assertion failure."
+    }
+},
+{
+    "CVE-2006-6493": {
+        "cveid": "CVE-2006-6493",
+        "cvss_access_complexity": "High",
+        "cvss_access_vector": "Network",
+        "cvss_authentication": "None required",
+        "cvss_availability_impact": "Partial",
+        "cvss_base": 5.1,
+        "cvss_confidentiality_impact": "Partial",
+        "cvss_exploit": 4.9,
+        "cvss_impact": 6.4,
+        "cvss_integrity_impact": "Partial",
+        "cvss_vector": [
+            "AV:N",
+            "AC:H",
+            "Au:N",
+            "C:P",
+            "I:P",
+            "A:P"
+        ],
+        "cweid": "CWE-0",
+        "mod_date": "07-03-2011",
+        "pub_date": "12-12-2006",
+        "summary": "Buffer overflow in the krbv4_ldap_auth function in servers/slapd/kerberos.c in OpenLDAP 2.4.3 and earlier, when OpenLDAP is compiled with the --enable-kbind (Kerberos KBIND) option, allows remote attackers to execute arbitrary code via an LDAP bind request using the LDAP_AUTH_KRBV41 authentication method and long credential data."
+    }
+},
+{
+    "CVE-2007-5707": {
+        "cveid": "CVE-2007-5707",
+        "cvss_access_complexity": "Medium",
+        "cvss_access_vector": "Network",
+        "cvss_authentication": "None required",
+        "cvss_availability_impact": "Complete",
+        "cvss_base": 7.1,
+        "cvss_confidentiality_impact": "None",
+        "cvss_exploit": 8.6,
+        "cvss_impact": 6.9,
+        "cvss_integrity_impact": "None",
+        "cvss_vector": [
+            "AV:N",
+            "AC:M",
+            "Au:N",
+            "C:N",
+            "I:N",
+            "A:C"
+        ],
+        "cweid": "CWE-399",
+        "mod_date": "07-03-2011",
+        "pub_date": "30-10-2007",
+        "summary": "OpenLDAP before 2.3.39 allows remote attackers to cause a denial of service (slapd crash) via an LDAP request with a malformed objectClasses attribute.  NOTE: this has been reported as a double free, but the reports are inconsistent."
+    }
+},
+{
+    "CVE-2007-5708": {
+        "cveid": "CVE-2007-5708",
+        "cvss_access_complexity": "Medium",
+        "cvss_access_vector": "Network",
+        "cvss_authentication": "None required",
+        "cvss_availability_impact": "Complete",
+        "cvss_base": 7.1,
+        "cvss_confidentiality_impact": "None",
+        "cvss_exploit": 8.6,
+        "cvss_impact": 6.9,
+        "cvss_integrity_impact": "None",
+        "cvss_vector": [
+            "AV:N",
+            "AC:M",
+            "Au:N",
+            "C:N",
+            "I:N",
+            "A:C"
+        ],
+        "cweid": "CWE-399",
+        "mod_date": "07-03-2011",
+        "pub_date": "30-10-2007",
+        "summary": "slapo-pcache (overlays/pcache.c) in slapd in OpenLDAP before 2.3.39, when running as a proxy-caching server, allocates memory using a malloc variant instead of calloc, which prevents an array from being initialized properly and might allow attackers to cause a denial of service (segmentation fault) via unknown vectors that prevent the array from being null terminated."
+    }
+},
+{
+    "CVE-2011-4079": {
+        "cveid": "CVE-2011-4079",
+        "cvss_access_complexity": "Low",
+        "cvss_access_vector": "Network",
+        "cvss_authentication": "Requires single instance",
+        "cvss_availability_impact": "Partial",
+        "cvss_base": 4.0,
+        "cvss_confidentiality_impact": "None",
+        "cvss_exploit": 8.0,
+        "cvss_impact": 2.9,
+        "cvss_integrity_impact": "None",
+        "cvss_vector": [
+            "AV:N",
+            "AC:L",
+            "Au:S",
+            "C:N",
+            "I:N",
+            "A:P"
+        ],
+        "cweid": "CWE-189",
+        "mod_date": "06-01-2017",
+        "pub_date": "27-10-2011",
+        "summary": "Off-by-one error in the UTF8StringNormalize function in OpenLDAP 2.4.26 and earlier allows remote attackers to cause a denial of service (slapd crash) via a zero-length string that triggers a heap-based buffer overflow, as demonstrated using an empty postalAddressAttribute value in an LDIF entry."
+    }
+},
+"BID-83610",
+"BID-83843"
+]
+```
+
+To get all info about specific CVE
+```
+    python3 dagda.py vuln --cveinfo CVE-2009-2890
+```
+The expected output for the previous query is shown below:
+```
+[
+    {
+        "cveid": "CVE-2009-2890",
+        "cvss_access_complexity": "Medium",
+        "cvss_access_vector": "Network",
+        "cvss_authentication": "None required",
+        "cvss_availability_impact": "None",
+        "cvss_base": 4.3,
+        "cvss_confidentiality_impact": "None",
+        "cvss_exploit": 8.6,
+        "cvss_impact": 2.9,
+        "cvss_integrity_impact": "Partial",
+        "cvss_vector": [
+            "AV:N",
+            "AC:M",
+            "Au:N",
+            "C:N",
+            "I:P",
+            "A:N"
+        ],
+        "cweid": "CWE-79",
+        "mod_date": "20-08-2009",
+        "pub_date": "20-08-2009",
+        "summary": "Cross-site scripting (XSS) vulnerability in results.php in PHP Scripts Now Riddles allows remote attackers to inject arbitrary web script or HTML via the searchquery parameter."
+    }
+]
 ```
 
 If you want to know more details about `dagda.py vuln`, type `python3 dagda.py vuln --help` or see the [*vuln* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#vuln-sub-command) in the wiki page.
@@ -144,6 +354,7 @@ If you want to know more details about `dagda.py vuln`, type `python3 dagda.py v
 The database is called `vuln_database` and there are 3 collections:
 
 * cve (Common Vulnerabilities and Exposure items) - source NVD NIST
+* cve Info (Get items from https://nvd.nist.gov/download/ and https://static.nvd.nist.gov/feeds/xml/cve/)
 * bid (BugTraqs Ids items from `http://www.securityfocus.com/`) - source [bidDB_downloader](https://github.com/eliasgranderubio/bidDB_downloader)
 * exploit_db (Offensive Security - Exploit Database) - source [Offensive Security](https://github.com/offensive-security/exploit-database)
 

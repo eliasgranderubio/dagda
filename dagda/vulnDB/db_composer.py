@@ -26,6 +26,8 @@ from vulnDB.ext_source_util import get_cve_list_from_file
 from vulnDB.ext_source_util import get_exploit_db_list_from_csv
 from vulnDB.ext_source_util import get_http_resource_content
 from vulnDB.bid_downloader import bid_downloader
+from vulnDB.ext_source_util import get_cve_description_from_file
+from vulnDB.ext_source_util import get_cve_cweid_from_file
 
 
 # Static field
@@ -47,12 +49,26 @@ class DBComposer:
         # -- CVE
         # Adding or updating CVEs
         first_year = self.mongoDbDriver.remove_only_cve_for_update()
+
+        # clean cves database
+        self.mongoDbDriver.delete_cves_collection()
+
         for i in range(first_year, next_year):
             compressed_content = get_http_resource_content(
                 "https://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-" + str(i) + ".xml.gz")
             cve_list = get_cve_list_from_file(compressed_content, i)
             if len(cve_list) > 0:
                 self.mongoDbDriver.bulk_insert_cves(cve_list)
+
+            # add table CVE with aditional info like score
+            compressed_content_info = get_http_resource_content("https://nvd.nist.gov/download/nvdcve-"
+                                                                + str(i) + ".xml.zip")
+            cve_info_list = get_cve_description_from_file(compressed_content_info)
+            compressed_ext_content_info = get_http_resource_content("https://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-"
+                                                                    + str(i) + ".xml.zip")
+            cve_ext_info_list = get_cve_cweid_from_file(compressed_ext_content_info, cve_info_list)
+            if len(cve_ext_info_list) > 0:
+                self.mongoDbDriver.bulk_insert_cves_info(cve_ext_info_list)
 
         # -- Exploit DB
         # Adding or updating Exploit_db

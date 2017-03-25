@@ -654,11 +654,11 @@ See the [*monitor* sub-command](https://github.com/eliasgranderubio/dagda/wiki/C
 
 The expected output looks like as shown below:
 ```
-	{
-      "id": "586f7631ed25396a829baaf4",
-      "image_name": "jboss/wildfly",
-      "msg": "Monitoring of docker container with id <69dbf26ab368> started"
-	}
+    {
+        "id": "586f7631ed25396a829baaf4",
+        "image_name": "jboss/wildfly",
+        "msg": "Monitoring of docker container with id <69dbf26ab368> started"
+    }
 ```
 
 You can stop the monitoring when you want if you type:

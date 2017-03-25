@@ -318,7 +318,7 @@ The expected output for the previous query is shown below:
 
 For getting all information about a specific CVE, you must run the next command:
 ```
-    python3 dagda.py vuln --cveinfo CVE-2009-2890
+    python3 dagda.py vuln --cve_info CVE-2009-2890
 ```
 The expected output for the previous query is shown below:
 ```

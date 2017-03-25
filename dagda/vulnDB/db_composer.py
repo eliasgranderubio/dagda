@@ -91,7 +91,7 @@ class DBComposer:
             # Set the new max bid
             max_bid = 94417
         # Updating BugTraqs from http://www.securityfocus.com/
-        bid_items_array = get_bug_traqs_lists_from_online_mode(bid_downloader(first_bid=max_bid+1, last_bid=95500))
+        bid_items_array = get_bug_traqs_lists_from_online_mode(bid_downloader(first_bid=max_bid+1, last_bid=97200))
         for bid_items_list in bid_items_array:
             self.mongoDbDriver.bulk_insert_bids(bid_items_list)
             bid_items_list.clear()

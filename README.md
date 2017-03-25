@@ -368,7 +368,7 @@ In the next subsections, both, performing static analysis of known vulnerabiliti
 #### Performing static analysis of known vulnerabilities
 One of the main **Dagda** targets is perform the analysis of known vulnerabilities in docker images/containers, so if you want perform an analysis over a docker image/container, you must type:
 ```
-	python3 dagda.py check --docker_image jboss/wildfly
+    python3 dagda.py check --docker_image jboss/wildfly
 ```
 See the [*check* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#check-sub-command) wiki page for details.
 

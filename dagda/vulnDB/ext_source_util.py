@@ -23,12 +23,36 @@ import re
 import requests
 import zlib
 import xml.etree.ElementTree as ET
+from zipfile import ZipFile
+import os
+from io import BytesIO
+import datetime
+
+ACCESS_VECTOR = {'L': 'Local access', 'A': 'Adjacent Network', 'N': 'Network'}
+ACCESS_COMPLEXITY = {'H': 'High', 'M': 'Medium', 'L': 'Low'}
+AUTHENTICATION = {'N': 'None required', 'S': 'Requires single instance', 'M': 'Requires multiple instances'}
+CONFIDENTIALITY_IMPACT = {'N': 'None', 'P': 'Partial', 'C': 'Complete'}
+INTEGRITY_IMPACT = {'N': 'None', 'P': 'Partial', 'C': 'Complete'}
+AVAILABILITY_IMPACT = {'N': 'None', 'P': 'Partial', 'C': 'Complete'}
+
+FEATURES_LIST = [ACCESS_VECTOR, ACCESS_COMPLEXITY, AUTHENTICATION, CONFIDENTIALITY_IMPACT, INTEGRITY_IMPACT,
+                 AVAILABILITY_IMPACT]
+
 
 
 # Gets HTTP resource content
 def get_http_resource_content(url):
     r = requests.get(url)
     return r.content
+
+
+# Extract vector from CVE
+def extract_vector(initialVector):
+    new_vector = initialVector[1:-1].split('/')
+    final_vector = []
+    for i in range(len(new_vector)):
+        final_vector.append(FEATURES_LIST[i][new_vector[i][-1]])
+    return new_vector, final_vector
 
 
 # Gets CVE list from compressed file
@@ -48,6 +72,65 @@ def get_cve_list_from_file(compressed_content, year):
                     if item not in cve_set:
                         cve_set.add(item)
     return list(cve_set)
+
+
+# Gets description from CVE compresed files
+def get_cve_description_from_file(compressed_content):
+    cve_info_set = {}
+    zip_file = ZipFile(BytesIO(compressed_content))
+    filename = zip_file.extract(zip_file.filelist[0])
+    root = ET.parse(filename).getroot()
+    os.remove(filename)
+    for child in root:
+        try:
+            cveid = child.attrib['name']
+            aux = child.attrib['published'].split('-')
+            pub_date = datetime.datetime(int(aux[0]), int(aux[1]), int(aux[2]))
+            aux = child.attrib['modified'].split('-')
+            mod_date = datetime.datetime(int(aux[0]), int(aux[1]), int(aux[2]))
+            cvss_base = float(child.attrib['CVSS_base_score'])
+            cvss_impact = float(child.attrib['CVSS_impact_subscore'])
+            cvss_exploit = float(child.attrib['CVSS_exploit_subscore'])
+            vector, features = extract_vector(child.attrib['CVSS_vector'])
+            summary = child[0][0].text
+            cve_info_set[cveid] = {"cveid": cveid,
+                                    "pub_date": pub_date,
+                                    "mod_date": mod_date,
+                                    "summary": summary,
+                                    "cvss_base": cvss_base,
+                                    "cvss_impact": cvss_impact,
+                                    "cvss_exploit": cvss_exploit,
+                                    "cvss_access_vector": features[0],
+                                    "cvss_access_complexity": features[1],
+                                    "cvss_authentication": features[2],
+                                    "cvss_confidentiality_impact": features[3],
+                                    "cvss_integrity_impact": features[4],
+                                    "cvss_availability_impact": features[5],
+                                    "cvss_vector": vector,
+                                    "cweid": "CWE-0"
+                                    }
+        except KeyError:
+            # Any error continue
+            None
+    return dict(cve_info_set)
+
+
+# Update cweid info at cve description
+def get_cve_cweid_from_file(compressed_content, cve_dict):
+    zip = ZipFile(BytesIO(compressed_content))
+    zip_file = ZipFile(BytesIO(compressed_content))
+    filename = zip_file.extract(zip_file.filelist[0])
+    root = ET.parse(filename).getroot()
+    os.remove(filename)
+    cwe_ns = "{http://scap.nist.gov/schema/vulnerability/0.4}"
+    default_ns = "{http://scap.nist.gov/schema/feed/vulnerability/2.0}"
+    for entry in root.findall('{ns}entry'.format(ns=default_ns)):
+        id = entry.attrib["id"]
+        cwe = entry.find('{nsd}cwe'.format(nsd=cwe_ns))
+        if cwe is not None:
+            if id in cve_dict.keys():
+                cve_dict[id]["cweid"] = str(cwe.attrib["id"])
+    return dict(cve_dict)
 
 
 # Gets Exploit_db list from csv file

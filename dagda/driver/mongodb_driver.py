@@ -57,8 +57,8 @@ class MongoDbDriver:
         for cve in cves_info:
             cves.append(cves_info[cve])
         # Bulk insert
-        self.db.cves.create_index([('cve', pymongo.DESCENDING)], default_language='none')
-        self.db.cves.insert_many(cves)
+        self.db.cve_info.create_index([('cve', pymongo.DESCENDING)], default_language='none')
+        self.db.cve_info.insert_many(cves)
 
     # Bulk insert the bid list with the next format: <BID-ID>#<product>#<version>
     def bulk_insert_bids(self, bid_list):
@@ -132,14 +132,13 @@ class MongoDbDriver:
             last_year = last_year_stored[0]['year'] - 1
             if last_year <= 2002:
                 self.db.cve.drop()
+                self.db.cve_info.drop()
                 return 2002
             else:
                 self.db.cve.remove({'year': {'$gte': last_year}})
+                self.db.cve_info.remove({'cveid': {'$regex': 'CVE-' + str(last_year) + '-*'}})
+                self.db.cve_info.remove({'cveid': {'$regex': 'CVE-' + str(last_year + 1) + '-*'}})
                 return last_year
-
-    # Removes cves collection
-    def delete_cves_collection(self):
-        self.db.cves.drop()
 
     # Removes exploit_db collection
     def delete_exploit_db_collection(self):
@@ -201,7 +200,7 @@ class MongoDbDriver:
                 if cve_temp not in output:
                     info = {}
                     cve_info = {}
-                    cve_data = self.db.cves.find_one({'cveid': cve_temp})
+                    cve_data = self.db.cve_info.find_one({'cveid': cve_temp})
                     if cve_data is not None:
                         # delte objectid and convert datetime to str
                         cve_info = cve_data.copy()
@@ -267,7 +266,7 @@ class MongoDbDriver:
 
     # Gest CVE description by id
     def get_cve_info_by_cve_id(self, cve_id):
-        cursor = self.db.cves.find({'cveid': cve_id}).sort(
+        cursor = self.db.cve_info.find({'cveid': cve_id}).sort(
             [("cves", pymongo.ASCENDING), ("cvss_base", pymongo.ASCENDING)])
         # Prepare output
         output = []

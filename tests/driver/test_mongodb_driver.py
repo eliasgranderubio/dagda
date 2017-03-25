@@ -159,30 +159,30 @@ class FullGetVulnProdMongoDbDriver(MongoDbDriver):
         cursor_bid.sort.return_value = [{'bugtraq_id': 1}, {'bugtraq_id': 2}]
         cursor_expl = self.db.exploit_db.find.return_value
         cursor_expl.sort.return_value = [{'exploit_db_id': 3}, {'exploit_db_id': 4}]
-        self.db.cves.find_one.return_value = {"cvss_access_vector": "Network",
-                                              "_id": "58d11025100e75000e789c9a",
-                                              "cveid": "CVE-2002-2002",
-                                              "cvss_base": 7.5,
-                                              "cvss_integrity_impact": "Partial",
-                                              "cvss_availability_impact": "Partial",
-                                              "summary": "Summary example",
-                                              "cvss_confidentiality_impact": "Partial",
-                                              "cvss_vector": [
-                                                  "AV:N",
-                                                  "AC:L",
-                                                  "Au:N",
-                                                  "C:P",
-                                                  "I:P",
-                                                  "A:P"
-                                              ],
-                                              "cvss_authentication": "None required",
-                                              "cvss_access_complexity": "Low",
-                                              "pub_date": datetime.datetime.now(),
-                                              "cvss_impact": 6.4,
-                                              "cvss_exploit": 10.0,
-                                              "mod_date": datetime.datetime.now(),
-                                              "cweid": "CWE-0"
-                                              }
+        self.db.cve_info.find_one.return_value = {"cvss_access_vector": "Network",
+                                                  "_id": "58d11025100e75000e789c9a",
+                                                  "cveid": "CVE-2002-2002",
+                                                  "cvss_base": 7.5,
+                                                  "cvss_integrity_impact": "Partial",
+                                                  "cvss_availability_impact": "Partial",
+                                                  "summary": "Summary example",
+                                                  "cvss_confidentiality_impact": "Partial",
+                                                  "cvss_vector": [
+                                                      "AV:N",
+                                                      "AC:L",
+                                                      "Au:N",
+                                                      "C:P",
+                                                      "I:P",
+                                                      "A:P"
+                                                  ],
+                                                  "cvss_authentication": "None required",
+                                                  "cvss_access_complexity": "Low",
+                                                  "pub_date": datetime.datetime.now(),
+                                                  "cvss_impact": 6.4,
+                                                  "cvss_exploit": 10.0,
+                                                  "mod_date": datetime.datetime.now(),
+                                                  "cweid": "CWE-0"
+                                                  }
 
 
 class FullGetVulnProdAndVersionMongoDbDriver(MongoDbDriver):
@@ -196,30 +196,30 @@ class FullGetVulnProdAndVersionMongoDbDriver(MongoDbDriver):
         cursor_bid.sort.return_value = [{'bugtraq_id': 83610}, {'bugtraq_id': 83843}]
         cursor_expl = self.db.exploit_db.find.return_value
         cursor_expl.sort.return_value = []
-        self.db.cves.find_one.return_value = {"cvss_access_vector": "Network",
-                                              "_id": "58d11025100e75000e789c9a",
-                                              "cveid": "CVE-2005-4442",
-                                              "cvss_base": 7.5,
-                                              "cvss_integrity_impact": "Partial",
-                                              "cvss_availability_impact": "Partial",
-                                              "summary": "Summary example",
-                                              "cvss_confidentiality_impact": "Partial",
-                                              "cvss_vector": [
-                                                  "AV:N",
-                                                  "AC:L",
-                                                  "Au:N",
-                                                  "C:P",
-                                                  "I:P",
-                                                  "A:P"
-                                              ],
-                                              "cvss_authentication": "None required",
-                                              "cvss_access_complexity": "Low",
-                                              "pub_date": datetime.datetime.now(),
-                                              "cvss_impact": 6.4,
-                                              "cvss_exploit": 10.0,
-                                              "mod_date": datetime.datetime.now(),
-                                              "cweid": "CWE-0"
-                                              }
+        self.db.cve_info.find_one.return_value = {"cvss_access_vector": "Network",
+                                                  "_id": "58d11025100e75000e789c9a",
+                                                  "cveid": "CVE-2005-4442",
+                                                  "cvss_base": 7.5,
+                                                  "cvss_integrity_impact": "Partial",
+                                                  "cvss_availability_impact": "Partial",
+                                                  "summary": "Summary example",
+                                                  "cvss_confidentiality_impact": "Partial",
+                                                  "cvss_vector": [
+                                                      "AV:N",
+                                                      "AC:L",
+                                                      "Au:N",
+                                                      "C:P",
+                                                      "I:P",
+                                                      "A:P"
+                                                  ],
+                                                  "cvss_authentication": "None required",
+                                                  "cvss_access_complexity": "Low",
+                                                  "pub_date": datetime.datetime.now(),
+                                                  "cvss_impact": 6.4,
+                                                  "cvss_exploit": 10.0,
+                                                  "mod_date": datetime.datetime.now(),
+                                                  "cweid": "CWE-0"
+                                                  }
 
 if __name__ == '__main__':
     unittest.main()

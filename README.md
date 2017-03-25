@@ -124,237 +124,240 @@ Also, you can run queries on your personal database with `dagda.py vuln`. A usag
 
 The expected output for the previous query is shown below:
 ```
-roduct_version 2.2.20
-[
-{
-    "CVE-2005-4442": {
-        "cveid": "CVE-2005-4442",
-        "cvss_access_complexity": "Low",
-        "cvss_access_vector": "Local access",
-        "cvss_authentication": "None required",
-        "cvss_availability_impact": "Complete",
-        "cvss_base": 7.2,
-        "cvss_confidentiality_impact": "Complete",
-        "cvss_exploit": 3.9,
-        "cvss_impact": 10.0,
-        "cvss_integrity_impact": "Complete",
-        "cvss_vector": [
-            "AV:L",
-            "AC:L",
-            "Au:N",
-            "C:C",
-            "I:C",
-            "A:C"
-        ],
-        "cweid": "CWE-0",
-        "mod_date": "05-09-2008",
-        "pub_date": "20-12-2005",
-        "summary": "Untrusted search path vulnerability in OpenLDAP before 2.2.28-r3 on Gentoo Linux allows local users in the portage group to gain privileges via a malicious shared object in the Portage temporary build directory, which is part of the RUNPATH."
-    }
-},
-{
-    "CVE-2006-2754": {
-        "cveid": "CVE-2006-2754",
-        "cvss_access_complexity": "Low",
-        "cvss_access_vector": "Network",
-        "cvss_authentication": "None required",
-        "cvss_availability_impact": "None",
-        "cvss_base": 5.0,
-        "cvss_confidentiality_impact": "None",
-        "cvss_exploit": 10.0,
-        "cvss_impact": 2.9,
-        "cvss_integrity_impact": "Partial",
-        "cvss_vector": [
-            "AV:N",
-            "AC:L",
-            "Au:N",
-            "C:N",
-            "I:P",
-            "A:N"
-        ],
-        "cweid": "CWE-0",
-        "mod_date": "07-03-2011",
-        "pub_date": "01-06-2006",
-        "summary": "Stack-based buffer overflow in st.c in slurpd for OpenLDAP before 2.3.22 might allow attackers to execute arbitrary code via a long hostname."
-    }
-},
-{
-    "CVE-2006-5779": {
-        "cveid": "CVE-2006-5779",
-        "cvss_access_complexity": "Low",
-        "cvss_access_vector": "Network",
-        "cvss_authentication": "None required",
-        "cvss_availability_impact": "Partial",
-        "cvss_base": 5.0,
-        "cvss_confidentiality_impact": "None",
-        "cvss_exploit": 10.0,
-        "cvss_impact": 2.9,
-        "cvss_integrity_impact": "None",
-        "cvss_vector": [
-            "AV:N",
-            "AC:L",
-            "Au:N",
-            "C:N",
-            "I:N",
-            "A:P"
-        ],
-        "cweid": "CWE-399",
-        "mod_date": "26-08-2011",
-        "pub_date": "07-11-2006",
-        "summary": "OpenLDAP before 2.3.29 allows remote attackers to cause a denial of service (daemon crash) via LDAP BIND requests with long authcid names, which triggers an assertion failure."
-    }
-},
-{
-    "CVE-2006-6493": {
-        "cveid": "CVE-2006-6493",
-        "cvss_access_complexity": "High",
-        "cvss_access_vector": "Network",
-        "cvss_authentication": "None required",
-        "cvss_availability_impact": "Partial",
-        "cvss_base": 5.1,
-        "cvss_confidentiality_impact": "Partial",
-        "cvss_exploit": 4.9,
-        "cvss_impact": 6.4,
-        "cvss_integrity_impact": "Partial",
-        "cvss_vector": [
-            "AV:N",
-            "AC:H",
-            "Au:N",
-            "C:P",
-            "I:P",
-            "A:P"
-        ],
-        "cweid": "CWE-0",
-        "mod_date": "07-03-2011",
-        "pub_date": "12-12-2006",
-        "summary": "Buffer overflow in the krbv4_ldap_auth function in servers/slapd/kerberos.c in OpenLDAP 2.4.3 and earlier, when OpenLDAP is compiled with the --enable-kbind (Kerberos KBIND) option, allows remote attackers to execute arbitrary code via an LDAP bind request using the LDAP_AUTH_KRBV41 authentication method and long credential data."
-    }
-},
-{
-    "CVE-2007-5707": {
-        "cveid": "CVE-2007-5707",
-        "cvss_access_complexity": "Medium",
-        "cvss_access_vector": "Network",
-        "cvss_authentication": "None required",
-        "cvss_availability_impact": "Complete",
-        "cvss_base": 7.1,
-        "cvss_confidentiality_impact": "None",
-        "cvss_exploit": 8.6,
-        "cvss_impact": 6.9,
-        "cvss_integrity_impact": "None",
-        "cvss_vector": [
-            "AV:N",
-            "AC:M",
-            "Au:N",
-            "C:N",
-            "I:N",
-            "A:C"
-        ],
-        "cweid": "CWE-399",
-        "mod_date": "07-03-2011",
-        "pub_date": "30-10-2007",
-        "summary": "OpenLDAP before 2.3.39 allows remote attackers to cause a denial of service (slapd crash) via an LDAP request with a malformed objectClasses attribute.  NOTE: this has been reported as a double free, but the reports are inconsistent."
-    }
-},
-{
-    "CVE-2007-5708": {
-        "cveid": "CVE-2007-5708",
-        "cvss_access_complexity": "Medium",
-        "cvss_access_vector": "Network",
-        "cvss_authentication": "None required",
-        "cvss_availability_impact": "Complete",
-        "cvss_base": 7.1,
-        "cvss_confidentiality_impact": "None",
-        "cvss_exploit": 8.6,
-        "cvss_impact": 6.9,
-        "cvss_integrity_impact": "None",
-        "cvss_vector": [
-            "AV:N",
-            "AC:M",
-            "Au:N",
-            "C:N",
-            "I:N",
-            "A:C"
-        ],
-        "cweid": "CWE-399",
-        "mod_date": "07-03-2011",
-        "pub_date": "30-10-2007",
-        "summary": "slapo-pcache (overlays/pcache.c) in slapd in OpenLDAP before 2.3.39, when running as a proxy-caching server, allocates memory using a malloc variant instead of calloc, which prevents an array from being initialized properly and might allow attackers to cause a denial of service (segmentation fault) via unknown vectors that prevent the array from being null terminated."
-    }
-},
-{
-    "CVE-2011-4079": {
-        "cveid": "CVE-2011-4079",
-        "cvss_access_complexity": "Low",
-        "cvss_access_vector": "Network",
-        "cvss_authentication": "Requires single instance",
-        "cvss_availability_impact": "Partial",
-        "cvss_base": 4.0,
-        "cvss_confidentiality_impact": "None",
-        "cvss_exploit": 8.0,
-        "cvss_impact": 2.9,
-        "cvss_integrity_impact": "None",
-        "cvss_vector": [
-            "AV:N",
-            "AC:L",
-            "Au:S",
-            "C:N",
-            "I:N",
-            "A:P"
-        ],
-        "cweid": "CWE-189",
-        "mod_date": "06-01-2017",
-        "pub_date": "27-10-2011",
-        "summary": "Off-by-one error in the UTF8StringNormalize function in OpenLDAP 2.4.26 and earlier allows remote attackers to cause a denial of service (slapd crash) via a zero-length string that triggers a heap-based buffer overflow, as demonstrated using an empty postalAddressAttribute value in an LDIF entry."
-    }
-},
-"BID-83610",
-"BID-83843"
-]
+    [
+        {
+            "CVE-2005-4442": {
+                "cveid": "CVE-2005-4442",
+                "cvss_access_complexity": "Low",
+                "cvss_access_vector": "Local access",
+                "cvss_authentication": "None required",
+                "cvss_availability_impact": "Complete",
+                "cvss_base": 7.2,
+                "cvss_confidentiality_impact": "Complete",
+                "cvss_exploit": 3.9,
+                "cvss_impact": 10.0,
+                "cvss_integrity_impact": "Complete",
+                "cvss_vector": [
+                    "AV:L",
+                    "AC:L",
+                    "Au:N",
+                    "C:C",
+                    "I:C",
+                    "A:C"
+                ],
+                "cweid": "CWE-0",
+                "mod_date": "05-09-2008",
+                "pub_date": "20-12-2005",
+                "summary": "Untrusted search path vulnerability in OpenLDAP before 2.2.28-r3 on Gentoo Linux allows local users in the portage group to gain privileges via a malicious shared object in the Portage temporary build directory, which is part of the RUNPATH."
+            }
+        },
+        {
+            "CVE-2006-2754": {
+                "cveid": "CVE-2006-2754",
+                "cvss_access_complexity": "Low",
+                "cvss_access_vector": "Network",
+                "cvss_authentication": "None required",
+                "cvss_availability_impact": "None",
+                "cvss_base": 5.0,
+                "cvss_confidentiality_impact": "None",
+                "cvss_exploit": 10.0,
+                "cvss_impact": 2.9,
+                "cvss_integrity_impact": "Partial",
+                "cvss_vector": [
+                    "AV:N",
+                    "AC:L",
+                    "Au:N",
+                    "C:N",
+                    "I:P",
+                    "A:N"
+                ],
+                "cweid": "CWE-0",
+                "mod_date": "07-03-2011",
+                "pub_date": "01-06-2006",
+                "summary": "Stack-based buffer overflow in st.c in slurpd for OpenLDAP before 2.3.22 might allow attackers to execute arbitrary code via a long hostname."
+            }
+        },
+        {
+            "CVE-2006-5779": {
+                "cveid": "CVE-2006-5779",
+                "cvss_access_complexity": "Low",
+                "cvss_access_vector": "Network",
+                "cvss_authentication": "None required",
+                "cvss_availability_impact": "Partial",
+                "cvss_base": 5.0,
+                "cvss_confidentiality_impact": "None",
+                "cvss_exploit": 10.0,
+                "cvss_impact": 2.9,
+                "cvss_integrity_impact": "None",
+                "cvss_vector": [
+                    "AV:N",
+                    "AC:L",
+                    "Au:N",
+                    "C:N",
+                    "I:N",
+                    "A:P"
+                ],
+                "cweid": "CWE-399",
+                "mod_date": "26-08-2011",
+                "pub_date": "07-11-2006",
+                "summary": "OpenLDAP before 2.3.29 allows remote attackers to cause a denial of service (daemon crash) via LDAP BIND requests with long authcid names, which triggers an assertion failure."
+            }
+        },
+        {
+            "CVE-2006-6493": {
+                "cveid": "CVE-2006-6493",
+                "cvss_access_complexity": "High",
+                "cvss_access_vector": "Network",
+                "cvss_authentication": "None required",
+                "cvss_availability_impact": "Partial",
+                "cvss_base": 5.1,
+                "cvss_confidentiality_impact": "Partial",
+                "cvss_exploit": 4.9,
+                "cvss_impact": 6.4,
+                "cvss_integrity_impact": "Partial",
+                "cvss_vector": [
+                    "AV:N",
+                    "AC:H",
+                    "Au:N",
+                    "C:P",
+                    "I:P",
+                    "A:P"
+                ],
+                "cweid": "CWE-0",
+                "mod_date": "07-03-2011",
+                "pub_date": "12-12-2006",
+                "summary": "Buffer overflow in the krbv4_ldap_auth function in servers/slapd/kerberos.c in OpenLDAP 2.4.3 and earlier, when OpenLDAP is compiled with the --enable-kbind (Kerberos KBIND) option, allows remote attackers to execute arbitrary code via an LDAP bind request using the LDAP_AUTH_KRBV41 authentication method and long credential data."
+            }
+        },
+        {
+            "CVE-2007-5707": {
+                "cveid": "CVE-2007-5707",
+                "cvss_access_complexity": "Medium",
+                "cvss_access_vector": "Network",
+                "cvss_authentication": "None required",
+                "cvss_availability_impact": "Complete",
+                "cvss_base": 7.1,
+                "cvss_confidentiality_impact": "None",
+                "cvss_exploit": 8.6,
+                "cvss_impact": 6.9,
+                "cvss_integrity_impact": "None",
+                "cvss_vector": [
+                    "AV:N",
+                    "AC:M",
+                    "Au:N",
+                    "C:N",
+                    "I:N",
+                    "A:C"
+                ],
+                "cweid": "CWE-399",
+                "mod_date": "07-03-2011",
+                "pub_date": "30-10-2007",
+                "summary": "OpenLDAP before 2.3.39 allows remote attackers to cause a denial of service (slapd crash) via an LDAP request with a malformed objectClasses attribute.  NOTE: this has been reported as a double free, but the reports are inconsistent."
+            }
+        },
+        {
+            "CVE-2007-5708": {
+                "cveid": "CVE-2007-5708",
+                "cvss_access_complexity": "Medium",
+                "cvss_access_vector": "Network",
+                "cvss_authentication": "None required",
+                "cvss_availability_impact": "Complete",
+                "cvss_base": 7.1,
+                "cvss_confidentiality_impact": "None",
+                "cvss_exploit": 8.6,
+                "cvss_impact": 6.9,
+                "cvss_integrity_impact": "None",
+                "cvss_vector": [
+                    "AV:N",
+                    "AC:M",
+                    "Au:N",
+                    "C:N",
+                    "I:N",
+                    "A:C"
+                ],
+                "cweid": "CWE-399",
+                "mod_date": "07-03-2011",
+                "pub_date": "30-10-2007",
+                "summary": "slapo-pcache (overlays/pcache.c) in slapd in OpenLDAP before 2.3.39, when running as a proxy-caching server, allocates memory using a malloc variant instead of calloc, which prevents an array from being initialized properly and might allow attackers to cause a denial of service (segmentation fault) via unknown vectors that prevent the array from being null terminated."
+            }
+        },
+        {
+            "CVE-2011-4079": {
+                "cveid": "CVE-2011-4079",
+                "cvss_access_complexity": "Low",
+                "cvss_access_vector": "Network",
+                "cvss_authentication": "Requires single instance",
+                "cvss_availability_impact": "Partial",
+                "cvss_base": 4.0,
+                "cvss_confidentiality_impact": "None",
+                "cvss_exploit": 8.0,
+                "cvss_impact": 2.9,
+                "cvss_integrity_impact": "None",
+                "cvss_vector": [
+                    "AV:N",
+                    "AC:L",
+                    "Au:S",
+                    "C:N",
+                    "I:N",
+                    "A:P"
+                ],
+                "cweid": "CWE-189",
+                "mod_date": "06-01-2017",
+                "pub_date": "27-10-2011",
+                "summary": "Off-by-one error in the UTF8StringNormalize function in OpenLDAP 2.4.26 and earlier allows remote attackers to cause a denial of service (slapd crash) via a zero-length string that triggers a heap-based buffer overflow, as demonstrated using an empty postalAddressAttribute value in an LDIF entry."
+            }
+        },
+        {
+            "BID-83610": ""
+        },
+        {
+            "BID-83843": ""
+        }
+    ]
 ```
 
-To get all info about specific CVE
+For getting all information about a specific CVE, you must run the next command:
 ```
     python3 dagda.py vuln --cveinfo CVE-2009-2890
 ```
 The expected output for the previous query is shown below:
 ```
-[
-    {
-        "cveid": "CVE-2009-2890",
-        "cvss_access_complexity": "Medium",
-        "cvss_access_vector": "Network",
-        "cvss_authentication": "None required",
-        "cvss_availability_impact": "None",
-        "cvss_base": 4.3,
-        "cvss_confidentiality_impact": "None",
-        "cvss_exploit": 8.6,
-        "cvss_impact": 2.9,
-        "cvss_integrity_impact": "Partial",
-        "cvss_vector": [
-            "AV:N",
-            "AC:M",
-            "Au:N",
-            "C:N",
-            "I:P",
-            "A:N"
-        ],
-        "cweid": "CWE-79",
-        "mod_date": "20-08-2009",
-        "pub_date": "20-08-2009",
-        "summary": "Cross-site scripting (XSS) vulnerability in results.php in PHP Scripts Now Riddles allows remote attackers to inject arbitrary web script or HTML via the searchquery parameter."
-    }
-]
+    [
+        {
+            "cveid": "CVE-2009-2890",
+            "cvss_access_complexity": "Medium",
+            "cvss_access_vector": "Network",
+            "cvss_authentication": "None required",
+            "cvss_availability_impact": "None",
+            "cvss_base": 4.3,
+            "cvss_confidentiality_impact": "None",
+            "cvss_exploit": 8.6,
+            "cvss_impact": 2.9,
+            "cvss_integrity_impact": "Partial",
+            "cvss_vector": [
+                "AV:N",
+                "AC:M",
+                "Au:N",
+                "C:N",
+                "I:P",
+                "A:N"
+            ],
+            "cweid": "CWE-79",
+            "mod_date": "20-08-2009",
+            "pub_date": "20-08-2009",
+            "summary": "Cross-site scripting (XSS) vulnerability in results.php in PHP Scripts Now Riddles allows remote attackers to inject arbitrary web script or HTML via the searchquery parameter."
+        }
+    ]
 ```
 
 If you want to know more details about `dagda.py vuln`, type `python3 dagda.py vuln --help` or see the [*vuln* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#vuln-sub-command) in the wiki page.
 
 #### Database contents
 
-The database is called `vuln_database` and there are 3 collections:
+The database is called `vuln_database` and there are 4 collections:
 
 * cve (Common Vulnerabilities and Exposure items) - source NVD NIST
-* cve Info (Get items from https://nvd.nist.gov/download/ and https://static.nvd.nist.gov/feeds/xml/cve/)
+   * cve_info (Extends the information about CVE items) - source NVD NIST
 * bid (BugTraqs Ids items from `http://www.securityfocus.com/`) - source [bidDB_downloader](https://github.com/eliasgranderubio/bidDB_downloader)
 * exploit_db (Offensive Security - Exploit Database) - source [Offensive Security](https://github.com/offensive-security/exploit-database)
 
@@ -410,16 +413,68 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                         "version": "2.20",
                         "is_vulnerable": true,
                         "vulnerabilities": [
-                            "CVE-2015-1345"
+                            {
+                                "CVE-2015-1345": {
+                                    "cveid": "CVE-2015-1345",
+                                    "cvss_access_complexity": "Low",
+                                    "cvss_access_vector": "Local access",
+                                    "cvss_authentication": "None required",
+                                    "cvss_availability_impact": "Partial",
+                                    "cvss_base": 2.1,
+                                    "cvss_confidentiality_impact": "None",
+                                    "cvss_exploit": 3.9,
+                                    "cvss_impact": 2.9,
+                                    "cvss_integrity_impact": "None",
+                                    "cvss_vector": [
+                                        "AV:L",
+                                        "AC:L",
+                                        "Au:N",
+                                        "C:N",
+                                        "I:N",
+                                        "A:P"
+                                    ],
+                                    "cweid": "CWE-119",
+                                    "mod_date": "23-12-2016",
+                                    "pub_date": "12-02-2015",
+                                    "summary": "The bmexec_trans function in kwset.c in grep 2.19 through 2.21 allows local users to cause a denial of service (out-of-bounds heap read and crash) via crafted input when using the -F option."
+                                }
+                            }
                         ]
                     },
                     {
+                        "is_vulnerable": true,
                         "product": "lua",
                         "version": "5.1.4",
-                        "is_vulnerable": true,
                         "vulnerabilities": [
-                            "CVE-2014-5461",
-                            "BID-34237"
+                            {
+                                "CVE-2014-5461": {
+                                    "cveid": "CVE-2014-5461",
+                                    "cvss_access_complexity": "Low",
+                                    "cvss_access_vector": "Network",
+                                    "cvss_authentication": "None required",
+                                    "cvss_availability_impact": "Partial",
+                                    "cvss_base": 5.0,
+                                    "cvss_confidentiality_impact": "None",
+                                    "cvss_exploit": 10.0,
+                                    "cvss_impact": 2.9,
+                                    "cvss_integrity_impact": "None",
+                                    "cvss_vector": [
+                                        "AV:N",
+                                        "AC:L",
+                                        "Au:N",
+                                        "C:N",
+                                        "I:N",
+                                        "A:P"
+                                    ],
+                                    "cweid": "CWE-119",
+                                    "mod_date": "06-01-2017",
+                                    "pub_date": "04-09-2014",
+                                    "summary": "Buffer overflow in the vararg functions in ldo.c in Lua 5.1 through 5.2.x before 5.2.3 allows context-dependent attackers to cause a denial of service (crash) via a small number of arguments to a function with a large number of fixed arguments."
+                                }
+                            },
+                            {
+                                "BID-34237": ""
+                            }
                         ]
                     },
                     [...]
@@ -439,17 +494,73 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                             "product": "xalan-java",
                             "version": "2.5.2",
                             "vulnerabilities": [
-                                "CVE-2014-0107",
-                                "BID-30591",
-                                "BID-32862",
-                                "BID-66397"
+                                {
+                                    "CVE-2014-0107": {
+                                        "cveid": "CVE-2014-0107",
+                                        "cvss_access_complexity": "Low",
+                                        "cvss_access_vector": "Network",
+                                        "cvss_authentication": "None required",
+                                        "cvss_availability_impact": "Partial",
+                                        "cvss_base": 7.5,
+                                        "cvss_confidentiality_impact": "Partial",
+                                        "cvss_exploit": 10.0,
+                                        "cvss_impact": 6.4,
+                                        "cvss_integrity_impact": "Partial",
+                                        "cvss_vector": [
+                                            "AV:N",
+                                            "AC:L",
+                                            "Au:N",
+                                            "C:P",
+                                            "I:P",
+                                            "A:P"
+                                        ],
+                                        "cweid": "CWE-264",
+                                        "mod_date": "06-01-2017",
+                                        "pub_date": "15-04-2014",
+                                        "summary": "The TransformerFactory in Apache Xalan-Java before 2.7.2 does not properly restrict access to certain properties when FEATURE_SECURE_PROCESSING is enabled, which allows remote attackers to bypass expected restrictions and load arbitrary classes or access external resources via a crafted (1) xalan:content-header, (2) xalan:entities, (3) xslt:content-header, or (4) xslt:entities property, or a Java property that is bound to the XSLT 1.0 system-property function."
+                                    }
+                                },
+                                {
+                                    "BID-30591": ""
+                                },
+                                {
+                                    "BID-32862": ""
+                                },
+                                {
+                                    "BID-66397": ""
+                                }
                             ]
                         },
                         {
                             "product": "jboss_wildfly_application_server",
                             "version": "-",
                             "vulnerabilities": [
-                                "CVE-2014-0018"
+                                {
+                                    "CVE-2014-0018": {
+                                        "cveid": "CVE-2014-0018",
+                                        "cvss_access_complexity": "Medium",
+                                        "cvss_access_vector": "Local access",
+                                        "cvss_authentication": "None required",
+                                        "cvss_availability_impact": "None",
+                                        "cvss_base": 1.9,
+                                        "cvss_confidentiality_impact": "None",
+                                        "cvss_exploit": 3.4,
+                                        "cvss_impact": 2.9,
+                                        "cvss_integrity_impact": "Partial",
+                                        "cvss_vector": [
+                                            "AV:L",
+                                            "AC:M",
+                                            "Au:N",
+                                            "C:N",
+                                            "I:P",
+                                            "A:N"
+                                        ],
+                                        "cweid": "CWE-264",
+                                        "mod_date": "06-01-2017",
+                                        "pub_date": "14-02-2014",
+                                        "summary": "Red Hat JBoss Enterprise Application Platform (JBEAP) 6.2.0 and JBoss WildFly Application Server, when run under a security manager, do not properly restrict access to the Modular Service Container (MSC) service registry, which allows local users to modify the server via a crafted deployment."
+                                    }
+                                }
                             ]
                         },
                         [...]
@@ -457,8 +568,35 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                             "product": "jboss_weld",
                             "version": "3.0.0",
                             "vulnerabilities": [
-                                "CVE-2014-8122",
-                                "BID-74252"
+                                {
+                                    "CVE-2014-8122": {
+                                        "cveid": "CVE-2014-8122",
+                                        "cvss_access_complexity": "Medium",
+                                        "cvss_access_vector": "Network",
+                                        "cvss_authentication": "None required",
+                                        "cvss_availability_impact": "None",
+                                        "cvss_base": 4.3,
+                                        "cvss_confidentiality_impact": "Partial",
+                                        "cvss_exploit": 8.6,
+                                        "cvss_impact": 2.9,
+                                        "cvss_integrity_impact": "None",
+                                        "cvss_vector": [
+                                            "AV:N",
+                                            "AC:M",
+                                            "Au:N",
+                                            "C:P",
+                                            "I:N",
+                                            "A:N"
+                                        ],
+                                        "cweid": "CWE-362",
+                                        "mod_date": "13-05-2015",
+                                        "pub_date": "13-02-2015",
+                                        "summary": "Race condition in JBoss Weld before 2.2.8 and 3.x before 3.0.0 Alpha3 allows remote attackers to obtain information from a previous conversation via vectors related to a stale thread state."
+                                    }
+                                },
+                                {
+                                    "BID-74252": ""
+                                }
                             ]
                         }
                     ],
@@ -470,7 +608,32 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                             "product": "lxml",
                             "version": "1.0.1",
                             "vulnerabilities": [
-                                "CVE-2014-3146"
+                                {
+                                    "CVE-2014-3146": {
+                                        "cveid": "CVE-2014-3146",
+                                        "cvss_access_complexity": "Medium",
+                                        "cvss_access_vector": "Network",
+                                        "cvss_authentication": "None required",
+                                        "cvss_availability_impact": "None",
+                                        "cvss_base": 4.3,
+                                        "cvss_confidentiality_impact": "None",
+                                        "cvss_exploit": 8.6,
+                                        "cvss_impact": 2.9,
+                                        "cvss_integrity_impact": "Partial",
+                                        "cvss_vector": [
+                                            "AV:N",
+                                            "AC:M",
+                                            "Au:N",
+                                            "C:N",
+                                            "I:P",
+                                            "A:N"
+                                        ],
+                                        "cweid": "CWE-0",
+                                        "mod_date": "14-04-2015",
+                                        "pub_date": "14-05-2014",
+                                        "summary": "Incomplete blacklist vulnerability in the lxml.html.clean module in lxml before 3.3.5 allows remote attackers to conduct cross-site scripting (XSS) attacks via control characters in the link scheme to the clean_html function."
+                                    }
+                                }
                             ]
                         }
                     ],

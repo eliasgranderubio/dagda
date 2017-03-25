@@ -102,7 +102,7 @@ class VulnDBCliParserTestSuite(unittest.TestCase):
 # -- Util methods
 
 def generate_args(init, init_status, cve, cveinfo, bid, exploit_db, product, product_version):
-    return AttrDict([('init', init), ('init_status', init_status), ('cve', cve), ('cveinfo', cveinfo), ('bid', bid),
+    return AttrDict([('init', init), ('init_status', init_status), ('cve', cve), ('cve_info', cveinfo), ('bid', bid),
                      ('exploit_db', exploit_db), ('product', product), ('product_version', product_version)])
 
 

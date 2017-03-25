@@ -34,7 +34,7 @@ class VulnCLIParser:
         self.parser.add_argument('--init_status', action='store_true')
         self.parser.add_argument('--bid', type=int)
         self.parser.add_argument('--cve', type=str)
-        self.parser.add_argument('--cveinfo', type=str)
+        self.parser.add_argument('--cve_info', type=str)
         self.parser.add_argument('--exploit_db', type=int)
         self.parser.add_argument('--product', type=str)
         self.parser.add_argument('--product_version', type=str)
@@ -43,7 +43,8 @@ class VulnCLIParser:
         status = self.verify_args(self.args)
         if status != 0:
             exit(status)
-   # -- Getters
+
+    # -- Getters
 
     # Gets if initialization is required
     def is_initialization_required(self):
@@ -58,8 +59,8 @@ class VulnCLIParser:
         return self.args.cve
 
     # Gets CVE value
-    def get_cveinfo(self):
-        return self.args.cveinfo
+    def get_cve_info(self):
+        return self.args.cve_info
 
     # Gets BID value
     def get_bid(self):
@@ -82,20 +83,21 @@ class VulnCLIParser:
     # Verify command line arguments
     @staticmethod
     def verify_args(args):
-        if not args.init and not args.cve and not args.cveinfo and not args.product and not args.product_version and not args.bid \
-                and not args.exploit_db and not args.init_status:
+        if not args.init and not args.cve and not args.cve_info and not args.product and not args.product_version \
+                and not args.bid and not args.exploit_db and not args.init_status:
             DagdaLogger.get_logger().error('Missing arguments.')
             return 1
         elif args.init and (args.cve or args.product or args.product_version or args.bid or args.exploit_db \
                             or args.init_status):
             DagdaLogger.get_logger().error('Argument --init: this argument must be alone.')
             return 2
-        elif args.init_status and (args.cve or args.product or args.product_version or args.bid or args.cve or args.cveinfo or args.exploit_db \
-                                   or args.init):
+        elif args.init_status and (args.cve or args.product or args.product_version or args.bid or args.cve \
+                                   or args.cve_info or args.exploit_db or args.init):
             DagdaLogger.get_logger().error('Argument --init_status: this argument must be alone.')
             return 3
         elif args.cve:
-            if args.init or args.init_status or args.product or args.product_version or args.bid or args.cveinfo or args.exploit_db:
+            if args.init or args.init_status or args.product or args.product_version or args.bid or args.cve_info \
+                    or args.exploit_db:
                 DagdaLogger.get_logger().error('Argument --cve: this argument must be alone.')
                 return 4
             else:
@@ -104,18 +106,21 @@ class VulnCLIParser:
                 if not search_obj or len(search_obj.group(0)) != len(args.cve):
                     DagdaLogger.get_logger().error('Argument --cve: The cve format must look like to CVE-2002-1234.')
                     return 5
-        elif args.cveinfo:
-            if args.init or args.init_status or args.product or args.product_version or args.bid or args.cve or args.exploit_db:
-                DagdaLogger.get_logger().error('Argument --cveinfo: this argument must be alone.')
+        elif args.cve_info:
+            if args.init or args.init_status or args.product or args.product_version or args.bid or args.cve \
+                    or args.exploit_db:
+                DagdaLogger.get_logger().error('Argument --cve_info: this argument must be alone.')
                 return 6
             else:
                 regex = r"(CVE-[0-9]{4}-[0-9]{4})"
-                search_obj = re.search(regex, args.cveinfo)
-                if not search_obj or len(search_obj.group(0)) != len(args.cveinfo):
-                    DagdaLogger.get_logger().error('Argument --cve_info: The cve format must look like to CVE-2002-1234.')
+                search_obj = re.search(regex, args.cve_info)
+                if not search_obj or len(search_obj.group(0)) != len(args.cve_info):
+                    DagdaLogger.get_logger().error('Argument --cve_info: The cve format must look like to '
+                                                   'CVE-2002-1234.')
                     return 7
         elif args.bid:
-            if args.init or args.init_status or args.product or args.product_version or args.cve or args.cveinfo or args.exploit_db:
+            if args.init or args.init_status or args.product or args.product_version or args.cve or args.cve_info \
+                    or args.exploit_db:
                 DagdaLogger.get_logger().error('Argument --bid: this argument must be alone.')
                 return 8
             else:
@@ -123,7 +128,8 @@ class VulnCLIParser:
                     DagdaLogger.get_logger().error('Argument --bid: The bid argument must be greater than zero.')
                     return 9
         elif args.exploit_db:
-            if args.init or args.init_status or args.product or args.product_version or args.cve or args.cveinfo or args.bid:
+            if args.init or args.init_status or args.product or args.product_version or args.cve or args.cve_info \
+                    or args.bid:
                 DagdaLogger.get_logger().error('Argument --exploit_db: this argument must be alone.')
                 return 10
             else:
@@ -174,7 +180,7 @@ Optional Arguments:
   --bid BID             all product with this BugTraq Id (BID) vulnerability
                         will be shown
   --cve CVE             all products with this CVE vulnerability will be shown
-  --cveinfo CVE        Shows all info about this CVE vulnerability
+  --cve_info CVE        shows all details about this CVE vulnerability
   --exploit_db EXPLOIT_DB
                         all products with this Exploit_DB Id vulnerability
                         will be shown

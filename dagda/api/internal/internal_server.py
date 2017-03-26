@@ -46,12 +46,14 @@ class InternalServer:
 
     # Sets MongoDB Driver
     @staticmethod
-    def set_mongodb_driver(mongodb_host, mongodb_port):
+    def set_mongodb_driver(mongodb_host, mongodb_port, mongodb_ssl):
         if not mongodb_host:
             mongodb_host = '127.0.0.1'
         if not mongodb_port:
             mongodb_port = 27017
-        InternalServer._mongodb_driver = MongoDbDriver(mongodb_host, mongodb_port)
+        if not mongodb_ssl:
+            mongodb_ssl = False
+        InternalServer._mongodb_driver = MongoDbDriver(mongodb_host, mongodb_port, mongodb_ssl)
 
     # Gets Docker Driver
     @staticmethod

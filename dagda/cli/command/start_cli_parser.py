@@ -35,6 +35,7 @@ class StartCLIParser:
         self.parser.add_argument('-p', '--server_port', type=int)
         self.parser.add_argument('-m', '--mongodb_host', type=str)
         self.parser.add_argument('-mp', '--mongodb_port', type=int)
+        self.parser.add_argument('--mongodb_ssl', action='store_true')
         self.parser.add_argument('--falco_rules_file', type=argparse.FileType('r'))
         self.args, self.unknown = self.parser.parse_known_args(sys.argv[2:])
         # Verify command line arguments
@@ -59,6 +60,10 @@ class StartCLIParser:
     # Gets mongodb port
     def get_mongodb_port(self):
         return self.args.mongodb_port
+
+    # Gets if mongodb ssl is enabled
+    def is_mongodb_ssl_enabled(self):
+        return self.args.mongodb_ssl
 
     # Gets falco rules
     def get_falco_rules_filename(self):
@@ -107,7 +112,7 @@ class DagdaStartParser(argparse.ArgumentParser):
 
 start_parser_text = '''usage: dagda.py start [-h] [--server_host SERVER_HOST] [--server_port SERVER_PORT]
                   [--mongodb_host MONGODB_HOST] [--mongodb_port MONGODB_PORT]
-                  [--falco_rules_file RULES_FILE]
+                  [--mongodb_ssl] [--falco_rules_file RULES_FILE]
 
 The Dagda server.
 
@@ -125,6 +130,8 @@ Optional Arguments:
   -mp MONGODB_PORT, --mongodb_port MONGODB_PORT
                         port where the MongoDB is listening. By default, the
                         MongoDB port is set to 27017
+  --mongodb_ssl         creates the connection to the MongoDB server using
+                        SSL/TLS. By default, SSL/TLS connection is disabled.
   --falco_rules_file    sysdig/falco custom rules file (See 'Falco Rules' wiki
                         page [https://github.com/draios/falco/wiki/Falco-Rules]
                         for details)

@@ -28,9 +28,10 @@ class MongoDbDriver:
     # -- Public methods
 
     # MongoDbDriver Constructor
-    def __init__(self, mongodb_host='127.0.0.1', mongodb_port=27017):
+    def __init__(self, mongodb_host='127.0.0.1', mongodb_port=27017, mongodb_ssl=False):
         super(MongoDbDriver, self).__init__()
-        self.client = pymongo.MongoClient('mongodb://' + mongodb_host + ':' + str(mongodb_port) + '/', connect=False)
+        self.client = pymongo.MongoClient('mongodb://' + mongodb_host + ':' + str(mongodb_port) + '/',
+                                          connect=False, ssl=mongodb_ssl)
         self.db = self.client.vuln_database
 
     # -- Inserting and bulk inserting methods

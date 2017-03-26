@@ -28,9 +28,16 @@ class MongoDbDriver:
     # -- Public methods
 
     # MongoDbDriver Constructor
-    def __init__(self, mongodb_host='127.0.0.1', mongodb_port=27017, mongodb_ssl=False):
+    def __init__(self, mongodb_host='127.0.0.1', mongodb_port=27017, mongodb_ssl=False,
+                 mongodb_user=None, mongodb_pass=None):
         super(MongoDbDriver, self).__init__()
-        self.client = pymongo.MongoClient('mongodb://' + mongodb_host + ':' + str(mongodb_port) + '/',
+        # Prepare auth
+        auth = ''
+        if mongodb_user is not None and mongodb_pass is not None:
+            auth = mongodb_user + ':' + mongodb_pass + '@'
+
+        # Init
+        self.client = pymongo.MongoClient('mongodb://' + auth + mongodb_host + ':' + str(mongodb_port) + '/',
                                           connect=False, ssl=mongodb_ssl)
         self.db = self.client.vuln_database
 

@@ -57,6 +57,8 @@ def main(parsed_args):
                          mongodb_host=parsed_args.get_mongodb_host(),
                          mongodb_port=parsed_args.get_mongodb_port(),
                          mongodb_ssl=parsed_args.is_mongodb_ssl_enabled(),
+                         mongodb_user=parsed_args.get_mongodb_user(),
+                         mongodb_pass=parsed_args.get_mongodb_pass(),
                          falco_rules_filename=parsed_args.get_falco_rules_filename())
         ds.run()
 

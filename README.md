@@ -1,6 +1,8 @@
 # Dagda
 [![Build Status](https://travis-ci.org/eliasgranderubio/dagda.svg?branch=master)](https://travis-ci.org/eliasgranderubio/dagda)
 [![Coverage Status](https://coveralls.io/repos/github/eliasgranderubio/dagda/badge.svg?branch=master)](https://coveralls.io/github/eliasgranderubio/dagda?branch=master)
+[![Python](https://img.shields.io/badge/python-3.3%2C%203.4%2C%203.5%2C%203.6-blue.svg)](https://github.com/eliasgranderubio/dagda)
+[![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/eliasgranderubio/dagda)
 
 **Dagda** is a tool to perform static analysis of known vulnerabilities in docker images/containers and to monitor running docker containers for detecting anomalous activities.
 
@@ -42,9 +44,9 @@ Finally, each analysis report of a docker image/container, included all static a
    * [Bugs and Feedback](#bugs-and-feedback)
 
 ## Requirements
-Before **Dagda** usage, you must have installed Python >= 3.4.5 and the next requirements:
+Before **Dagda** usage, you must have installed the next requirements:
 
-* Python3.4.5 or later
+* Python 3.3.X or later
 * MongoDB 2.4 or later
 * Docker
 * Pip3

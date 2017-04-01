@@ -328,7 +328,13 @@ class MongoDbDriver:
                 report = {}
                 report['reportid'] = str(scan['_id'])
                 report['image_name'] = scan['image_name']
-                report['status'] = scan['status']
+
+                # Gets status info
+                if 'status' in scan:
+                    report['status'] = scan['status']
+                else:
+                    report['status'] = 'Unknown'
+
                 report['start_date'] = str(datetime.datetime.utcfromtimestamp(scan['timestamp']))
                 report['os_vulns'] = 0
                 report['libs_vulns'] = 0

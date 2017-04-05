@@ -39,7 +39,6 @@ FEATURES_LIST = [ACCESS_VECTOR, ACCESS_COMPLEXITY, AUTHENTICATION, CONFIDENTIALI
                  AVAILABILITY_IMPACT]
 
 
-
 # Gets HTTP resource content
 def get_http_resource_content(url):
     r = requests.get(url)
@@ -111,7 +110,7 @@ def get_cve_description_from_file(compressed_content):
                                     }
         except KeyError:
             # Any error continue
-            None
+            pass
     return dict(cve_info_set)
 
 
@@ -181,7 +180,7 @@ def get_bug_traqs_lists_from_file(compressed_file):
             json_data = json.loads(line.decode("utf-8"))
             parse_bid_from_json(json_data, items)
         except:
-            None
+            pass
         # Bulk insert
         if len(items) > 8000:
             output_array.append(list(items))
@@ -202,7 +201,7 @@ def get_bug_traqs_lists_from_online_mode(bid_list):
             json_data = json.loads(line)
             parse_bid_from_json(json_data, items)
         except:
-            None
+            pass
         # Bulk insert
         if len(items) > 8000:
             output_array.append(list(items))

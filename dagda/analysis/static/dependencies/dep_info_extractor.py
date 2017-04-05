@@ -50,6 +50,8 @@ def get_dependencies_from_docker_image(docker_driver, image_name):
     dependencies_info = raw_info_to_json_array(read_depcheck_output_file(image_name))
     # Stop container
     docker_driver.docker_stop(container_id)
+    # Clean up
+    docker_driver.docker_remove_container(container_id)
     # Return
     return get_filtered_dependencies_info(dependencies_info)
 

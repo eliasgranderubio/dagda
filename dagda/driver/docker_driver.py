@@ -51,7 +51,7 @@ class DockerDriver:
                     ids = c['Id']
         except NotFound:
             # Nothing to do
-            None
+            pass
         return ids
 
     # Checks if docker image is in the local machine
@@ -82,6 +82,10 @@ class DockerDriver:
     # Removes the docker image
     def docker_remove_image(self, image_name):
         self.cli.remove_image(image=image_name, force=True)
+
+    # Removes docker container
+    def docker_remove_container(self, container_id):
+        self.cli.remove_container(container=container_id, force=True)
 
     # Start container
     def docker_start(self, container_id):

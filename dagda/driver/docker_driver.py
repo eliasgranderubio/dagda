@@ -31,7 +31,9 @@ class DockerDriver:
     def __init__(self):
         super(DockerDriver, self).__init__()
         try:
-            self.cli = docker.APIClient(base_url='unix://var/run/docker.sock', version="auto", timeout=3600)
+            # Return a client configured from environment variables. The environment variables used are the same as
+            # those used by the Docker command-line client.
+            self.cli = docker.from_env(version="auto", timeout=3600).api
         except DockerException:
             DagdaLogger.get_logger().error('Error while fetching Docker server API version: Assumming Travis CI tests.')
             self.cli = None

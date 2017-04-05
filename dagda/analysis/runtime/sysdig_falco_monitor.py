@@ -78,6 +78,10 @@ class SysdigFalcoMonitor:
             DagdaLogger.get_logger().warning("I'm running inside a docker container, so I can't check if the kernel "
                                              "headers are installed in the host operating system. Please, review it!!")
 
+        # Check Docker driver
+        if self.docker_driver.get_docker_client() is None:
+            raise DagdaError('Error while fetching Docker server API version.')
+
         # Docker pull for ensuring the sysdig/falco image
         self.docker_driver.docker_pull('sysdig/falco')
 

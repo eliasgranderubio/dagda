@@ -84,10 +84,13 @@ def get_products_by_bid(bid_id):
 # Gets products by Exploit DB Id
 @vuln_api.route('/v1/vuln/exploit/<int:exploit_id>', methods=['GET'])
 def get_products_by_exploit_id(exploit_id):
-    products = InternalServer.get_mongodb_driver().get_products_by_exploit_db_id(exploit_id)
-    if len(products) == 0:
-        return json.dumps({'err': 404, 'msg': 'Exploit Id not found'}, sort_keys=True), 404
-    return json.dumps(products, sort_keys=True)
+    return _execute_exploit_query(exploit_id=exploit_id, details=False)
+
+
+# Gets Exploit DB details
+@vuln_api.route('/v1/vuln/exploit/<int:exploit_id>/details', methods=['GET'])
+def get_exploit_details(exploit_id):
+    return _execute_exploit_query(exploit_id=exploit_id, details=True)
 
 
 # -- Private methods
@@ -104,4 +107,15 @@ def _execute_cve_query(cve_id, details):
         result = InternalServer.get_mongodb_driver().get_cve_info_by_cve_id(cve_id)
     if len(result) == 0:
         return json.dumps({'err': 404, 'msg': 'CVE not found'}, sort_keys=True), 404
+    return json.dumps(result, sort_keys=True)
+
+
+# Executes Exploit DB query
+def _execute_exploit_query(exploit_id, details):
+    if not details:
+        result = InternalServer.get_mongodb_driver().get_products_by_exploit_db_id(exploit_id)
+    else:
+        result = InternalServer.get_mongodb_driver().get_exploit_info_by_id(exploit_id)
+    if len(result) == 0:
+        return json.dumps({'err': 404, 'msg': 'Exploit Id not found'}, sort_keys=True), 404
     return json.dumps(result, sort_keys=True)

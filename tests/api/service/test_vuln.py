@@ -49,7 +49,6 @@ class VulnApiTestCase(unittest.TestCase):
         def get_init_db_process_status(self):
             return {'timestamp': None}
 
-
     class MockMongoDriverWithContent():
         def get_vulnerabilities(self, product, version):
             return ['CVE-2002-2002']

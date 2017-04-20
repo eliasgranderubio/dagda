@@ -42,8 +42,9 @@ class ExtSourceUtilTestCase(unittest.TestCase):
         self.assertTrue("CVE-2003-0694#sendmail#sendmail_switch#2.1.5#2003" in cve_list)
 
     def test_get_exploit_db_list_from_csv(self):
-        exploit_db_list = get_exploit_db_list_from_csv(mock_exploit_db_csv_content)
+        exploit_db_list, exploit_db_info_list = get_exploit_db_list_from_csv(mock_exploit_db_csv_content)
         self.assertEqual(len(exploit_db_list), 3)
+        self.assertEqual(len(exploit_db_info_list), 3)
         # Check Exploits
         self.assertTrue("11#apache#2.0.44" in exploit_db_list)
         self.assertTrue("468#pigeon server#3.02.0143" in exploit_db_list)

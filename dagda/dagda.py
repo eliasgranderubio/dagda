@@ -77,6 +77,7 @@ def main(parsed_args):
                     # Gets products by CVE
                     r = requests.get(dagda_base_url + '/vuln/cve/' + parsed_args.get_cve())
                 elif parsed_args.get_cve_info():
+                    # Gets CVE details
                     r = requests.get(dagda_base_url + '/vuln/cve/' + parsed_args.get_cve_info() + '/details')
                 elif parsed_args.get_bid():
                     # Gets products by BID
@@ -84,6 +85,10 @@ def main(parsed_args):
                 elif parsed_args.get_exploit_db_id():
                     # Gets products by Exploit DB Id
                     r = requests.get(dagda_base_url + '/vuln/exploit/' + str(parsed_args.get_exploit_db_id()))
+                elif parsed_args.get_exploit_db_info_id():
+                    # Gets Exploit details
+                    r = requests.get(dagda_base_url + '/vuln/exploit/' + str(parsed_args.get_exploit_db_info_id()) +
+                                     '/details')
                 else:
                     # Gets CVEs, BIDs and Exploit_DB Ids by product and version
                     if not parsed_args.get_product_version():

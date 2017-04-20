@@ -36,6 +36,7 @@ class VulnCLIParser:
         self.parser.add_argument('--cve', type=str)
         self.parser.add_argument('--cve_info', type=str)
         self.parser.add_argument('--exploit_db', type=int)
+        self.parser.add_argument('--exploit_db_info', type=int)
         self.parser.add_argument('--product', type=str)
         self.parser.add_argument('--product_version', type=str)
         self.args, self.unknown = self.parser.parse_known_args()
@@ -70,6 +71,10 @@ class VulnCLIParser:
     def get_exploit_db_id(self):
         return self.args.exploit_db
 
+    # Gets Exploit_DB Id value
+    def get_exploit_db_info_id(self):
+        return self.args.exploit_db_info
+
     # Gets the product
     def get_product(self):
         return self.args.product
@@ -84,20 +89,20 @@ class VulnCLIParser:
     @staticmethod
     def verify_args(args):
         if not args.init and not args.cve and not args.cve_info and not args.product and not args.product_version \
-                and not args.bid and not args.exploit_db and not args.init_status:
+                and not args.bid and not args.exploit_db and not args.exploit_db_info and not args.init_status:
             DagdaLogger.get_logger().error('Missing arguments.')
             return 1
         elif args.init and (args.cve or args.product or args.product_version or args.bid or args.exploit_db \
-                            or args.init_status):
+                            or args.exploit_db_info or args.init_status):
             DagdaLogger.get_logger().error('Argument --init: this argument must be alone.')
             return 2
         elif args.init_status and (args.cve or args.product or args.product_version or args.bid or args.cve \
-                                   or args.cve_info or args.exploit_db or args.init):
+                                   or args.cve_info or args.exploit_db or args.exploit_db_info or args.init):
             DagdaLogger.get_logger().error('Argument --init_status: this argument must be alone.')
             return 3
         elif args.cve:
             if args.init or args.init_status or args.product or args.product_version or args.bid or args.cve_info \
-                    or args.exploit_db:
+                    or args.exploit_db or args.exploit_db_info:
                 DagdaLogger.get_logger().error('Argument --cve: this argument must be alone.')
                 return 4
             else:
@@ -108,7 +113,7 @@ class VulnCLIParser:
                     return 5
         elif args.cve_info:
             if args.init or args.init_status or args.product or args.product_version or args.bid or args.cve \
-                    or args.exploit_db:
+                    or args.exploit_db or args.exploit_db_info:
                 DagdaLogger.get_logger().error('Argument --cve_info: this argument must be alone.')
                 return 6
             else:
@@ -120,7 +125,7 @@ class VulnCLIParser:
                     return 7
         elif args.bid:
             if args.init or args.init_status or args.product or args.product_version or args.cve or args.cve_info \
-                    or args.exploit_db:
+                    or args.exploit_db or args.exploit_db_info:
                 DagdaLogger.get_logger().error('Argument --bid: this argument must be alone.')
                 return 8
             else:
@@ -129,16 +134,27 @@ class VulnCLIParser:
                     return 9
         elif args.exploit_db:
             if args.init or args.init_status or args.product or args.product_version or args.cve or args.cve_info \
-                    or args.bid:
+                    or args.bid or args.exploit_db_info:
                 DagdaLogger.get_logger().error('Argument --exploit_db: this argument must be alone.')
                 return 10
             else:
                 if args.exploit_db <= 0:
-                    DagdaLogger.get_logger().error('Argument --exploit_db: The bid argument must be greater than zero.')
+                    DagdaLogger.get_logger().error('Argument --exploit_db: The exploit_db argument must be '
+                                                   'greater than zero.')
                     return 11
+        elif args.exploit_db_info:
+            if args.init or args.init_status or args.product or args.product_version or args.cve or args.cve_info \
+                    or args.bid or args.exploit_db:
+                DagdaLogger.get_logger().error('Argument --exploit_db_info: this argument must be alone.')
+                return 12
+            else:
+                if args.exploit_db_info <= 0:
+                    DagdaLogger.get_logger().error('Argument --exploit_db_info: The exploit_db_info argument '
+                                                   'must be greater than zero.')
+                    return 13
         elif args.product_version and not args.product:
             DagdaLogger.get_logger().error('Argument --product_version: this argument requires the --product argument.')
-            return 12
+            return 14
         # Else
         return 0
 
@@ -161,7 +177,8 @@ class DagdaVulnParser(argparse.ArgumentParser):
 
 vuln_parser_text = '''usage: dagda.py vuln [-h] [--init] [--init_status]
                   [--bid BID] [--cve CVE] [--cve_info CVE] [--exploit_db EXPLOIT_DB]
-                  [--product PRODUCT] [--product_version PRODUCT_VERSION]
+                  [--exploit_db_info EXPLOIT_DB] [--product PRODUCT] 
+                  [--product_version PRODUCT_VERSION]
 
 Your personal CVE, BID & ExploitDB database.
 
@@ -177,13 +194,19 @@ Optional Arguments:
                         CVEs, BIDs and exploits of your local database will be
                         updated.
   --init_status         retrieves the initialization status
+  
   --bid BID             all product with this BugTraq Id (BID) vulnerability
                         will be shown
+                        
   --cve CVE             all products with this CVE vulnerability will be shown
   --cve_info CVE        shows all details about this CVE vulnerability
+  
   --exploit_db EXPLOIT_DB
                         all products with this Exploit_DB Id vulnerability
                         will be shown
+  --exploit_db_info EXPLOIT_DB
+                        shows all details about this exploit
+                        
   --product PRODUCT     all CVE/BID vulnerabilities and exploits of this
                         product will be shown
   --product_version PRODUCT_VERSION

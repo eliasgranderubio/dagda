@@ -135,7 +135,9 @@ def get_cve_cweid_from_file(compressed_content, cve_dict):
 # Gets Exploit_db list from csv file
 def get_exploit_db_list_from_csv(csv_content):
     items = set()
+    exploits_details = []
     for line in csv_content.split("\n"):
+        item_added = False
         splitted_line = line.split(',')
         if splitted_line[0] != 'id' and len(splitted_line) > 3:
             exploit_db_id = splitted_line[0]
@@ -150,11 +152,13 @@ def get_exploit_db_list_from_csv(csv_content):
                     item = str(exploit_db_id) + "#" + description + "#" + str(version)
                     if item not in items:
                         items.add(item)
+                        item_added = True
                     for match in iterator:
                         version = match.group()
                         item = str(exploit_db_id) + "#" + description + "#" + str(version)
                         if item not in items:
                             items.add(item)
+                            item_added = True
                 else:
                     if '<' not in description and '>' not in description:
                         iterator = re.finditer("\s([0-9])+$", description)
@@ -166,8 +170,18 @@ def get_exploit_db_list_from_csv(csv_content):
                             item = str(exploit_db_id) + "#" + description + "#" + str(version)
                             if item not in items:
                                 items.add(item)
+                                item_added = True
+                # Generate exploit details
+                if item_added:
+                    details = {}
+                    details['exploit_db_id'] = int(splitted_line[0])
+                    details['description'] = splitted_line[2][1:len(splitted_line[2]) - 1]
+                    details['platform'] = splitted_line[5] if splitted_line[5] is not None else ''
+                    details['type'] = splitted_line[6] if splitted_line[6] is not None else ''
+                    details['port'] = int(splitted_line[7]) if splitted_line[7] is not None else 0
+                    exploits_details.append(details)
     # Return
-    return list(items)
+    return list(items), exploits_details
 
 
 # Gets BugTraq lists from gz file

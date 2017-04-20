@@ -68,11 +68,14 @@ class DBComposer:
                 self.mongoDbDriver.bulk_insert_cves_info(cve_ext_info_list)
 
         # -- Exploit DB
-        # Adding or updating Exploit_db
+        # Adding or updating Exploit_db and Exploit_db info
         self.mongoDbDriver.delete_exploit_db_collection()
+        self.mongoDbDriver.delete_exploit_db_info_collection()
         csv_content = get_http_resource_content(
             'https://github.com/offensive-security/exploit-database/raw/master/files.csv')
-        self.mongoDbDriver.bulk_insert_exploit_db_ids(get_exploit_db_list_from_csv(csv_content.decode("utf-8")))
+        exploit_db_list, exploit_db_info_list = get_exploit_db_list_from_csv(csv_content.decode("utf-8"))
+        self.mongoDbDriver.bulk_insert_exploit_db_ids(exploit_db_list)
+        self.mongoDbDriver.bulk_insert_exploit_db_info(exploit_db_info_list)
 
         # -- BID
         # Adding BugTraqs from 20161118_sf_db.json.gz, where 94417 is the max bid in the gz file

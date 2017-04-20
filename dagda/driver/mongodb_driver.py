@@ -96,6 +96,12 @@ class MongoDbDriver:
         self.db.exploit_db.create_index([('product', 'text')], default_language='none')
         self.db.exploit_db.insert_many(products)
 
+    # Bulk insert the exploit_db info list
+    def bulk_insert_exploit_db_info(self, exploit_db_info_list):
+        # Bulk insert
+        self.db.exploit_db_info.create_index([('exploit_db_id', pymongo.DESCENDING)])
+        self.db.exploit_db_info.insert_many(exploit_db_info_list)
+
     # Bulk insert the sysdig/falco events
     def bulk_insert_sysdig_falco_events(self, events):
         sysdig_falco_events = []
@@ -151,6 +157,10 @@ class MongoDbDriver:
     # Removes exploit_db collection
     def delete_exploit_db_collection(self):
         self.db.exploit_db.drop()
+
+    # Removes exploit_db info collection
+    def delete_exploit_db_info_collection(self):
+        self.db.exploit_db_info.drop()
 
     # Removes bid collection
     def delete_bid_collection(self):
@@ -280,10 +290,24 @@ class MongoDbDriver:
         output = []
         for info in cursor:
             if info is not None:
-                # delte objectid and convert datetime to str
+                # delete objectid and convert datetime to str
                 del info['_id']
                 info['mod_date']=info['mod_date'].strftime('%d-%m-%Y')
                 info['pub_date']=info['pub_date'].strftime('%d-%m-%Y')
+                output.append(info)
+        # Return
+        return output
+
+    # Gets Exploit description by id
+    def get_exploit_info_by_id(self, exploit_db_id):
+        cursor = self.db.exploit_db_info.find({'exploit_db_id': exploit_db_id}).sort(
+            [("exploit_db_id", pymongo.ASCENDING)])
+        # Prepare output
+        output = []
+        for info in cursor:
+            if info is not None:
+                # delete objectid
+                del info['_id']
                 output.append(info)
         # Return
         return output

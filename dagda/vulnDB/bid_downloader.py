@@ -21,6 +21,7 @@ import requests
 import json
 import re
 from joblib import Parallel, delayed
+from log.dagda_logger import DagdaLogger
 
 
 # Get vulnerability title from HTML body
@@ -59,17 +60,23 @@ def prepare_output(title, bugtraq_id, vuln_products):
 
 # Requests the bid, parses the HTML and prints the BugTraq info
 def get_bid(bugtraq_id):
-    r = requests.get("http://www.securityfocus.com/bid/" + str(bugtraq_id))
-    if r.status_code == 200:
-        try:
-            body = r.content.decode("utf-8")
-            body = body[body.index('<div id="vulnerability">'):body.index('<span class="label">Not Vulnerable:</span>')]
-            title = get_title(body)
-            vuln_products = get_vulnerable_products(body)
-        except:
-            vuln_products = []
-        if len(vuln_products) > 0:
-            return json.dumps(prepare_output(title, bugtraq_id, vuln_products), sort_keys=True)
+    url = "http://www.securityfocus.com/bid/" + str(bugtraq_id)
+    try:
+        r = requests.get(url)
+        if r.status_code == 200:
+            try:
+                body = r.content.decode("utf-8")
+                body = body[body.index('<div id="vulnerability">'):
+                            body.index('<span class="label">Not Vulnerable:</span>')]
+                title = get_title(body)
+                vuln_products = get_vulnerable_products(body)
+            except:
+                vuln_products = []
+            if len(vuln_products) > 0:
+                return json.dumps(prepare_output(title, bugtraq_id, vuln_products), sort_keys=True)
+    except requests.ConnectionError:
+        DagdaLogger.get_logger().warning('Connection error occurred with: "' + url + '"')
+        return None
 
 
 # Executes the main function called get_bid in a parallel way

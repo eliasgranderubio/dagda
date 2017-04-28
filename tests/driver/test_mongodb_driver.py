@@ -71,8 +71,18 @@ class MongoDbDriverTestCase(unittest.TestCase):
 
         self.assertDictEqual(vulnerabilities[2],{"BID-1": ""})
         self.assertDictEqual(vulnerabilities[3],{"BID-2": ""})
-        self.assertDictEqual(vulnerabilities[4],{"EXPLOIT_DB_ID-3": ""})
-        self.assertDictEqual(vulnerabilities[5],{"EXPLOIT_DB_ID-4": ""})
+        self.assertDictEqual(vulnerabilities[4],{"EXPLOIT_DB_ID-3": {'exploit_db_id': 1,
+                                                                     'description': 'Summary example',
+                                                                     'platform': 'Linux',
+                                                                     'type': 'DoS',
+                                                                     'port': 0
+                                                                    }})
+        self.assertDictEqual(vulnerabilities[5],{"EXPLOIT_DB_ID-4": {'exploit_db_id': 1,
+                                                                     'description': 'Summary example',
+                                                                     'platform': 'Linux',
+                                                                     'type': 'DoS',
+                                                                     'port': 0
+                                                                    }})
 
 
     def test_get_vulnerabilities_product_and_version_full_happy_path(self):
@@ -183,6 +193,13 @@ class FullGetVulnProdMongoDbDriver(MongoDbDriver):
                                                   "mod_date": datetime.datetime.now(),
                                                   "cweid": "CWE-0"
                                                   }
+        self.db.exploit_db_info.find_one.return_value = {'_id': '58d11025100e75000e789c9a',
+                                                         'exploit_db_id': 1,
+                                                         'description': 'Summary example',
+                                                         'platform': 'Linux',
+                                                         'type': 'DoS',
+                                                         'port': 0
+                                                        }
 
 
 class FullGetVulnProdAndVersionMongoDbDriver(MongoDbDriver):
@@ -220,6 +237,13 @@ class FullGetVulnProdAndVersionMongoDbDriver(MongoDbDriver):
                                                   "mod_date": datetime.datetime.now(),
                                                   "cweid": "CWE-0"
                                                   }
+        self.db.exploit_db_info.find_one.return_value = {'_id': '58d11025100e75000e789c9a',
+                                                         'exploit_db_id': 1,
+                                                         'description': 'Summary example',
+                                                         'platform': 'Linux',
+                                                         'type': 'DoS',
+                                                         'port': 0
+                                                        }
 
 if __name__ == '__main__':
     unittest.main()

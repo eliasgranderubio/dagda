@@ -362,6 +362,7 @@ The database is called `vuln_database` and there are 4 collections:
    * cve_info (Extends the information about CVE items) - source NVD NIST
 * bid (BugTraqs Ids items from `http://www.securityfocus.com/`) - source [bidDB_downloader](https://github.com/eliasgranderubio/bidDB_downloader)
 * exploit_db (Offensive Security - Exploit Database) - source [Offensive Security](https://github.com/offensive-security/exploit-database)
+   * exploit_db_info (Extends the information about exploits) - source [Offensive Security](https://github.com/offensive-security/exploit-database)
 
 ### Analyzing docker images/containers
 

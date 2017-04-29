@@ -29,6 +29,8 @@ def get_soft_from_docker_image(docker_driver, image_name):
         # Try to start the docker container with the next entrypoint: 'sleep 30'
         container_id = docker_driver.create_container(image_name, entrypoint='sleep 30')
         docker_driver.docker_start(container_id)
+    except docker.errors.ImageNotFound:
+        raise DagdaError('No such image: ' + image_name + ':latest')
     except docker.errors.NotFound:
         docker_driver.docker_remove_container(container_id)
         # 'sleep' is not in the $PATH, so try to start the docker container with its default entrypoint

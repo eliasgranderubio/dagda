@@ -18,17 +18,38 @@
 #
 
 import re
-import sys
+import docker
 from exception.dagda_error import DagdaError
 
 
 # Gets installed software on the OS from docker image
 def get_soft_from_docker_image(docker_driver, image_name):
     # Start container
-    container_id = docker_driver.create_container(image_name, entrypoint='sleep 30')
-    docker_driver.docker_start(container_id)
+    try:
+        # Try to start the docker container with the next entrypoint: 'sleep 30'
+        container_id = docker_driver.create_container(image_name, entrypoint='sleep 30')
+        docker_driver.docker_start(container_id)
+    except docker.errors.NotFound:
+        docker_driver.docker_remove_container(container_id)
+        # 'sleep' is not in the $PATH, so try to start the docker container with its default entrypoint
+        try:
+            container_id = docker_driver.create_container(image_name)
+            docker_driver.docker_start(container_id)
+        except:
+            docker_driver.docker_remove_container(container_id)
+            raise DagdaError('The docker container with the <' + image_name + '> image name can not be started.')
+
     # Get all installed packages
-    products = get_soft_from_docker_container_id(docker_driver, container_id)
+    try:
+        products = get_soft_from_docker_container_id(docker_driver, container_id)
+    except DagdaError:
+        # Stop container
+        docker_driver.docker_stop(container_id)
+        # Clean up
+        docker_driver.docker_remove_container(container_id)
+        # Re-raise exception
+        raise
+
     # Stop container
     docker_driver.docker_stop(container_id)
     # Clean up
@@ -41,21 +62,24 @@ def get_soft_from_docker_image(docker_driver, image_name):
 def get_soft_from_docker_container_id(docker_driver, container_id):
     # Extract Linux image distribution
     response = get_os_name(docker_driver.docker_exec(container_id, 'cat /etc/os-release', True, False))
-    # Get all installed packages
-    if 'Red Hat' in response or 'CentOS' in response or 'Fedora' in response or 'openSUSE' in response:
-        # Red Hat/CentOS/Fedora/openSUSE
-        packages_info = docker_driver.docker_exec(container_id, 'rpm -aqi', True, False)
-        products = parse_rpm_output_list(packages_info)
-    elif 'Debian' in response or 'Ubuntu' in response:
-        # Debian/Ubuntu
-        packages_info = docker_driver.docker_exec(container_id, 'dpkg -l', True, False)
-        products = parse_dpkg_output_list(packages_info)
-    elif 'Alpine' in response:
-        # Alpine
-        packages_info = docker_driver.docker_exec(container_id, 'apk -v info', True, False)
-        products = parse_apk_output_list(packages_info)
+    if response is None:
+        raise DagdaError('Linux image distribution has not the "/etc/os-release" file.')
     else:
-        raise DagdaError('Linux image distribution not supported yet.')
+        # Get all installed packages
+        if 'Red Hat' in response or 'CentOS' in response or 'Fedora' in response or 'openSUSE' in response:
+            # Red Hat/CentOS/Fedora/openSUSE
+            packages_info = docker_driver.docker_exec(container_id, 'rpm -aqi', True, False)
+            products = parse_rpm_output_list(packages_info)
+        elif 'Debian' in response or 'Ubuntu' in response:
+            # Debian/Ubuntu
+            packages_info = docker_driver.docker_exec(container_id, 'dpkg -l', True, False)
+            products = parse_dpkg_output_list(packages_info)
+        elif 'Alpine' in response:
+            # Alpine
+            packages_info = docker_driver.docker_exec(container_id, 'apk -v info', True, False)
+            products = parse_apk_output_list(packages_info)
+        else:
+            raise DagdaError('Linux image distribution not supported yet.')
     # Return packages
     return products
 

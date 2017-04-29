@@ -97,7 +97,7 @@ def get_exploit_details(exploit_id):
 
 # Executes CVE query
 def _execute_cve_query(cve_id, details):
-    regex = r"(CVE-[0-9]{4}-[0-9]{4})"
+    regex = r"(CVE-[0-9]{4}-[0-9]{4,5})"
     search_obj = re.search(regex, cve_id)
     if not search_obj or len(search_obj.group(0)) != len(cve_id):
         return json.dumps({'err': 400, 'msg': 'Bad cve format'}, sort_keys=True), 400

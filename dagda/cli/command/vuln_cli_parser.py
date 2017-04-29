@@ -106,7 +106,7 @@ class VulnCLIParser:
                 DagdaLogger.get_logger().error('Argument --cve: this argument must be alone.')
                 return 4
             else:
-                regex = r"(CVE-[0-9]{4}-[0-9]{4})"
+                regex = r"(CVE-[0-9]{4}-[0-9]{4,5})"
                 search_obj = re.search(regex, args.cve)
                 if not search_obj or len(search_obj.group(0)) != len(args.cve):
                     DagdaLogger.get_logger().error('Argument --cve: The cve format must look like to CVE-2002-1234.')
@@ -117,7 +117,7 @@ class VulnCLIParser:
                 DagdaLogger.get_logger().error('Argument --cve_info: this argument must be alone.')
                 return 6
             else:
-                regex = r"(CVE-[0-9]{4}-[0-9]{4})"
+                regex = r"(CVE-[0-9]{4}-[0-9]{4,5})"
                 search_obj = re.search(regex, args.cve_info)
                 if not search_obj or len(search_obj.group(0)) != len(args.cve_info):
                     DagdaLogger.get_logger().error('Argument --cve_info: The cve format must look like to '

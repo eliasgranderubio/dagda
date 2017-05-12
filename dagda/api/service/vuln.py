@@ -75,10 +75,13 @@ def get_cve_info_by_cve_id(cve_id):
 # Gets products by BID
 @vuln_api.route('/v1/vuln/bid/<int:bid_id>', methods=['GET'])
 def get_products_by_bid(bid_id):
-    products = InternalServer.get_mongodb_driver().get_products_by_bid(bid_id)
-    if len(products) == 0:
-        return json.dumps({'err': 404, 'msg': 'BugTraq Id not found'}, sort_keys=True), 404
-    return json.dumps(products, sort_keys=True)
+    return _execute_bid_query(bid_id=bid_id, details=False)
+
+
+# Gets BID details
+@vuln_api.route('/v1/vuln/bid/<int:bid_id>/details', methods=['GET'])
+def get_bid_details(bid_id):
+    return _execute_bid_query(bid_id=bid_id, details=True)
 
 
 # Gets products by Exploit DB Id
@@ -107,6 +110,17 @@ def _execute_cve_query(cve_id, details):
         result = InternalServer.get_mongodb_driver().get_cve_info_by_cve_id(cve_id)
     if len(result) == 0:
         return json.dumps({'err': 404, 'msg': 'CVE not found'}, sort_keys=True), 404
+    return json.dumps(result, sort_keys=True)
+
+
+# Executes BID query
+def _execute_bid_query(bid_id, details):
+    if not details:
+        result = InternalServer.get_mongodb_driver().get_products_by_bid(bid_id)
+    else:
+        result = InternalServer.get_mongodb_driver().get_bid_info_by_id(bid_id)
+    if len(result) == 0:
+        return json.dumps({'err': 404, 'msg': 'BugTraq Id not found'}, sort_keys=True), 404
     return json.dumps(result, sort_keys=True)
 
 

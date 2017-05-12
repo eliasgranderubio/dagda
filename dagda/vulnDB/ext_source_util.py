@@ -189,10 +189,13 @@ def get_bug_traqs_lists_from_file(compressed_file):
     decompressed_file = gzip.GzipFile(fileobj=compressed_file)
     items = set()
     output_array = []
+    extended_info_array = []
     for line in decompressed_file.readlines():
         try:
             json_data = json.loads(line.decode("utf-8"))
             parse_bid_from_json(json_data, items)
+            del json_data['vuln_products']
+            extended_info_array.append(json_data)
         except:
             pass
         # Bulk insert
@@ -203,17 +206,20 @@ def get_bug_traqs_lists_from_file(compressed_file):
     if len(items) > 0:
         output_array.append(list(items))
     # Return
-    return output_array
+    return output_array, extended_info_array
 
 
 # Gets BugTraq lists from gz file
 def get_bug_traqs_lists_from_online_mode(bid_list):
     items = set()
     output_array = []
+    extended_info_array = []
     for line in bid_list:
         try:
             json_data = json.loads(line)
             parse_bid_from_json(json_data, items)
+            del json_data['vuln_products']
+            extended_info_array.append(json_data)
         except:
             pass
         # Bulk insert
@@ -224,7 +230,7 @@ def get_bug_traqs_lists_from_online_mode(bid_list):
     if len(items) > 0:
         output_array.append(list(items))
     # Return
-    return output_array
+    return output_array, extended_info_array
 
 
 # Parses BID from json data

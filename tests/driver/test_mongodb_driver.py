@@ -69,8 +69,26 @@ class MongoDbDriverTestCase(unittest.TestCase):
                                                    "cweid": "CWE-0"
                                                    }})
 
-        self.assertDictEqual(vulnerabilities[2],{"BID-1": ""})
-        self.assertDictEqual(vulnerabilities[3],{"BID-2": ""})
+        self.assertDictEqual(vulnerabilities[2],{"BID-1": {
+                                                    "bugtraq_id": 15128,
+                                                    "class": "Boundary Condition Error",
+                                                    "cve": [
+                                                        "CVE-2005-2978"
+                                                    ],
+                                                    "local": "no",
+                                                    "remote": "yes",
+                                                    "title": "NetPBM PNMToPNG Buffer Overflow Vulnerability"
+                                                }})
+        self.assertDictEqual(vulnerabilities[3],{"BID-2": {
+                                                    "bugtraq_id": 15128,
+                                                    "class": "Boundary Condition Error",
+                                                    "cve": [
+                                                        "CVE-2005-2978"
+                                                    ],
+                                                    "local": "no",
+                                                    "remote": "yes",
+                                                    "title": "NetPBM PNMToPNG Buffer Overflow Vulnerability"
+                                                }})
         self.assertDictEqual(vulnerabilities[4],{"EXPLOIT_DB_ID-3": {'exploit_db_id': 1,
                                                                      'description': 'Summary example',
                                                                      'platform': 'Linux',
@@ -153,8 +171,26 @@ class MongoDbDriverTestCase(unittest.TestCase):
                                              "mod_date": datetime.datetime.now().strftime('%d-%m-%Y'),
                                              "cweid": "CWE-0"
                                              }})
-        self.assertDictEqual(vulnerabilities[4],{"BID-83610": ""})
-        self.assertDictEqual(vulnerabilities[5],{"BID-83843": ""})
+        self.assertDictEqual(vulnerabilities[4],{"BID-83610": {
+                                                    "bugtraq_id": 15128,
+                                                    "class": "Boundary Condition Error",
+                                                    "cve": [
+                                                        "CVE-2005-2978"
+                                                    ],
+                                                    "local": "no",
+                                                    "remote": "yes",
+                                                    "title": "NetPBM PNMToPNG Buffer Overflow Vulnerability"
+                                                }})
+        self.assertDictEqual(vulnerabilities[5],{"BID-83843": {
+                                                    "bugtraq_id": 15128,
+                                                    "class": "Boundary Condition Error",
+                                                    "cve": [
+                                                        "CVE-2005-2978"
+                                                    ],
+                                                    "local": "no",
+                                                    "remote": "yes",
+                                                    "title": "NetPBM PNMToPNG Buffer Overflow Vulnerability"
+                                                }})
 
 
 # -- Mock classes
@@ -200,6 +236,17 @@ class FullGetVulnProdMongoDbDriver(MongoDbDriver):
                                                          'type': 'DoS',
                                                          'port': 0
                                                         }
+        self.db.bid_info.find_one.return_value = {
+                                                    "_id": "'58d11025100e75000e789c9a",
+                                                    "bugtraq_id": 15128,
+                                                    "class": "Boundary Condition Error",
+                                                    "cve": [
+                                                        "CVE-2005-2978"
+                                                    ],
+                                                    "local": "no",
+                                                    "remote": "yes",
+                                                    "title": "NetPBM PNMToPNG Buffer Overflow Vulnerability"
+                                                }
 
 
 class FullGetVulnProdAndVersionMongoDbDriver(MongoDbDriver):
@@ -244,6 +291,17 @@ class FullGetVulnProdAndVersionMongoDbDriver(MongoDbDriver):
                                                          'type': 'DoS',
                                                          'port': 0
                                                         }
+        self.db.bid_info.find_one.return_value = {
+                                                    "_id": "'58d11025100e75000e789c9a",
+                                                    "bugtraq_id": 15128,
+                                                    "class": "Boundary Condition Error",
+                                                    "cve": [
+                                                        "CVE-2005-2978"
+                                                    ],
+                                                    "local": "no",
+                                                    "remote": "yes",
+                                                    "title": "NetPBM PNMToPNG Buffer Overflow Vulnerability"
+                                                }
 
 if __name__ == '__main__':
     unittest.main()

@@ -28,77 +28,87 @@ from cli.command.vuln_cli_parser import VulnCLIParser
 class VulnDBCliParserTestSuite(unittest.TestCase):
 
     def test_empty_args(self):
-        empty_args = generate_args(False, False, None, None, None, None, None, None, None)
+        empty_args = generate_args(False, False, None, None, None, None, None, None, None, None)
         status = VulnCLIParser.verify_args(empty_args)
         self.assertEqual(status, 1)
 
     def test_not_only_init(self):
-        args = generate_args(True, False, None, None, 12345, None, None, None, None)
+        args = generate_args(True, False, None, None, 12345, None, None, None, None, None)
         status = VulnCLIParser.verify_args(args)
         self.assertEqual(status, 2)
 
     def test_not_only_init_status(self):
-        args = generate_args(False, True, None, None, 12345, None, None, None, None)
+        args = generate_args(False, True, None, None, 12345, None, None, None, None, None)
         status = VulnCLIParser.verify_args(args)
         self.assertEqual(status, 3)
 
     def test_not_only_cve(self):
-        args = generate_args(False, False, 'CVE-2002-1562', None, 12345, None, None, None, None)
+        args = generate_args(False, False, 'CVE-2002-1562', None, 12345, None, None, None, None, None)
         status = VulnCLIParser.verify_args(args)
         self.assertEqual(status, 4)
 
     def test_bad_cve(self):
-        args = generate_args(False, False, 'CVE-62', None, None, None, None, None, None)
+        args = generate_args(False, False, 'CVE-62', None, None, None, None, None, None, None)
         status = VulnCLIParser.verify_args(args)
         self.assertEqual(status, 5)
 
     def test_not_only_cveinfo(self):
-        args = generate_args(False, False, None,'CVE-2002-1562', None, 12345, None, None, None)
+        args = generate_args(False, False, None,'CVE-2002-1562', None, 12345, None, None, None, None)
         status = VulnCLIParser.verify_args(args)
         self.assertEqual(status, 6)
 
     def test_bad_cveinfo(self):
-        args = generate_args(False, False, None, 'CVE-62', None, None, None, None, None)
+        args = generate_args(False, False, None, 'CVE-62', None, None, None, None, None, None)
         status = VulnCLIParser.verify_args(args)
         self.assertEqual(status, 7)
 
     def test_not_only_bid(self):
-        args = generate_args(False, False, None, None, 12345, 'openldap', None, None, None)
+        args = generate_args(False, False, None, None, 12345, None, 'openldap', None, None, None)
         status = VulnCLIParser.verify_args(args)
         self.assertEqual(status, 8)
 
     def test_bad_bid(self):
-        args = generate_args(False, False, None, None, -12345, None, None, None, None)
+        args = generate_args(False, False, None, None, -12345, None, None, None, None, None)
         status = VulnCLIParser.verify_args(args)
         self.assertEqual(status, 9)
 
-    def test_not_only_exploit_db(self):
-        args = generate_args(False, False, None, None,  None, 12345, None, 'openldap', None)
+    def test_not_only_bid_info(self):
+        args = generate_args(False, False, None, None, None, 12345, 'openldap', None, None, None)
         status = VulnCLIParser.verify_args(args)
         self.assertEqual(status, 10)
 
-    def test_bad_exploit_db(self):
-        args = generate_args(False, False, None, None, None, -12345, None, None, None)
+    def test_bad_bid_info(self):
+        args = generate_args(False, False, None, None, None, -12345, None, None, None, None)
         status = VulnCLIParser.verify_args(args)
         self.assertEqual(status, 11)
 
-    def test_not_only_exploit_db_info(self):
-        args = generate_args(False, False, None, None, None, None, 12345, 'openldap', None)
+    def test_not_only_exploit_db(self):
+        args = generate_args(False, False, None, None, None, None, 12345, None, 'openldap', None)
         status = VulnCLIParser.verify_args(args)
         self.assertEqual(status, 12)
 
-    def test_bad_exploit_db_info(self):
-        args = generate_args(False, False, None, None, None, None, -12345, None, None)
+    def test_bad_exploit_db(self):
+        args = generate_args(False, False, None, None, None, None, -12345, None, None, None)
         status = VulnCLIParser.verify_args(args)
         self.assertEqual(status, 13)
 
-    def test_only_product_version(self):
-        args = generate_args(False, False, None, None, None, None, None, None, '2.30')
+    def test_not_only_exploit_db_info(self):
+        args = generate_args(False, False, None, None, None, None, None, 12345, 'openldap', None)
         status = VulnCLIParser.verify_args(args)
         self.assertEqual(status, 14)
 
+    def test_bad_exploit_db_info(self):
+        args = generate_args(False, False, None, None, None, None, None, -12345, None, None)
+        status = VulnCLIParser.verify_args(args)
+        self.assertEqual(status, 15)
+
+    def test_only_product_version(self):
+        args = generate_args(False, False, None, None, None, None, None, None, None, '2.30')
+        status = VulnCLIParser.verify_args(args)
+        self.assertEqual(status, 16)
+
     def test_ok(self):
-        args = generate_args(False, False, None, None, None, None, None, 'openldap', '2.2.20')
+        args = generate_args(False, False, None, None, None, None, None, None, 'openldap', '2.2.20')
         status = VulnCLIParser.verify_args(args)
         self.assertEqual(status, 0)
 
@@ -111,10 +121,11 @@ class VulnDBCliParserTestSuite(unittest.TestCase):
 
 # -- Util methods
 
-def generate_args(init, init_status, cve, cve_info, bid, exploit_db, exploit_db_info, product, product_version):
+def generate_args(init, init_status, cve, cve_info, bid, bid_info, exploit_db, exploit_db_info, product,
+                  product_version):
     return AttrDict([('init', init), ('init_status', init_status), ('cve', cve), ('cve_info', cve_info), ('bid', bid),
-                     ('exploit_db', exploit_db), ('exploit_db_info', exploit_db_info), ('product', product),
-                     ('product_version', product_version)])
+                     ('bid_info', bid_info), ('exploit_db', exploit_db), ('exploit_db_info', exploit_db_info),
+                      ('product', product), ('product_version', product_version)])
 
 
 # -- Util classes

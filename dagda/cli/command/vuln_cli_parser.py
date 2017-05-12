@@ -33,6 +33,7 @@ class VulnCLIParser:
         self.parser.add_argument('--init', action='store_true')
         self.parser.add_argument('--init_status', action='store_true')
         self.parser.add_argument('--bid', type=int)
+        self.parser.add_argument('--bid_info', type=int)
         self.parser.add_argument('--cve', type=str)
         self.parser.add_argument('--cve_info', type=str)
         self.parser.add_argument('--exploit_db', type=int)
@@ -67,6 +68,10 @@ class VulnCLIParser:
     def get_bid(self):
         return self.args.bid
 
+    # Gets BID value
+    def get_bid_info(self):
+        return self.args.bid_info
+
     # Gets Exploit_DB Id value
     def get_exploit_db_id(self):
         return self.args.exploit_db
@@ -89,20 +94,22 @@ class VulnCLIParser:
     @staticmethod
     def verify_args(args):
         if not args.init and not args.cve and not args.cve_info and not args.product and not args.product_version \
-                and not args.bid and not args.exploit_db and not args.exploit_db_info and not args.init_status:
+                and not args.bid and not args.bid_info and not args.exploit_db and not args.exploit_db_info \
+                and not args.init_status:
             DagdaLogger.get_logger().error('Missing arguments.')
             return 1
-        elif args.init and (args.cve or args.product or args.product_version or args.bid or args.exploit_db \
-                            or args.exploit_db_info or args.init_status):
+        elif args.init and (args.cve or args.product or args.product_version or args.bid or args.bid_info \
+                            or args.exploit_db or args.exploit_db_info or args.init_status):
             DagdaLogger.get_logger().error('Argument --init: this argument must be alone.')
             return 2
         elif args.init_status and (args.cve or args.product or args.product_version or args.bid or args.cve \
-                                   or args.cve_info or args.exploit_db or args.exploit_db_info or args.init):
+                                   or args.cve_info or args.bid_info or args.exploit_db or args.exploit_db_info \
+                                   or args.init):
             DagdaLogger.get_logger().error('Argument --init_status: this argument must be alone.')
             return 3
         elif args.cve:
             if args.init or args.init_status or args.product or args.product_version or args.bid or args.cve_info \
-                    or args.exploit_db or args.exploit_db_info:
+                    or args.exploit_db or args.bid_info or args.exploit_db_info:
                 DagdaLogger.get_logger().error('Argument --cve: this argument must be alone.')
                 return 4
             else:
@@ -113,7 +120,7 @@ class VulnCLIParser:
                     return 5
         elif args.cve_info:
             if args.init or args.init_status or args.product or args.product_version or args.bid or args.cve \
-                    or args.exploit_db or args.exploit_db_info:
+                    or args.exploit_db or args.bid_info or args.exploit_db_info:
                 DagdaLogger.get_logger().error('Argument --cve_info: this argument must be alone.')
                 return 6
             else:
@@ -125,36 +132,46 @@ class VulnCLIParser:
                     return 7
         elif args.bid:
             if args.init or args.init_status or args.product or args.product_version or args.cve or args.cve_info \
-                    or args.exploit_db or args.exploit_db_info:
+                    or args.exploit_db or args.bid_info or args.exploit_db_info:
                 DagdaLogger.get_logger().error('Argument --bid: this argument must be alone.')
                 return 8
             else:
                 if args.bid <= 0:
                     DagdaLogger.get_logger().error('Argument --bid: The bid argument must be greater than zero.')
                     return 9
+        elif args.bid_info:
+            if args.init or args.init_status or args.product or args.product_version or args.cve or args.cve_info \
+                    or args.exploit_db or args.bid or args.exploit_db_info:
+                DagdaLogger.get_logger().error('Argument --bid_info: this argument must be alone.')
+                return 10
+            else:
+                if args.bid_info <= 0:
+                    DagdaLogger.get_logger().error(
+                        'Argument --bid_info: The bid argument must be greater than zero.')
+                    return 11
         elif args.exploit_db:
             if args.init or args.init_status or args.product or args.product_version or args.cve or args.cve_info \
-                    or args.bid or args.exploit_db_info:
+                    or args.bid or args.bid_info or args.exploit_db_info:
                 DagdaLogger.get_logger().error('Argument --exploit_db: this argument must be alone.')
-                return 10
+                return 12
             else:
                 if args.exploit_db <= 0:
                     DagdaLogger.get_logger().error('Argument --exploit_db: The exploit_db argument must be '
                                                    'greater than zero.')
-                    return 11
+                    return 13
         elif args.exploit_db_info:
             if args.init or args.init_status or args.product or args.product_version or args.cve or args.cve_info \
-                    or args.bid or args.exploit_db:
+                    or args.bid or args.bid_info or args.exploit_db:
                 DagdaLogger.get_logger().error('Argument --exploit_db_info: this argument must be alone.')
-                return 12
+                return 14
             else:
                 if args.exploit_db_info <= 0:
                     DagdaLogger.get_logger().error('Argument --exploit_db_info: The exploit_db_info argument '
                                                    'must be greater than zero.')
-                    return 13
+                    return 15
         elif args.product_version and not args.product:
             DagdaLogger.get_logger().error('Argument --product_version: this argument requires the --product argument.')
-            return 14
+            return 16
         # Else
         return 0
 
@@ -176,9 +193,9 @@ class DagdaVulnParser(argparse.ArgumentParser):
 # Custom text
 
 vuln_parser_text = '''usage: dagda.py vuln [-h] [--init] [--init_status]
-                  [--bid BID] [--cve CVE] [--cve_info CVE] [--exploit_db EXPLOIT_DB]
-                  [--exploit_db_info EXPLOIT_DB] [--product PRODUCT] 
-                  [--product_version PRODUCT_VERSION]
+                  [--bid BID] [--bid_info BID] [--cve CVE] [--cve_info CVE] 
+                  [--exploit_db EXPLOIT_DB] [--exploit_db_info EXPLOIT_DB] 
+                  [--product PRODUCT] [--product_version PRODUCT_VERSION]
 
 Your personal CVE, BID & ExploitDB database.
 
@@ -187,7 +204,7 @@ Optional Arguments:
   --init                initializes your local database with all CVEs provided
                         by NIST publications, all BugTraqs Ids (BIDs)
                         downloaded from the "http://www.securityfocus.com/"
-                        pages (See my project "bidDB_downloader"
+                        pages (See my "bidDB_downloader" project for details
                         [https://github.com/eliasgranderubio/bidDB_downloader]
                         for details) and all exploits from Offensive Security
                         Exploit Database. If this argument is present, all
@@ -197,6 +214,7 @@ Optional Arguments:
   
   --bid BID             all product with this BugTraq Id (BID) vulnerability
                         will be shown
+  --bid_info BID        shows all details about this BugTraq Id (BID)
                         
   --cve CVE             all products with this CVE vulnerability will be shown
   --cve_info CVE        shows all details about this CVE vulnerability

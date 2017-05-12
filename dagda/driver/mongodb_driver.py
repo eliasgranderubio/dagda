@@ -96,6 +96,12 @@ class MongoDbDriver:
         self.db.exploit_db.create_index([('product', 'text')], default_language='none')
         self.db.exploit_db.insert_many(products)
 
+    # Bulk insert the bid info list
+    def bulk_insert_bid_info(self, bid_info_list):
+        # Bulk insert
+        self.db.bid_info.create_index([('bugtraq_id', pymongo.DESCENDING)])
+        self.db.bid_info.insert_many(bid_info_list)
+
     # Bulk insert the exploit_db info list
     def bulk_insert_exploit_db_info(self, exploit_db_info_list):
         # Bulk insert
@@ -166,6 +172,10 @@ class MongoDbDriver:
     def delete_bid_collection(self):
         self.db.bid.drop()
 
+    # Removes bid info collection
+    def delete_bid_info_collection(self):
+        self.db.bid_info.drop()
+
     # Removes falco_events collection
     def delete_falco_events_collection(self):
         self.db.falco_events.drop()
@@ -232,7 +242,12 @@ class MongoDbDriver:
                 bid_tmp = 'BID-' + str(bid['bugtraq_id'])
                 if bid_tmp not in output:
                     info = {}
-                    bid_info = ""
+                    bid_info = {}
+                    bid_data = self.db.bid_info.find_one({'bugtraq_id': bid['bugtraq_id']})
+                    if bid_data is not None:
+                        # delte objectid
+                        bid_info = bid_data.copy()
+                        del bid_info["_id"]
                     info[bid_tmp] = bid_info
                     output.append(info)
         for exploit_db in exploit_db_cursor:
@@ -299,6 +314,19 @@ class MongoDbDriver:
                 del info['_id']
                 info['mod_date']=info['mod_date'].strftime('%d-%m-%Y')
                 info['pub_date']=info['pub_date'].strftime('%d-%m-%Y')
+                output.append(info)
+        # Return
+        return output
+
+    # Gets BugTraq description by id
+    def get_bid_info_by_id(self, bid_id):
+        cursor = self.db.bid_info.find({'bugtraq_id': bid_id}).sort([("bugtraq_id", pymongo.ASCENDING)])
+        # Prepare output
+        output = []
+        for info in cursor:
+            if info is not None:
+                # delete objectid
+                del info['_id']
                 output.append(info)
         # Return
         return output

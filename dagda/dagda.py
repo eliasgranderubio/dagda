@@ -82,6 +82,9 @@ def main(parsed_args):
                 elif parsed_args.get_bid():
                     # Gets products by BID
                     r = requests.get(dagda_base_url + '/vuln/bid/' + str(parsed_args.get_bid()))
+                elif parsed_args.get_bid_info():
+                    # Gets BID details
+                    r = requests.get(dagda_base_url + '/vuln/bid/' + str(parsed_args.get_bid_info()) + '/details')
                 elif parsed_args.get_exploit_db_id():
                     # Gets products by Exploit DB Id
                     r = requests.get(dagda_base_url + '/vuln/exploit/' + str(parsed_args.get_exploit_db_id()))

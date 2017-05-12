@@ -30,13 +30,31 @@ def get_title(body):
     return body[init_index:body.index('</span>')]
 
 
-# Get vulnerable products from HTML body
-def get_vulnerable_products(body):
-    init_index = body.index('<span class="label">Vulnerable:</span>') + len('<span class="label">Vulnerable:</span>')
+# Get specific BID info
+def get_info_by_label(body, label):
+    init_index = body.index('<span class="label">' + label + ':</span>') + \
+                 len('<span class="label">' + label + ':</span>')
     tmp_body = body[init_index:]
     init_index = tmp_body.index('<td>') + len('<td>')
     tmp_body = tmp_body[init_index:]
     tmp_body = tmp_body[:tmp_body.index('</td>')]
+    return tmp_body.rstrip().lstrip()
+
+
+# Get CVEs
+def get_linked_CVEs(body):
+    regex = r"(CVE-[0-9]{4}-[0-9]{4,5})"
+    cves_obj = re.search(regex, body)
+    cves = []
+    if cves_obj:
+       for group in cves_obj.groups():
+           cves.append(group)
+    return cves
+
+
+# Get vulnerable products from HTML body
+def get_vulnerable_products(body):
+    tmp_body = get_info_by_label(body, 'Vulnerable')
     if '<span class="related">' in tmp_body:
         regex = re.compile(r"<span class=\"related\">(\n.*){5}<\/span>", re.MULTILINE)
         tmp_body = re.sub(regex, '', tmp_body)
@@ -50,10 +68,14 @@ def get_vulnerable_products(body):
 
 
 # Prepares output
-def prepare_output(title, bugtraq_id, vuln_products):
+def prepare_output(title, bugtraq_id, clazz, linked_cves, is_local, is_remote, vuln_products):
     data = {}
     data['title'] = title
     data['bugtraq_id'] = bugtraq_id
+    data['class'] = clazz
+    data['cve'] = linked_cves
+    data['local'] = is_local.lower()
+    data['remote'] = is_remote.lower()
     data['vuln_products'] = vuln_products
     return data
 
@@ -69,11 +91,16 @@ def get_bid(bugtraq_id):
                 body = body[body.index('<div id="vulnerability">'):
                             body.index('<span class="label">Not Vulnerable:</span>')]
                 title = get_title(body)
+                clazz = get_info_by_label(body, 'Class')
+                linked_cves = get_linked_CVEs(body)
+                is_local = get_info_by_label(body, 'Local')
+                is_remote = get_info_by_label(body, 'Remote')
                 vuln_products = get_vulnerable_products(body)
             except:
                 vuln_products = []
             if len(vuln_products) > 0:
-                return json.dumps(prepare_output(title, bugtraq_id, vuln_products), sort_keys=True)
+                return json.dumps(prepare_output(title, bugtraq_id, clazz, linked_cves, is_local, is_remote,
+                                                 vuln_products), sort_keys=True)
     except requests.ConnectionError:
         DagdaLogger.get_logger().warning('Connection error occurred with: "' + url + '"')
         return None

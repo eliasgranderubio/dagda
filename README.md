@@ -310,10 +310,28 @@ The expected output for the previous query is shown below:
             }
         },
         {
-            "BID-83610": ""
+            "BID-83610": {
+                "bugtraq_id": 83610,
+                "class": "Failure to Handle Exceptional Conditions",
+                "cve": [
+                    "CVE-2006-6493"
+                ],
+                "local": "no",
+                "remote": "yes",
+                "title": "OpenLDAP CVE-2006-6493 Remote Security Vulnerability"
+            }
         },
         {
-            "BID-83843": ""
+            "BID-83843": {
+                "bugtraq_id": 83843,
+                "class": "Failure to Handle Exceptional Conditions",
+                "cve": [
+                    "CVE-2006-2754"
+                ],
+                "local": "no",
+                "remote": "yes",
+                "title": "OpenLDAP CVE-2006-2754 Remote Security Vulnerability"
+            }
         }
     ]
 ```
@@ -356,13 +374,14 @@ If you want to know more details about `dagda.py vuln`, type `python3 dagda.py v
 
 #### Database contents
 
-The database is called `vuln_database` and there are 4 collections:
+The database is called `vuln_database` and there are 6 collections:
 
 * cve (Common Vulnerabilities and Exposure items) - source NVD NIST
-   * cve_info (Extends the information about CVE items) - source NVD NIST
+   * cve_info (Extends the information about CVE items)
 * bid (BugTraqs Ids items from `http://www.securityfocus.com/`) - source [bidDB_downloader](https://github.com/eliasgranderubio/bidDB_downloader)
+   * bid_info (Extends the information about BugTraqs Ids items)
 * exploit_db (Offensive Security - Exploit Database) - source [Offensive Security](https://github.com/offensive-security/exploit-database)
-   * exploit_db_info (Extends the information about exploits) - source [Offensive Security](https://github.com/offensive-security/exploit-database)
+   * exploit_db_info (Extends the information about exploits)
 
 ### Analyzing docker images/containers
 
@@ -476,7 +495,14 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                                 }
                             },
                             {
-                                "BID-34237": ""
+                                "BID-34237": {
+                                    "bugtraq_id": 34237,
+                                    "class": "Unknown",
+                                    "cve": [],
+                                    "local": "no",
+                                    "remote": "yes",
+                                    "title": "Lua Unspecified Bytecode Verifier Security Vulnerability"
+                                }
                             }
                         ]
                     },
@@ -524,14 +550,18 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                                     }
                                 },
                                 {
-                                    "BID-30591": ""
-                                },
-                                {
-                                    "BID-32862": ""
-                                },
-                                {
-                                    "BID-66397": ""
+                                    "BID-66397": {
+                                        "bugtraq_id": 66397,
+                                        "class": "Input Validation Error",
+                                        "cve": [
+                                            "CVE-2014-0107"
+                                        ],
+                                        "local": "no",
+                                        "remote": "yes",
+                                        "title": "Apache Xalan-Java Library CVE-2014-0107 Security Bypass Vulnerability"
+                                    }
                                 }
+
                             ]
                         },
                         {
@@ -596,9 +626,6 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                                         "pub_date": "13-02-2015",
                                         "summary": "Race condition in JBoss Weld before 2.2.8 and 3.x before 3.0.0 Alpha3 allows remote attackers to obtain information from a previous conversation via vectors related to a stale thread state."
                                     }
-                                },
-                                {
-                                    "BID-74252": ""
                                 }
                             ]
                         }

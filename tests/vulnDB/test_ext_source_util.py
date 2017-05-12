@@ -52,22 +52,28 @@ class ExtSourceUtilTestCase(unittest.TestCase):
 
     def test_get_bug_traqs_lists_from_file(self):
         output = io.BytesIO(base64.b64decode(mock_bid_gz_file))
-        bid_lists = get_bug_traqs_lists_from_file(output)
+        bid_lists, bid_info_list = get_bug_traqs_lists_from_file(output)
         self.assertEqual(len(bid_lists), 1)
         self.assertEqual(len(bid_lists[0]), 7)
+        self.assertEqual(len(bid_info_list), 4)
         # Check BugTraqs
         self.assertTrue("1#eric allman sendmail#5.58" in bid_lists[0])
         self.assertTrue("3#sun sunos#4.0.1" in bid_lists[0])
         self.assertTrue("4#bsd bsd#4.3" in bid_lists[0])
+        # Check BugTraq Details
+        self.assertEqual(bid_info_list[1], {"bugtraq_id": 2, "title": "BSD fingerd buffer overflow Vulnerability", "class": "Boundary Condition Error", "cve": [], "local": "no", "remote": "yes"})
 
     def test_get_bug_traqs_lists_from_online_mode(self):
-        bid_lists = get_bug_traqs_lists_from_online_mode(mock_bid_online_mode)
+        bid_lists, bid_info_list = get_bug_traqs_lists_from_online_mode(mock_bid_online_mode)
         self.assertEqual(len(bid_lists), 1)
         self.assertEqual(len(bid_lists[0]), 7)
+        self.assertEqual(len(bid_info_list), 4)
         # Check BugTraqs
         self.assertTrue("1#eric allman sendmail#5.58" in bid_lists[0])
         self.assertTrue("3#sun sunos#4.0.1" in bid_lists[0])
         self.assertTrue("4#bsd bsd#4.3" in bid_lists[0])
+        # Check BugTraq Details
+        self.assertEqual(bid_info_list[0], {"bugtraq_id": 1, "title": "Berkeley Sendmail DEBUG Vulnerability", "class": "Configuration Error", "cve": [], "local": "yes", "remote": "yes"})
 
     def test_get_cve_description_from_file(self):
         cve_info_set = get_cve_description_from_file(base64.b64decode(mock_cve_info_zip_compressed_content))
@@ -186,9 +192,9 @@ id,file,description,date,author,platform,type,port
 468,platforms/windows/dos/468.c,"Pigeon Server 3.02.0143 - Denial of Service",2004-09-19,"Luigi Auriemma",windows,dos,0
 """
 
-mock_bid_gz_file = 'H4sICMCvPFgAA2RhdGEuanNvbgCljz0LwjAQhnd/xZFZivYDxE1pcXQouoiU1F5LME3rNVGk+N9NddBqB8HhILzkuefelqWm0MRPicjYHKZjYFpoifbNlkhHlHiFGFVWciEhjJabFWyNVEg8FVLoK7PE2QZJTVVmDrqx5I5FJA6wkLLk6kUHTjBj+9uo7TvdnjMOIReqQMogNXmOBNUZKZfV5Rdvh3fjO+6AyXs3xUatYyBsdEX4y24LwBPynYnjdZ/60fQrGrjB/2xb86a5/Fn2ccxH99EdQJiDLtsBAAA='
+mock_bid_gz_file = 'H4sICLIHFlkAA2ZvcnRlc3RpbmcArZE9b8IwEIb3/oqT5xI1ENSmW4GoY4cIFoSQk1wiC2PTi00Uof732jBA+CpDh5NO9/m8dzuW2coQ/16Kgr1D+AzMCCPR+WyEtEKJLaSoijUXEibJaPoJMysVEs+EFKZlriOXvK59x1irUlSWuBFaQUKkaZ/f+nnzhXOlzrn0pS3WPkW41gZPAls3fLkhXdjc+JlzlpDI4UPKNVdHkmEwfGOLn6ddl7/f4U8nUApVIRWQ2bJEAr1FKqVu7mgYaasKTi04MYX4W4jSD+rwON6ioH+FfHBKnlr1lQJhbTThHdapWindqIdvfGC9RHP74LAzCl6CgS/qhsKL0BUJ0fnxNw6z+efbs/Es6YVxHPfC6DVkd19xS+7xE3upZ4/5BeMbMzkTAwAA'
 
-mock_bid_online_mode = ['{"bugtraq_id": 1, "title": "Berkeley Sendmail DEBUG Vulnerability", "vuln_products": ["Eric Allman Sendmail 5.58"]}','{"bugtraq_id": 2, "title": "BSD fingerd buffer overflow Vulnerability", "vuln_products": ["BSD BSD 4.2"]}','{"bugtraq_id": 3, "title": "SunOS restore Vulnerability", "vuln_products": ["Sun SunOS 4.0.3", "Sun SunOS 4.0.1", "Sun SunOS 4.0"]}','{"bugtraq_id": 4, "title": "BSD passwd buffer overflow Vulnerability", "vuln_products": ["BSD BSD 4.3", "BSD BSD 4.2"]}']
+mock_bid_online_mode = ['{"bugtraq_id": 1, "title": "Berkeley Sendmail DEBUG Vulnerability", "class": "Configuration Error", "cve": [], "local": "yes", "remote": "yes", "vuln_products": ["Eric Allman Sendmail 5.58"]}','{"bugtraq_id": 2, "title": "BSD fingerd buffer overflow Vulnerability", "class": "Boundary Condition Error", "cve": [], "local": "no", "remote": "yes", "vuln_products": ["BSD BSD 4.2"]}','{"bugtraq_id": 3, "title": "SunOS restore Vulnerability", "class": "Unknown", "cve": [], "local": "yes", "remote": "no", "vuln_products": ["Sun SunOS 4.0.3", "Sun SunOS 4.0.1", "Sun SunOS 4.0"]}','{"bugtraq_id": 4, "title": "BSD passwd buffer overflow Vulnerability", "class": "Boundary Condition Error", "cve": ["CVE-1999-1471"], "local": "no", "remote": "no", "vuln_products": ["BSD BSD 4.3", "BSD BSD 4.2"]}']
 
 if __name__ == '__main__':
     unittest.main()

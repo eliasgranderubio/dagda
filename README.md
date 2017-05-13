@@ -561,7 +561,6 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                                         "title": "Apache Xalan-Java Library CVE-2014-0107 Security Bypass Vulnerability"
                                     }
                                 }
-
                             ]
                         },
                         {

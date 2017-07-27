@@ -3,11 +3,11 @@
 BASEDIR=`dirname $0`/..
 
 #########################################
-# Unit tests for Coveralls statistics
+# Security tests with Bandit
 #########################################
 
 echo -e "\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-echo    ">> Running unit tests...    >>"
+echo    ">> Running security tests...>>"
 echo -e ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n"
 
 echo "Testing on python system: `python3 --version`"
@@ -21,26 +21,15 @@ if [ ! -d "$TEST_DIR" ]; then
 
     source $TEST_DIR/bin/activate
     echo "New virtualenv for UT activated."
-    pip install -r $BASEDIR/requirements.txt
-    pip install requests-mock==1.2.0
-    pip install pytest-cov
 fi
+pip install bandit
 
-# Run unit tests
-py.test --cov-report term:skip-covered --cov=dagda tests/
-
-# Clean up all processes in the current process group
-list_orphans ()
-{
-    local orphans=$(ps -ef | grep 'py.test --cov-report term:skip-covered --cov=dagda tests/' |
-                    grep -v 'grep' | awk '{print $2}')
-
-    echo "$orphans"
-}
-
-kill $(list_orphans)
+# Run security tests
+set +e
+bandit -r ${BASEDIR}/dagda
+set -e
 
 echo -e "\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-echo    "<< End unit tests.          <<"
+echo    "<< End security tests.      <<"
 echo -e "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n"
 

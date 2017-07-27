@@ -22,7 +22,7 @@ import gzip
 import re
 import requests
 import zlib
-import xml.etree.ElementTree as ET
+import defusedxml.ElementTree as ET
 from zipfile import ZipFile
 import os
 from io import BytesIO

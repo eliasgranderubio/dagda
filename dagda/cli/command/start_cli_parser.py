@@ -104,7 +104,7 @@ class StartCLIParser:
         elif args.falco_rules_file:
             with args.falco_rules_file as content_file:
                 try:
-                    yaml.load(content_file.read())
+                    yaml.safe_load(content_file.read())
                 except:
                     DagdaLogger.get_logger().error('Argument --falco_rules_file: Malformed yaml file.')
                     return 5

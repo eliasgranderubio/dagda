@@ -196,7 +196,8 @@ def get_bug_traqs_lists_from_file(compressed_file):
             parse_bid_from_json(json_data, items)
             del json_data['vuln_products']
             extended_info_array.append(json_data)
-        except:
+        except (TypeError, json.JSONDecodeError):
+            # It is not a JSON format so the line is ignored
             pass
         # Bulk insert
         if len(items) > 8000:
@@ -220,7 +221,8 @@ def get_bug_traqs_lists_from_online_mode(bid_list):
             parse_bid_from_json(json_data, items)
             del json_data['vuln_products']
             extended_info_array.append(json_data)
-        except:
+        except (TypeError, json.JSONDecodeError):
+            # It is not a JSON format so the line is ignored
             pass
         # Bulk insert
         if len(items) > 8000:

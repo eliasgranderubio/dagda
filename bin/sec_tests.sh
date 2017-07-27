@@ -17,10 +17,10 @@ TEST_DIR=${BASEDIR}/env-test
 echo "$TEST_DIR"
 if [ ! -d "$TEST_DIR" ]; then
     python3 -m venv $TEST_DIR
-    echo "New virtualenv for UT created."
+    echo "New virtualenv for ST created."
 
     source $TEST_DIR/bin/activate
-    echo "New virtualenv for UT activated."
+    echo "New virtualenv for ST activated."
 fi
 pip install bandit
 

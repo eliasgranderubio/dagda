@@ -46,8 +46,8 @@ def get_http_resource_content(url):
 
 
 # Extract vector from CVE
-def extract_vector(initialVector):
-    new_vector = initialVector[1:-1].split('/')
+def extract_vector(initial_vector):
+    new_vector = initial_vector[1:-1].split('/')
     final_vector = []
     for i in range(len(new_vector)):
         final_vector.append(FEATURES_LIST[i][new_vector[i][-1]])
@@ -187,30 +187,11 @@ def get_exploit_db_list_from_csv(csv_content):
 # Gets BugTraq lists from gz file
 def get_bug_traqs_lists_from_file(compressed_file):
     decompressed_file = gzip.GzipFile(fileobj=compressed_file)
-    items = set()
-    output_array = []
-    extended_info_array = []
-    for line in decompressed_file.readlines():
-        try:
-            json_data = json.loads(line.decode("utf-8"))
-            parse_bid_from_json(json_data, items)
-            del json_data['vuln_products']
-            extended_info_array.append(json_data)
-        except (TypeError, json.JSONDecodeError):
-            # It is not a JSON format so the line is ignored
-            pass
-        # Bulk insert
-        if len(items) > 8000:
-            output_array.append(list(items))
-            items = set()
-    # Final bulk insert
-    if len(items) > 0:
-        output_array.append(list(items))
-    # Return
-    return output_array, extended_info_array
+    bid_list = [line.decode("utf-8") for line in decompressed_file.readlines()]
+    return get_bug_traqs_lists_from_online_mode(bid_list)
 
 
-# Gets BugTraq lists from gz file
+# Gets BugTraq lists from online mode
 def get_bug_traqs_lists_from_online_mode(bid_list):
     items = set()
     output_array = []
@@ -221,7 +202,7 @@ def get_bug_traqs_lists_from_online_mode(bid_list):
             parse_bid_from_json(json_data, items)
             del json_data['vuln_products']
             extended_info_array.append(json_data)
-        except (TypeError, json.JSONDecodeError):
+        except (TypeError, ValueError):
             # It is not a JSON format so the line is ignored
             pass
         # Bulk insert

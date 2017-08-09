@@ -417,6 +417,70 @@ class MongoDbDriver:
         # Return
         return output
 
+    # Check if product vulnerability was tagged as false positive
+    def is_fp(self, image_name, product, version=None):
+        cursor = self.db.image_history.find({'image_name': image_name}).sort("timestamp", pymongo.DESCENDING)
+        for scan in cursor:
+            if scan is not None and 'status' in scan and 'Completed' in scan['status'] and 'static_analysis' in scan:
+                # OS packages
+                if 'os_packages' in scan['static_analysis']:
+                    for p in scan['static_analysis']['os_packages']['os_packages_details']:
+                        if p['product'] == product and (version is None or p['version'] == version):
+                            if 'is_false_positive' in p and p['is_false_positive']:
+                                return True
+
+                # Dependencies
+                if 'prog_lang_dependencies' in scan['static_analysis'] and \
+                        scan['static_analysis']['prog_lang_dependencies']['dependencies_details'] is not None:
+                    for language in ['java', 'python', 'nodejs', 'js', 'ruby', 'php']:
+                        if scan['static_analysis']['prog_lang_dependencies']['dependencies_details']\
+                                [language] is not None:
+                            for p in scan['static_analysis']['prog_lang_dependencies']['dependencies_details']\
+                                    [language]:
+                                if p['product'] == product and (version is None or p['version'] == version):
+                                    if 'is_false_positive' in p and p['is_false_positive']:
+                                        return True
+                break
+
+        # Default
+        return False
+
+    # Update product vulnerability as false positive
+    def update_product_vulnerability_as_fp(self, image_name, product, version=None):
+        cursor = self.db.image_history.find({'image_name': image_name}).sort("timestamp", pymongo.DESCENDING)
+        for scan in cursor:
+            if scan is not None and 'status' in scan and 'Completed' in scan['status'] and 'static_analysis' in scan:
+                # OS packages
+                if 'os_packages' in scan['static_analysis']:
+                    updated_products = 0
+                    for p in scan['static_analysis']['os_packages']['os_packages_details']:
+                        if p['product'] == product and (version is None or p['version'] == version):
+                            if not p['is_false_positive']:
+                                p['is_false_positive'] = True
+                                updated_products += 1
+                    scan['static_analysis']['os_packages']['vuln_os_packages'] -= updated_products
+                    scan['static_analysis']['os_packages']['ok_os_packages'] += updated_products
+
+                # Dependencies
+                if 'prog_lang_dependencies' in scan['static_analysis'] and \
+                        scan['static_analysis']['prog_lang_dependencies']['dependencies_details'] is not None:
+                    updated_dependencies = 0
+                    for language in ['java', 'python', 'nodejs', 'js', 'ruby', 'php']:
+                        if scan['static_analysis']['prog_lang_dependencies']['dependencies_details']\
+                                [language] is not None:
+                            for p in scan['static_analysis']['prog_lang_dependencies']['dependencies_details']\
+                                    [language]:
+                                if p['product'] == product and (version is None or p['version'] == version):
+                                    if not p['is_false_positive']:
+                                        p['is_false_positive'] = True
+                                        updated_dependencies += 1
+                    scan['static_analysis']['prog_lang_dependencies']['vuln_dependencies'] -= \
+                                                                                            updated_dependencies
+
+                # Update collection
+                self.db.image_history.update({'_id': scan['_id']}, scan)
+                break
+
     # Gets the init db process status
     def get_init_db_process_status(self):
         cursor = self.db.init_db_process_status.find({}, {'_id': 0}).sort("timestamp", pymongo.DESCENDING)

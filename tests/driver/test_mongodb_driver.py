@@ -192,6 +192,117 @@ class MongoDbDriverTestCase(unittest.TestCase):
                                                     "title": "NetPBM PNMToPNG Buffer Overflow Vulnerability"
                                                 }})
 
+    def test_is_fp_false(self):
+        mock_driver = IsFPMongoDbDriver()
+        is_fp = mock_driver.is_fp('alpine', 'zlib')
+        self.assertFalse(is_fp)
+
+    def test_is_fp_true(self):
+        mock_driver = IsFPMongoDbDriver()
+        is_fp = mock_driver.is_fp('alpine', 'musl', '1.1.15')
+        self.assertTrue(is_fp)
+
+    def test_update_fp(self):
+        mock_driver = UpdateFPMongoDbDriver()
+        mock_driver.update_product_vulnerability_as_fp('alpine', 'musl', '1.1.15')
+        mock_driver.db.image_history.update.assert_called_once_with({'_id': "5915ed36ff1f081833551af5"},
+                                                             {"_id": "5915ed36ff1f081833551af5",
+                                                              "timestamp": 1494609523.342605, "status": "Completed",
+                                                              "image_name": "alpine",
+                                                              "static_analysis": {"prog_lang_dependencies": {
+                                                                  "dependencies_details": {"java": [], "python": [],
+                                                                                           "js": [], "ruby": [],
+                                                                                           "php": [], "nodejs": []},
+                                                                  "vuln_dependencies": 0},
+                                                                  "os_packages": {"vuln_os_packages": 1,
+                                                                                  "os_packages_details": [
+                                                                                      {"version": "1.1.15",
+                                                                                       "vulnerabilities": [{
+                                                                                                               "CVE-2016-8859": {
+                                                                                                                   "cvss_integrity_impact": "Partial",
+                                                                                                                   "cvss_access_vector": "Network",
+                                                                                                                   "cweid": "CWE-190",
+                                                                                                                   "cvss_access_complexity": "Low",
+                                                                                                                   "cvss_confidentiality_impact": "Partial",
+                                                                                                                   "mod_date": "07-03-2017",
+                                                                                                                   "cvss_exploit": 10,
+                                                                                                                   "cvss_vector": [
+                                                                                                                       "AV:N",
+                                                                                                                       "AC:L",
+                                                                                                                       "Au:N",
+                                                                                                                       "C:P",
+                                                                                                                       "I:P",
+                                                                                                                       "A:P"],
+                                                                                                                   "cvss_authentication": "None required",
+                                                                                                                   "summary": "Multiple integer overflows in the TRE library and musl libc allow attackers to cause memory corruption via a large number of (1) states or (2) tags, which triggers an out-of-bounds write.",
+                                                                                                                   "cveid": "CVE-2016-8859",
+                                                                                                                   "cvss_impact": 6.4,
+                                                                                                                   "pub_date": "13-02-2017",
+                                                                                                                   "cvss_base": 7.5,
+                                                                                                                   "cvss_availability_impact": "Partial"}}],
+                                                                                       "product": "musl",
+                                                                                       "is_vulnerable": True,
+                                                                                       "is_false_positive": True},
+                                                                                      {"version": "1.25.1",
+                                                                                       "vulnerabilities": [],
+                                                                                       "product": "busybox",
+                                                                                       "is_vulnerable": False,
+                                                                                       "is_false_positive": False},
+                                                                                      {"version": "3.0.4",
+                                                                                       "vulnerabilities": [],
+                                                                                       "product": "alpine-baselayout",
+                                                                                       "is_vulnerable": False,
+                                                                                       "is_false_positive": False},
+                                                                                      {"version": "1.3",
+                                                                                       "vulnerabilities": [],
+                                                                                       "product": "alpine-keys",
+                                                                                       "is_vulnerable": False,
+                                                                                       "is_false_positive": False},
+                                                                                      {"version": "2.4.4",
+                                                                                       "vulnerabilities": [],
+                                                                                       "product": "libressl2.4-libcrypto",
+                                                                                       "is_vulnerable": False,
+                                                                                       "is_false_positive": False},
+                                                                                      {"version": "2.4.4",
+                                                                                       "vulnerabilities": [],
+                                                                                       "product": "libressl2.4-libssl",
+                                                                                       "is_vulnerable": False,
+                                                                                       "is_false_positive": False},
+                                                                                      {"version": "1.2.8",
+                                                                                       "vulnerabilities": [{
+                                                                                                               "BID-95131": {
+                                                                                                                   "cve": [
+                                                                                                                       "CVE-2016-9840"],
+                                                                                                                   "bugtraq_id": 95131,
+                                                                                                                   "title": "zlib Multiple Denial of Service Vulnerabilities",
+                                                                                                                   "remote": "yes",
+                                                                                                                   "local": "no",
+                                                                                                                   "class": "Design Error"}}],
+                                                                                       "product": "zlib",
+                                                                                       "is_vulnerable": True,
+                                                                                       "is_false_positive": False},
+                                                                                      {"version": "2.6.8",
+                                                                                       "vulnerabilities": [],
+                                                                                       "product": "apk-tools",
+                                                                                       "is_vulnerable": False,
+                                                                                       "is_false_positive": False},
+                                                                                      {"version": "1.1.6",
+                                                                                       "vulnerabilities": [],
+                                                                                       "product": "scanelf",
+                                                                                       "is_vulnerable": False,
+                                                                                       "is_false_positive": False},
+                                                                                      {"version": "1.1.15",
+                                                                                       "vulnerabilities": [],
+                                                                                       "product": "musl-utils",
+                                                                                       "is_vulnerable": False,
+                                                                                       "is_false_positive": False},
+                                                                                      {"version": "0.7",
+                                                                                       "vulnerabilities": [],
+                                                                                       "product": "libc-utils",
+                                                                                       "is_vulnerable": False,
+                                                                                       "is_false_positive": False}],
+                                                                                  "total_os_packages": 11,
+                                                                                  "ok_os_packages": 10}}})
 
 # -- Mock classes
 
@@ -302,6 +413,74 @@ class FullGetVulnProdAndVersionMongoDbDriver(MongoDbDriver):
                                                     "remote": "yes",
                                                     "title": "NetPBM PNMToPNG Buffer Overflow Vulnerability"
                                                 }
+
+
+class IsFPMongoDbDriver(MongoDbDriver):
+    def __init__(self):
+        self.client = Mock(spec=pymongo.MongoClient)
+        self.db = Mock()
+        cursor_image_history = self.db.image_history.find.return_value
+        cursor_image_history.sort.return_value = [
+            {"_id": "5915ed36ff1f081833551af5", "timestamp": 1494609523.342605, "status": "Completed",
+             "image_name": "alpine", "static_analysis": {"prog_lang_dependencies": {
+             "dependencies_details": {"java": [], "python": [], "js": [], "ruby": [], "php": [], "nodejs": []},
+             "vuln_dependencies": 0}, "os_packages": {"vuln_os_packages": 1, "os_packages_details": [
+            {"version": "1.1.15", "vulnerabilities": [{"CVE-2016-8859": {"cvss_integrity_impact": "Partial",
+             "cvss_access_vector": "Network", "cweid": "CWE-190", "cvss_access_complexity": "Low", "cvss_confidentiality_impact": "Partial",
+             "mod_date": "07-03-2017", "cvss_exploit": 10, "cvss_vector": ["AV:N", "AC:L", "Au:N", "C:P", "I:P", "A:P"],
+             "cvss_authentication": "None required",
+             "summary": "Multiple integer overflows in the TRE library and musl libc allow attackers to cause memory corruption via a large number of (1) states or (2) tags, which triggers an out-of-bounds write.",
+             "cveid": "CVE-2016-8859", "cvss_impact": 6.4, "pub_date": "13-02-2017", "cvss_base": 7.5,
+             "cvss_availability_impact": "Partial"}}],
+             "product": "musl", "is_vulnerable": True, "is_false_positive" : True},
+            {"version": "1.25.1", "vulnerabilities": [], "product": "busybox", "is_vulnerable": False, "is_false_positive" : False},
+            {"version": "3.0.4", "vulnerabilities": [], "product": "alpine-baselayout", "is_vulnerable": False, "is_false_positive" : False},
+            {"version": "1.3", "vulnerabilities": [], "product": "alpine-keys", "is_vulnerable": False, "is_false_positive" : False},
+            {"version": "2.4.4", "vulnerabilities": [], "product": "libressl2.4-libcrypto", "is_vulnerable": False, "is_false_positive" : False},
+            {"version": "2.4.4", "vulnerabilities": [], "product": "libressl2.4-libssl", "is_vulnerable": False, "is_false_positive" : False},
+            {"version": "1.2.8", "vulnerabilities": [{"BID-95131": {"cve": ["CVE-2016-9840"], "bugtraq_id": 95131,
+             "title": "zlib Multiple Denial of Service Vulnerabilities", "remote": "yes", "local": "no",
+             "class": "Design Error"}}], "product": "zlib", "is_vulnerable": True, "is_false_positive" : False},
+            {"version": "2.6.8", "vulnerabilities": [], "product": "apk-tools", "is_vulnerable": False, "is_false_positive" : False},
+            {"version": "1.1.6", "vulnerabilities": [], "product": "scanelf", "is_vulnerable": False, "is_false_positive" : False},
+            {"version": "1.1.15", "vulnerabilities": [], "product": "musl-utils", "is_vulnerable": False, "is_false_positive" : False},
+            {"version": "0.7", "vulnerabilities": [], "product": "libc-utils", "is_vulnerable": False, "is_false_positive" : False}],
+                                                     "total_os_packages": 11, "ok_os_packages": 10}}}]
+
+
+class UpdateFPMongoDbDriver(MongoDbDriver):
+    def __init__(self):
+        self.client = Mock(spec=pymongo.MongoClient)
+        self.db = Mock()
+        cursor_image_history = self.db.image_history.find.return_value
+        cursor_image_history.sort.return_value = [
+            {"_id": "5915ed36ff1f081833551af5", "timestamp": 1494609523.342605, "status": "Completed",
+             "image_name": "alpine", "static_analysis": {"prog_lang_dependencies": {
+             "dependencies_details": {"java": [], "python": [], "js": [], "ruby": [], "php": [], "nodejs": []},
+             "vuln_dependencies": 0}, "os_packages": {"vuln_os_packages": 2, "os_packages_details": [
+            {"version": "1.1.15", "vulnerabilities": [{"CVE-2016-8859": {"cvss_integrity_impact": "Partial",
+             "cvss_access_vector": "Network", "cweid": "CWE-190", "cvss_access_complexity": "Low", "cvss_confidentiality_impact": "Partial",
+             "mod_date": "07-03-2017", "cvss_exploit": 10, "cvss_vector": ["AV:N", "AC:L", "Au:N", "C:P", "I:P", "A:P"],
+             "cvss_authentication": "None required",
+             "summary": "Multiple integer overflows in the TRE library and musl libc allow attackers to cause memory corruption via a large number of (1) states or (2) tags, which triggers an out-of-bounds write.",
+             "cveid": "CVE-2016-8859", "cvss_impact": 6.4, "pub_date": "13-02-2017", "cvss_base": 7.5,
+             "cvss_availability_impact": "Partial"}}],
+             "product": "musl", "is_vulnerable": True, "is_false_positive" : False},
+            {"version": "1.25.1", "vulnerabilities": [], "product": "busybox", "is_vulnerable": False, "is_false_positive" : False},
+            {"version": "3.0.4", "vulnerabilities": [], "product": "alpine-baselayout", "is_vulnerable": False, "is_false_positive" : False},
+            {"version": "1.3", "vulnerabilities": [], "product": "alpine-keys", "is_vulnerable": False, "is_false_positive" : False},
+            {"version": "2.4.4", "vulnerabilities": [], "product": "libressl2.4-libcrypto", "is_vulnerable": False, "is_false_positive" : False},
+            {"version": "2.4.4", "vulnerabilities": [], "product": "libressl2.4-libssl", "is_vulnerable": False, "is_false_positive" : False},
+            {"version": "1.2.8", "vulnerabilities": [{"BID-95131": {"cve": ["CVE-2016-9840"], "bugtraq_id": 95131,
+             "title": "zlib Multiple Denial of Service Vulnerabilities", "remote": "yes", "local": "no",
+             "class": "Design Error"}}], "product": "zlib", "is_vulnerable": True, "is_false_positive" : False},
+            {"version": "2.6.8", "vulnerabilities": [], "product": "apk-tools", "is_vulnerable": False, "is_false_positive" : False},
+            {"version": "1.1.6", "vulnerabilities": [], "product": "scanelf", "is_vulnerable": False, "is_false_positive" : False},
+            {"version": "1.1.15", "vulnerabilities": [], "product": "musl-utils", "is_vulnerable": False, "is_false_positive" : False},
+            {"version": "0.7", "vulnerabilities": [], "product": "libc-utils", "is_vulnerable": False, "is_false_positive" : False}],
+                                                     "total_os_packages": 11, "ok_os_packages": 9}}}]
+        self.db.image_history.update.return_value = True
+
 
 if __name__ == '__main__':
     unittest.main()

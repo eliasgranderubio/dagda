@@ -69,20 +69,20 @@ class Analyzer:
 
         data['image_name'] = image_name
         data['timestamp'] = datetime.datetime.now().timestamp()
-        data['static_analysis'] = self.generate_static_analysis(os_packages, dependencies)
+        data['static_analysis'] = self.generate_static_analysis(image_name, os_packages, dependencies)
 
         # -- Return
         return data
 
     # Generates the result of the static analysis
-    def generate_static_analysis(self, os_packages, dependencies):
+    def generate_static_analysis(self, image_name, os_packages, dependencies):
         data = {}
-        data['os_packages'] = self.generate_os_report(os_packages)
-        data['prog_lang_dependencies'] = self.generate_dependencies_report(dependencies)
+        data['os_packages'] = self.generate_os_report(image_name, os_packages)
+        data['prog_lang_dependencies'] = self.generate_dependencies_report(image_name, dependencies)
         return data
 
     # Generates dependencies report
-    def generate_dependencies_report(self, dependencies):
+    def generate_dependencies_report(self, image_name, dependencies):
         data = {}
         dep_details = {}
         dep_details['java'] = []
@@ -91,26 +91,32 @@ class Analyzer:
         dep_details['js'] = []
         dep_details['ruby'] = []
         dep_details['php'] = []
+        fp_count = 0
         for dependency in dependencies:
             d = {}
             splitted_dep = dependency.split("#")
             d['product'] = splitted_dep[1]
             d['version'] = splitted_dep[2]
             d['vulnerabilities'] = self.get_vulnerabilities(d['product'], d['version'])
+            d['is_vulnerable'] = True
+            d['is_false_positive'] = self.is_fp(image_name, d['product'], d['version'])
+            if d['is_false_positive']:
+                fp_count += 1
             dep_details[splitted_dep[0]].append(d)
         # Prepare output
         data['vuln_dependencies'] = len(dep_details['java']) + len(dep_details['python']) + \
                                     len(dep_details['nodejs']) + len(dep_details['js']) + \
-                                    len(dep_details['ruby']) + len(dep_details['php'])
+                                    len(dep_details['ruby']) + len(dep_details['php']) - fp_count
         data['dependencies_details'] = dep_details
         # Return
         return data
 
     # Generates os report
-    def generate_os_report(self, os_packages):
+    def generate_os_report(self, image_name, os_packages):
         data = {}
         products_status = []
         vuln_products = 0
+        fp_count = 0
         for package in os_packages:
             p = {}
             p['product'] = package['product']
@@ -121,8 +127,12 @@ class Analyzer:
                 vuln_products += 1
             else:
                 p['is_vulnerable'] = False
+            p['is_false_positive'] = self.is_fp(image_name, package['product'], package['version'])
+            if p['is_false_positive']:
+                fp_count += 1
             products_status.append(p)
         # Prepare output
+        vuln_products -= fp_count
         data['total_os_packages'] = len(products_status)
         data['vuln_os_packages'] = vuln_products
         data['ok_os_packages'] = data['total_os_packages'] - vuln_products
@@ -133,3 +143,7 @@ class Analyzer:
     # Gets vulnerabilities by product and version
     def get_vulnerabilities(self, product, version):
         return self.mongoDbDriver.get_vulnerabilities(product, version)
+
+    # Check if it is a false positive
+    def is_fp(self, image_name, product, version):
+        return self.mongoDbDriver.is_fp(image_name, product, version)

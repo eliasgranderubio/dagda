@@ -43,7 +43,7 @@ class MongoDbDriver:
 
     # -- Inserting and bulk inserting methods
 
-    # Bulk insert the cve list with the next format: <CVE-ID>#<vendor>#<product>#<version>
+    # Bulk insert the cve list with the next format: <CVE-ID>#<vendor>#<product>#<version>#<year>
     def bulk_insert_cves(self, cve_list):
         products = []
         for product in cve_list:

@@ -44,3 +44,15 @@ def get_history_by_image_name(image_name):
     if len(history) == 0:
         return json.dumps({'err': 404, 'msg': 'History not found'}, sort_keys=True), 404
     return json.dumps(history, sort_keys=True)
+
+
+# Partial update of image analysis for setting the product vulnerability as false positive
+@history_api.route('/v1/history/<path:image_name>/fp/<string:product>', methods=['PATCH'])
+@history_api.route('/v1/history/<path:image_name>/fp/<string:product>/<string:version>', methods=['PATCH'])
+def set_product_vulnerability_as_false_positive(image_name, product, version=None):
+    updated = InternalServer.get_mongodb_driver().update_product_vulnerability_as_fp(image_name=image_name,
+                                                                                     product=product,
+                                                                                     version=version)
+    if not updated:
+        return json.dumps({'err': 404, 'msg': 'Product vulnerability not found'}, sort_keys=True), 404
+    return '', 204

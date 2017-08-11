@@ -113,10 +113,17 @@ def main(parsed_args):
             if not parsed_args.get_docker_image_name():
                 r = requests.get(dagda_base_url + '/history')
             else:
-                query_params = ''
-                if parsed_args.get_report_id() is not None:
-                    query_params = '?id=' + parsed_args.get_report_id()
-                r = requests.get(dagda_base_url + '/history/' + parsed_args.get_docker_image_name() + query_params)
+                if parsed_args.get_fp() is not None:
+                    fp_product, fp_version = parsed_args.get_fp()
+                    if fp_version is not None:
+                        fp_product += '/' + fp_version
+                    r = requests.patch(dagda_base_url + '/history/' + parsed_args.get_docker_image_name() + '/fp/'
+                                       + fp_product)
+                else:
+                    query_params = ''
+                    if parsed_args.get_report_id() is not None:
+                        query_params = '?id=' + parsed_args.get_report_id()
+                    r = requests.get(dagda_base_url + '/history/' + parsed_args.get_docker_image_name() + query_params)
 
         # Executes monitor sub-command
         elif cmd == 'monitor':
@@ -130,7 +137,7 @@ def main(parsed_args):
             r = requests.get(dagda_base_url + '/docker/' + parsed_args.get_command())
 
         # -- Print cmd output
-        if r is not None:
+        if r is not None and r.content:
             print(json.dumps(json.loads(r.content.decode('utf-8')), sort_keys=True, indent=4))
 
 

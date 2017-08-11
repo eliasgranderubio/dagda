@@ -19,6 +19,7 @@
 
 import argparse
 import sys
+from log.dagda_logger import DagdaLogger
 
 
 class HistoryCLIParser:
@@ -31,7 +32,12 @@ class HistoryCLIParser:
         self.parser = DagdaHistoryParser(prog='dagda.py history', usage=history_parser_text)
         self.parser.add_argument('docker_image_name', metavar='IMAGE_NAME', type=str, nargs='?')
         self.parser.add_argument('--id', type=str)
+        self.parser.add_argument('--fp', nargs='+', type=str)
         self.args, self.unknown = self.parser.parse_known_args(sys.argv[2:])
+        # Verify command line arguments
+        status = self.verify_args(self.args)
+        if status != 0:
+            exit(status)
 
     # -- Getters
 
@@ -42,6 +48,33 @@ class HistoryCLIParser:
     # Gets report id
     def get_report_id(self):
         return self.args.id
+
+    # Gets product and version for setting as false positive
+    def get_fp(self):
+        output = ''
+        if self.args.fp:
+            for s in self.args.fp:
+                output += ' ' + s
+            output = output.rstrip().lstrip()
+            if ':' in output:
+                output = output.split(':')
+                return output[0], output[1]
+            else:
+                return output, None
+        return None
+
+    # -- Static methods
+
+    # Verify command line arguments
+    @staticmethod
+    def verify_args(args):
+        if args.fp and args.id:
+            DagdaLogger.get_logger().error('Argument --fp: this argument must be alone.')
+            return 1
+        elif args.fp and not args.docker_image_name:
+            DagdaLogger.get_logger().error('Argument --fp: IMAGE_NAME argument is mandatory.')
+            return 2
+        return 0
 
 
 # Custom parser
@@ -60,7 +93,8 @@ class DagdaHistoryParser(argparse.ArgumentParser):
 
 # Custom text
 
-history_parser_text = '''usage: dagda.py history [-h] [IMAGE_NAME] [--id REPORT_ID]
+history_parser_text = '''usage: dagda.py history [-h] [IMAGE_NAME] [--fp PRODUCT_NAME[:PRODUCT_VERSION]]
+                  [--id REPORT_ID]
 
 Your personal docker security analyzer history.
 
@@ -72,4 +106,9 @@ Positional Arguments:
 Optional Arguments:
   -h, --help            show this help message and exit
   --id REPORT_ID        the report with this id will be shown
+  
+  --fp PRODUCT_NAME[:PRODUCT_VERSION]
+                        tags the product vulnerability as false positive. Both,
+                        "<PRODUCT_NAME>" and "<PRODUCT_NAME>:<PRODUCT_VERSION>" are 
+                        accepted
 '''

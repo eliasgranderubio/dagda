@@ -448,6 +448,7 @@ class MongoDbDriver:
     # Update product vulnerability as false positive
     def update_product_vulnerability_as_fp(self, image_name, product, version=None):
         cursor = self.db.image_history.find({'image_name': image_name}).sort("timestamp", pymongo.DESCENDING)
+        updated = False
         for scan in cursor:
             if scan is not None and 'status' in scan and 'Completed' in scan['status'] and 'static_analysis' in scan:
                 # OS packages
@@ -458,6 +459,7 @@ class MongoDbDriver:
                             if not p['is_false_positive']:
                                 p['is_false_positive'] = True
                                 updated_products += 1
+                                updated = True
                     scan['static_analysis']['os_packages']['vuln_os_packages'] -= updated_products
                     scan['static_analysis']['os_packages']['ok_os_packages'] += updated_products
 
@@ -474,12 +476,16 @@ class MongoDbDriver:
                                     if not p['is_false_positive']:
                                         p['is_false_positive'] = True
                                         updated_dependencies += 1
+                                        updated = True
                     scan['static_analysis']['prog_lang_dependencies']['vuln_dependencies'] -= \
                                                                                             updated_dependencies
 
                 # Update collection
                 self.db.image_history.update({'_id': scan['_id']}, scan)
                 break
+
+        # Return if the scan was updated or not
+        return updated
 
     # Gets the init db process status
     def get_init_db_process_status(self):

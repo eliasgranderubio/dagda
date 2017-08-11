@@ -21,7 +21,7 @@ import io
 import os
 import time
 import json
-import platform
+import tempfile
 import subprocess
 import datetime
 from shutil import copyfile
@@ -35,8 +35,9 @@ class SysdigFalcoMonitor:
 
     # -- Private attributes
 
-    _falco_output_filename = '/tmp/falco_output.json'
-    _falco_custom_rules_filename = '/tmp/custom_falco_rules.yaml'
+    _tmp_directory = tempfile.gettempdir()  # This directory should be resolved as /tmp
+    _falco_output_filename = _tmp_directory + '/falco_output.json'
+    _falco_custom_rules_filename = _tmp_directory + '/custom_falco_rules.yaml'
 
     # -- Public methods
 
@@ -55,7 +56,7 @@ class SysdigFalcoMonitor:
     # Pre check for Sysdig falco container
     def pre_check(self):
         # Init
-        linux_distro = self._get_linux_distro()
+        linux_distro = SysdigFalcoMonitor._get_linux_distro()
         uname_r = os.uname().release
 
         # Check requirements
@@ -125,7 +126,7 @@ class SysdigFalcoMonitor:
         # Review sysdig/falco logs after rules parser
         sysdig_falco_logs = self.docker_driver.docker_logs(self.running_container_id, True, True, False)
         if "Rule " in sysdig_falco_logs:
-            self._parse_log_and_show_dagda_warnings(sysdig_falco_logs)
+            SysdigFalcoMonitor._parse_log_and_show_dagda_warnings(sysdig_falco_logs)
 
         # Read file
         with open(SysdigFalcoMonitor._falco_output_filename, 'rb') as f:
@@ -171,7 +172,7 @@ class SysdigFalcoMonitor:
                                                               '/host/boot',
                                                               '/host/lib/modules',
                                                               '/host/usr',
-                                                              '/host/tmp'
+                                                              '/host' + SysdigFalcoMonitor._tmp_directory
                                                            ],
                                                            self.docker_driver.get_docker_client().create_host_config(
                                                               binds=[
@@ -181,14 +182,18 @@ class SysdigFalcoMonitor:
                                                                   '/boot:/host/boot:ro',
                                                                   '/lib/modules:/host/lib/modules:rw',
                                                                   '/usr:/host/usr:ro',
-                                                                  '/tmp:/host/tmp:rw'
+                                                                  SysdigFalcoMonitor._tmp_directory + ':/host' +
+                                                                            SysdigFalcoMonitor._tmp_directory + ':rw'
                                                               ],
                                                               privileged=True))
         self.docker_driver.docker_start(container_id)
         return container_id
 
+    # -- Private & static methods
+
     # Parse sysdig/falco logs after rules parser
-    def _parse_log_and_show_dagda_warnings(self, sysdig_falco_logs):
+    @staticmethod
+    def _parse_log_and_show_dagda_warnings(sysdig_falco_logs):
         date_prefix = datetime.datetime.now().strftime("%A")[:3] + ' '
         lines = sysdig_falco_logs.split("\n")
         warning = ''
@@ -202,7 +207,8 @@ class SysdigFalcoMonitor:
                 warning+=' ' + line
 
     # Avoids the "platform.linux_distribution()" method which is deprecated in Python 3.5
-    def _get_linux_distro(self):
+    @staticmethod
+    def _get_linux_distro():
         with open('/etc/os-release', 'r') as f:
             lines = f.readlines()
         for line in lines:

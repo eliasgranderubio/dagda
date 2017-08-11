@@ -429,12 +429,14 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                         "product": "sed",
                         "version": "4.2.2",
                         "is_vulnerable": false,
+                        "is_false_positive": false,
                         "vulnerabilities": []
                     },
                     {
                         "product": "grep",
                         "version": "2.20",
                         "is_vulnerable": true,
+                        "is_false_positive": false,
                         "vulnerabilities": [
                             {
                                 "CVE-2015-1345": {
@@ -465,9 +467,10 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                         ]
                     },
                     {
-                        "is_vulnerable": true,
                         "product": "lua",
                         "version": "5.1.4",
+                        "is_vulnerable": true,
+                        "is_false_positive": false,
                         "vulnerabilities": [
                             {
                                 "CVE-2014-5461": {
@@ -509,9 +512,10 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                     },
                     [...]
                     , {
-                        "is_vulnerable": false,
                         "product": "sqlite",
                         "version": "3.7.17",
+                        "is_vulnerable": false,
+                        "is_false_positive": false,
                         "vulnerabilities": []
                     }
                 ]
@@ -523,6 +527,8 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                         {
                             "product": "xalan-java",
                             "version": "2.5.2",
+                            "is_vulnerable": true,
+                            "is_false_positive": false,
                             "vulnerabilities": [
                                 {
                                     "CVE-2014-0107": {
@@ -567,6 +573,8 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                         {
                             "product": "jboss_wildfly_application_server",
                             "version": "-",
+                            "is_vulnerable": true,
+                            "is_false_positive": false,
                             "vulnerabilities": [
                                 {
                                     "CVE-2014-0018": {
@@ -600,6 +608,8 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                         , {
                             "product": "jboss_weld",
                             "version": "3.0.0",
+                            "is_vulnerable": true,
+                            "is_false_positive": false,
                             "vulnerabilities": [
                                 {
                                     "CVE-2014-8122": {
@@ -637,6 +647,8 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                         {
                             "product": "lxml",
                             "version": "1.0.1",
+                            "is_vulnerable": true,
+                            "is_false_positive": false,
                             "vulnerabilities": [
                                 {
                                     "CVE-2014-3146": {

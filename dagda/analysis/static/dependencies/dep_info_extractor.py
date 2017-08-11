@@ -19,6 +19,7 @@
 
 import json
 import os
+import tempfile
 from exception.dagda_error import DagdaError
 
 
@@ -34,14 +35,15 @@ def get_dependencies_from_docker_image(docker_driver, image_name):
                                                          '/var/run/docker.sock',
                                                          '/fenced/mnt/host/var/lib/docker/',
                                                          '/fenced/mnt/host/',
-                                                         '/tmp'
+                                                         tempfile.gettempdir()  # This directory should be resolved as /tmp
                                                   ],
                                                   docker_driver.get_docker_client().create_host_config(
                                                           binds=[
                                                                 '/var/run/docker.sock:/var/run/docker.sock',
                                                                 '/var/lib/docker/:/fenced/mnt/host/var/lib/docker/:rw',
                                                                 '/:/fenced/mnt/host/:ro',
-                                                                '/tmp:/tmp:rw'
+                                                                tempfile.gettempdir() + ':' + tempfile.gettempdir() +
+                                                                                                                ':rw'
                                                                 ]))
     docker_driver.docker_start(container_id)
     # Wait for depcheck
@@ -87,7 +89,7 @@ def get_filtered_dependencies_info(dependencies):
 # Reads the depcheck output file
 def read_depcheck_output_file(image_name):
     image_name = image_name.replace("/", '_')
-    filename = '/tmp/depcheck/' + image_name
+    filename = tempfile.gettempdir() + '/depcheck/' + image_name
 
     # Check file
     if not os.path.isfile(filename):

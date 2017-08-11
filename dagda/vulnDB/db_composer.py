@@ -101,7 +101,7 @@ class DBComposer:
 
         # Updating BugTraqs from http://www.securityfocus.com/
         bid_items_array, bid_detail_array = get_bug_traqs_lists_from_online_mode(bid_downloader(first_bid=max_bid+1,
-                                                                                                last_bid=100000))
+                                                                                                last_bid=100500))
         # Insert BIDs
         for bid_items_list in bid_items_array:
             self.mongoDbDriver.bulk_insert_bids(bid_items_list)

@@ -243,7 +243,8 @@ class MongoDbDriverTestCase(unittest.TestCase):
 
     def test_update_fp(self):
         mock_driver = UpdateFPMongoDbDriver()
-        mock_driver.update_product_vulnerability_as_fp('alpine', 'musl', '1.1.15')
+        updated = mock_driver.update_product_vulnerability_as_fp('alpine', 'musl', '1.1.15')
+        self.assertTrue(updated)
         mock_driver.db.image_history.update.assert_called_once_with({'_id': "5915ed36ff1f081833551af5"},
                                                              {"_id": "5915ed36ff1f081833551af5",
                                                               "timestamp": 1494609523.342605, "status": "Completed",

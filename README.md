@@ -405,6 +405,20 @@ The expected output for the previous command will be the next one. In this outpu
 ```
 
 
+Also, if you want run a static analysis in a remote way, you can use the [*agent* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#agent-sub-command):
+```
+    python3 dagda.py agent localhost:5000 -i jboss/wildfly
+```
+
+The expected output for the previous command will be the next one. In this output, **Dagda** responses with the analysis `id`.
+```
+    {
+        "id": "58667994ed253915723c50e7",
+        "image_name": "jboss/wildfly"
+    }
+```
+
+
 If you want review a concrete docker analysis, you must type:
 ```
     python3 dagda.py history <DOCKER_IMAGE_NAME_HERE> --id <REPORT_ID_HERE>

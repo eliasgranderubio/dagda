@@ -46,6 +46,18 @@ def get_history_by_image_name(image_name):
     return json.dumps(history, sort_keys=True)
 
 
+# Add a new image analysis to the history
+@history_api.route('/v1/history/<path:image_name>', methods=['POST'])
+def post_image_analysis_to_the_history(image_name):
+    data = json.loads(request.data.decode('utf-8'))
+    id = InternalServer.get_mongodb_driver().insert_docker_image_scan_result_to_history(data)
+    # -- Return
+    output = {}
+    output['id'] = str(id)
+    output['image_name'] = image_name
+    return json.dumps(output, sort_keys=True), 201
+
+
 # Partial update of image analysis for setting the product vulnerability as false positive
 @history_api.route('/v1/history/<path:image_name>/fp/<string:product>', methods=['PATCH'])
 @history_api.route('/v1/history/<path:image_name>/fp/<string:product>/<string:version>', methods=['PATCH'])

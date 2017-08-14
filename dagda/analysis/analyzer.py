@@ -18,6 +18,8 @@
 #
 
 import datetime
+import requests
+import json
 from analysis.static.os import os_info_extractor
 from analysis.static.dependencies import dep_info_extractor
 from api.internal.internal_server import InternalServer
@@ -31,9 +33,14 @@ class Analyzer:
     # -- Public methods
 
     # Analyzer Constructor
-    def __init__(self):
+    def __init__(self, dagda_server_url=None):
         super(Analyzer, self).__init__()
-        self.mongoDbDriver = InternalServer.get_mongodb_driver()
+        self.is_remote = False
+        if dagda_server_url is not None:
+            self.dagda_server_url = dagda_server_url
+            self.is_remote = True
+        else:
+            self.mongoDbDriver = InternalServer.get_mongodb_driver()
         self.dockerDriver = InternalServer.get_docker_driver()
 
     # Evaluate image from image name or container id
@@ -142,8 +149,22 @@ class Analyzer:
 
     # Gets vulnerabilities by product and version
     def get_vulnerabilities(self, product, version):
-        return self.mongoDbDriver.get_vulnerabilities(product, version)
+        if not self.is_remote:
+            return self.mongoDbDriver.get_vulnerabilities(product, version)
+        else:
+            if product is not None:
+                product += '/' + version
+            r = requests.get(self.dagda_server_url + '/vuln/products/' + product)
+            if r.status_code == 200:
+                return json.loads(r.content.decode('utf-8'))
+            return []
 
     # Check if it is a false positive
     def is_fp(self, image_name, product, version):
-        return self.mongoDbDriver.is_fp(image_name, product, version)
+        if not self.is_remote:
+            return self.mongoDbDriver.is_fp(image_name, product, version)
+        else:
+            if product is not None:
+                product += '/' + version
+            r = requests.get(self.dagda_server_url + '/history/' + image_name + '/fp/' + product)
+            return r.status_code == 204

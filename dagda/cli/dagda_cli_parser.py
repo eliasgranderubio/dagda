@@ -25,6 +25,7 @@ from cli.command.history_cli_parser import HistoryCLIParser
 from cli.command.vuln_cli_parser import VulnCLIParser
 from cli.command.start_cli_parser import StartCLIParser
 from cli.command.monitor_cli_parser import MonitorCLIParser
+from cli.command.agent_cli_parser import AgentCLIParser
 
 
 class DagdaCLIParser:
@@ -35,7 +36,7 @@ class DagdaCLIParser:
     def __init__(self):
         super(DagdaCLIParser, self).__init__()
         self.parser = DagdaGlobalParser(prog='dagda.py', usage=dagda_global_parser_text, add_help=False)
-        self.parser.add_argument('command', choices=['vuln', 'check', 'history', 'start', 'monitor', 'docker'])
+        self.parser.add_argument('command', choices=['vuln', 'check', 'history', 'start', 'monitor', 'docker', 'agent'])
         self.parser.add_argument('-h', '--help', action=_HelpAction)
         self.parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.6.0')
         self.args, self.unknown = self.parser.parse_known_args()
@@ -51,6 +52,8 @@ class DagdaCLIParser:
             self.extra_args = MonitorCLIParser()
         elif self.get_command() == 'docker':
             self.extra_args = DockerCLIParser()
+        elif self.get_command() == 'agent':
+            self.extra_args = AgentCLIParser()
 
     # -- Getters
 
@@ -69,7 +72,7 @@ class _HelpAction(argparse._HelpAction):
 
     def __call__(self, parser, namespace, values, option_string=None):
         if sys.argv[1] != 'vuln' and sys.argv[1] != 'check' and sys.argv[1] != 'history' and sys.argv[1] != 'start' \
-                and sys.argv[1] != 'monitor' and sys.argv[1] != 'docker':
+                and sys.argv[1] != 'monitor' and sys.argv[1] != 'docker' and sys.argv[1] != 'agent':
             parser.print_help()
             parser.exit()
 
@@ -93,6 +96,8 @@ class DagdaGlobalParser(argparse.ArgumentParser):
 dagda_global_parser_text = '''usage: dagda.py [--version] [--help] <command> [args]
 
 Dagda Commands:
+  agent                 run a remote agent for performing the analysis of known 
+                        vulnerabilities in docker images/containers
   check                 perform the analysis of known vulnerabilities in
                         docker images/containers
   docker                list all docker images/containers

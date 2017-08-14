@@ -62,6 +62,14 @@ def main(parsed_args):
                          falco_rules_filename=parsed_args.get_falco_rules_filename())
         ds.run()
 
+    # Executes agent sub-command
+    elif cmd == 'agent':
+        from remote.agent import Agent
+        agent = Agent(dagda_server_url='http://' + parsed_args.get_dagda_server() + '/v1')
+        agent.run_static_analysis(image_name=parsed_args.get_docker_image_name(),
+                                  container_id=parsed_args.get_container_id())
+
+    # CLI commands
     else:
         dagda_base_url = get_dagda_base_url()
         # -- Executes vuln sub-command

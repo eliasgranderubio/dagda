@@ -66,3 +66,11 @@ class DagdaCLIParserTestSuite(unittest.TestCase):
         self.assertEqual(parsed_args.get_extra_args().get_server_port(), 5555)
         self.assertEqual(parsed_args.get_extra_args().get_mongodb_host(), None)
         self.assertEqual(parsed_args.get_extra_args().get_mongodb_port(), None)
+
+    def test_dagda_agent_full_happy_path(self):
+        sys.argv = ['dagda.py', 'agent', 'localhost:5000', '-i', 'alpine']
+        parsed_args = DagdaCLIParser()
+        self.assertEqual(parsed_args.get_command(), 'agent')
+        self.assertEqual(parsed_args.get_extra_args().get_dagda_server(), 'localhost:5000')
+        self.assertEqual(parsed_args.get_extra_args().get_docker_image_name(), 'alpine')
+        self.assertEqual(parsed_args.get_extra_args().get_container_id(), None)

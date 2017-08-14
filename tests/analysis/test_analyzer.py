@@ -109,20 +109,25 @@ class AnalyzerTestCase(unittest.TestCase):
 
 class EmptyVulnArrayAnalyzer(Analyzer):
     def __init__(self):
+        self.is_remote = False
         self.mongoDbDriver = Mock()
         self.dockerDriver = Mock()
         self.mongoDbDriver.get_vulnerabilities.return_value = []
 
+
 class NotEmptyVulnArrayAnalyzer(Analyzer):
     def __init__(self):
+        self.is_remote = False
         self.mongoDbDriver = Mock()
         self.dockerDriver = Mock()
         self.mongoDbDriver.get_vulnerabilities.return_value = ['CVE-2002-2001', 'CVE-2002-2002', 'BID-1', 'BID-2',
                                                                'EXPLOIT_DB_ID-3', 'EXPLOIT_DB_ID-4']
         self.mongoDbDriver.is_fp.return_value = False
 
+
 class NotEmptyVulnArrayWithFalsePositivesAnalyzer(Analyzer):
     def __init__(self):
+        self.is_remote = False
         self.mongoDbDriver = Mock()
         self.dockerDriver = Mock()
         self.mongoDbDriver.get_vulnerabilities.return_value = ['CVE-2002-2001', 'CVE-2002-2002', 'BID-1', 'BID-2',

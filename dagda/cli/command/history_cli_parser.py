@@ -33,6 +33,7 @@ class HistoryCLIParser:
         self.parser.add_argument('docker_image_name', metavar='IMAGE_NAME', type=str, nargs='?')
         self.parser.add_argument('--id', type=str)
         self.parser.add_argument('--fp', nargs='+', type=str)
+        self.parser.add_argument('--is_fp', nargs='+', type=str)
         self.args, self.unknown = self.parser.parse_known_args(sys.argv[2:])
         # Verify command line arguments
         status = self.verify_args(self.args)
@@ -51,9 +52,41 @@ class HistoryCLIParser:
 
     # Gets product and version for setting as false positive
     def get_fp(self):
-        output = ''
         if self.args.fp:
-            for s in self.args.fp:
+            return HistoryCLIParser._parse_product_and_version(self.args.fp)
+        return None
+
+    # Gets product and version for checking if it is a false positive
+    def get_is_fp(self):
+        if self.args.is_fp:
+            return HistoryCLIParser._parse_product_and_version(self.args.is_fp)
+        return None
+
+    # -- Static methods
+
+    # Verify command line arguments
+    @staticmethod
+    def verify_args(args):
+        if args.fp and (args.id or args.is_fp):
+            DagdaLogger.get_logger().error('Argument --fp: this argument must be alone.')
+            return 1
+        elif args.fp and not args.docker_image_name:
+            DagdaLogger.get_logger().error('Argument --fp: IMAGE_NAME argument is mandatory.')
+            return 2
+        elif args.is_fp and args.id:
+            DagdaLogger.get_logger().error('Argument --is_fp: this argument must be alone.')
+            return 3
+        elif args.is_fp and not args.docker_image_name:
+            DagdaLogger.get_logger().error('Argument --is_fp: IMAGE_NAME argument is mandatory.')
+            return 4
+        return 0
+
+    # Parse product and version from CLI argument
+    @staticmethod
+    def _parse_product_and_version(fp):
+        output = ''
+        if fp:
+            for s in fp:
                 output += ' ' + s
             output = output.rstrip().lstrip()
             if ':' in output:
@@ -62,19 +95,6 @@ class HistoryCLIParser:
             else:
                 return output, None
         return None
-
-    # -- Static methods
-
-    # Verify command line arguments
-    @staticmethod
-    def verify_args(args):
-        if args.fp and args.id:
-            DagdaLogger.get_logger().error('Argument --fp: this argument must be alone.')
-            return 1
-        elif args.fp and not args.docker_image_name:
-            DagdaLogger.get_logger().error('Argument --fp: IMAGE_NAME argument is mandatory.')
-            return 2
-        return 0
 
 
 # Custom parser
@@ -94,7 +114,7 @@ class DagdaHistoryParser(argparse.ArgumentParser):
 # Custom text
 
 history_parser_text = '''usage: dagda.py history [-h] [IMAGE_NAME] [--fp PRODUCT_NAME[:PRODUCT_VERSION]]
-                  [--id REPORT_ID]
+                  [--is_fp PRODUCT_NAME[:PRODUCT_VERSION]] [--id REPORT_ID]
 
 Your personal docker security analyzer history.
 
@@ -111,4 +131,9 @@ Optional Arguments:
                         tags the product vulnerability as false positive. Both,
                         "<PRODUCT_NAME>" and "<PRODUCT_NAME>:<PRODUCT_VERSION>" are 
                         accepted
+                        
+  --is_fp PRODUCT_NAME[:PRODUCT_VERSION]
+                        checks if the product vulnerability is a false positive. Both,
+                        "<PRODUCT_NAME>" and "<PRODUCT_NAME>:<PRODUCT_VERSION>" are 
+                        accepted      
 '''

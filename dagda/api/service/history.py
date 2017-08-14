@@ -56,3 +56,13 @@ def set_product_vulnerability_as_false_positive(image_name, product, version=Non
     if not updated:
         return json.dumps({'err': 404, 'msg': 'Product vulnerability not found'}, sort_keys=True), 404
     return '', 204
+
+
+# Check if the product vulnerability is a false positive
+@history_api.route('/v1/history/<path:image_name>/fp/<string:product>', methods=['GET'])
+@history_api.route('/v1/history/<path:image_name>/fp/<string:product>/<string:version>', methods=['GET'])
+def is_product_vulnerability_a_false_positive(image_name, product, version=None):
+    is_fp = InternalServer.get_mongodb_driver().is_fp(image_name=image_name, product=product, version=version)
+    if not is_fp:
+        return json.dumps({'err': 404, 'msg': 'Product vulnerability not found'}, sort_keys=True), 404
+    return '', 204

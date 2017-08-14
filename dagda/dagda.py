@@ -109,16 +109,25 @@ def main(parsed_args):
 
         # Executes history sub-command
         elif cmd == 'history':
-            # Gets the history
+            # Gets the global history
             if not parsed_args.get_docker_image_name():
                 r = requests.get(dagda_base_url + '/history')
             else:
+                # Updates product vulnerability as false positive
                 if parsed_args.get_fp() is not None:
                     fp_product, fp_version = parsed_args.get_fp()
                     if fp_version is not None:
                         fp_product += '/' + fp_version
                     r = requests.patch(dagda_base_url + '/history/' + parsed_args.get_docker_image_name() + '/fp/'
                                        + fp_product)
+                # Checks if a product vulnerability is a false positive
+                if parsed_args.get_is_fp() is not None:
+                    fp_product, fp_version = parsed_args.get_is_fp()
+                    if fp_version is not None:
+                        fp_product += '/' + fp_version
+                    r = requests.get(dagda_base_url + '/history/' + parsed_args.get_docker_image_name() + '/fp/'
+                                     + fp_product)
+                # Gets the image history
                 else:
                     query_params = ''
                     if parsed_args.get_report_id() is not None:

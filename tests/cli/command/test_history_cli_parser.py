@@ -33,25 +33,35 @@ class DockerHistoryCLIParserTestCase(unittest.TestCase):
         self.assertEqual(parsed_args.get_docker_image_name(), 'jboss/wildfly')
 
     def test_both_arguments(self):
-        empty_args = generate_args(None, '43a6ca974743', 'openldap:2.2.20')
+        empty_args = generate_args(None, '43a6ca974743', 'openldap:2.2.20', None)
         status = HistoryCLIParser.verify_args(empty_args)
         self.assertEqual(status, 1)
 
     def test_missing_image_name(self):
-        args = generate_args(None, None, 'openldap:2.2.20')
+        args = generate_args(None, None, 'openldap:2.2.20', None)
         status = HistoryCLIParser.verify_args(args)
         self.assertEqual(status, 2)
 
+    def test_both_arguments_with_is_fp(self):
+        empty_args = generate_args(None, '43a6ca974743', None, 'openldap:2.2.20')
+        status = HistoryCLIParser.verify_args(empty_args)
+        self.assertEqual(status, 3)
+
+    def test_missing_image_name_with_is_fp(self):
+        args = generate_args(None, None, None, 'openldap:2.2.20')
+        status = HistoryCLIParser.verify_args(args)
+        self.assertEqual(status, 4)
+
     def test_ok_only_image_name(self):
-        args = generate_args('jboss/wildfly', None, None)
+        args = generate_args('jboss/wildfly', None, None, None)
         status = HistoryCLIParser.verify_args(args)
         self.assertEqual(status, 0)
 
 
 # -- Util methods
 
-def generate_args(docker_image_name, id, fp):
-    return AttrDict([('docker_image_name', docker_image_name), ('id', id), ('fp', fp)])
+def generate_args(docker_image_name, id, fp, is_fp):
+    return AttrDict([('docker_image_name', docker_image_name), ('id', id), ('fp', fp), ('is_fp', is_fp)])
 
 
 # -- Util classes

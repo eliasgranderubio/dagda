@@ -241,6 +241,26 @@ class MongoDbDriverTestCase(unittest.TestCase):
         is_fp = mock_driver.is_fp('alpine', 'musl', '1.1.15')
         self.assertTrue(is_fp)
 
+    def test_get_max_bid_inserted_zero(self):
+        mock_driver = MaxBidZeroMongoDbDriver()
+        max_bid = mock_driver.get_max_bid_inserted()
+        self.assertEqual(max_bid, 0)
+
+    def test_get_max_bid_inserted_not_zero(self):
+        mock_driver = MaxBidNotZeroMongoDbDriver()
+        max_bid = mock_driver.get_max_bid_inserted()
+        self.assertEqual(max_bid, 83843)
+
+    def test_get_init_db_process_status_none(self):
+        mock_driver = GetEmptyInitDBStatusMongoDbDriver()
+        status = mock_driver.get_init_db_process_status()
+        self.assertEqual(status, {'status': 'None', 'timestamp': None})
+
+    def test_get_init_db_process_status_updated(self):
+        mock_driver = GetInitDBStatusMongoDbDriver()
+        status = mock_driver.get_init_db_process_status()
+        self.assertEqual(status, {'status': 'Updated', 'timestamp': None})
+
     def test_update_fp(self):
         mock_driver = UpdateFPMongoDbDriver()
         updated = mock_driver.update_product_vulnerability_as_fp('alpine', 'musl', '1.1.15')
@@ -532,6 +552,42 @@ class BulkInfoMongoDbDriver(MongoDbDriver):
         self.db.exploit_db.create_index.return_value = True
         self.db.falco_events.count.return_value = 0
         self.db.falco_events.create_index.return_value = True
+        self.db.collection_names.return_value = []
+
+
+class MaxBidZeroMongoDbDriver(MongoDbDriver):
+    def __init__(self):
+        self.client = Mock(spec=pymongo.MongoClient)
+        self.db = Mock()
+        self.db.collection_names.return_value = []
+
+
+class MaxBidNotZeroMongoDbDriver(MongoDbDriver):
+    def __init__(self):
+        self.client = Mock(spec=pymongo.MongoClient)
+        self.db = Mock()
+        self.db.collection_names.return_value = ['bid']
+        self.db.bid.count.return_value = 10
+        cursor_bid = self.db.bid.find.return_value
+        sort_bid = cursor_bid.sort.return_value
+        sort_bid.limit.return_value = [{'bugtraq_id': 83843}]
+
+
+class GetEmptyInitDBStatusMongoDbDriver(MongoDbDriver):
+    def __init__(self):
+        self.client = Mock(spec=pymongo.MongoClient)
+        self.db = Mock()
+        cursor = self.db.init_db_process_status.find.return_value
+        cursor.sort.return_value = []
+
+
+class GetInitDBStatusMongoDbDriver(MongoDbDriver):
+    def __init__(self):
+        self.client = Mock(spec=pymongo.MongoClient)
+        self.db = Mock()
+        cursor = self.db.init_db_process_status.find.return_value
+        cursor.sort.return_value = [{'status': 'Updated', 'timestamp': None}]
+
 
 if __name__ == '__main__':
     unittest.main()

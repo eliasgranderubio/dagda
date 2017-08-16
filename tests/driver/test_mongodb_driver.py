@@ -251,6 +251,21 @@ class MongoDbDriverTestCase(unittest.TestCase):
         max_bid = mock_driver.get_max_bid_inserted()
         self.assertEqual(max_bid, 83843)
 
+    def test_remove_only_cve_for_update_empty(self):
+        mock_driver = RemoveOnlyCVEForUpdateEmptyCollectionNamesMongoDbDriver()
+        cve_year = mock_driver.remove_only_cve_for_update()
+        self.assertEqual(cve_year, 2002)
+
+    def test_remove_only_cve_for_update_minor_than_2002(self):
+        mock_driver = RemoveOnlyCVEForUpdateMinorThan2002MongoDbDriver()
+        cve_year = mock_driver.remove_only_cve_for_update()
+        self.assertEqual(cve_year, 2002)
+
+    def test_remove_only_cve_for_update_equals_2011(self):
+        mock_driver = RemoveOnlyCVEForUpdateEquals2011MongoDbDriver()
+        cve_year = mock_driver.remove_only_cve_for_update()
+        self.assertEqual(cve_year, 2011)
+
     def test_get_init_db_process_status_none(self):
         mock_driver = GetEmptyInitDBStatusMongoDbDriver()
         status = mock_driver.get_init_db_process_status()
@@ -363,6 +378,27 @@ class MongoDbDriverTestCase(unittest.TestCase):
                                                                                        "is_false_positive": False}],
                                                                                   "total_os_packages": 11,
                                                                                   "ok_os_packages": 10}}})
+
+    def test_get_docker_image_all_history(self):
+        mock_driver = GetFullHistoryMongoDbDriver()
+        history = mock_driver.get_docker_image_all_history()
+        self.assertEqual(history, [{
+                                    "anomalies": 0,
+                                    "image_name": "jboss/wildfly",
+                                    "libs_vulns": 1,
+                                    "os_vulns": 2,
+                                    "reportid": "58790707ed253944951ec5ba",
+                                    "start_date": "2017-05-12 17:18:43.342605",
+                                    "status": "Completed"
+                                },{
+                                    "anomalies": 2,
+                                    "image_name": "jboss/wildfly",
+                                    "libs_vulns": 0,
+                                    "os_vulns": 0,
+                                    "reportid": "58790707ed253944951ec5ba",
+                                    "start_date": "2017-05-12 17:18:43.342605",
+                                    "status": "Completed"
+                                }])
 
 
 # -- Mock classes
@@ -573,6 +609,39 @@ class MaxBidNotZeroMongoDbDriver(MongoDbDriver):
         sort_bid.limit.return_value = [{'bugtraq_id': 83843}]
 
 
+class RemoveOnlyCVEForUpdateEmptyCollectionNamesMongoDbDriver(MongoDbDriver):
+    def __init__(self):
+        self.client = Mock(spec=pymongo.MongoClient)
+        self.db = Mock()
+        self.db.collection_names.return_value = []
+
+
+class RemoveOnlyCVEForUpdateMinorThan2002MongoDbDriver(MongoDbDriver):
+    def __init__(self):
+        self.client = Mock(spec=pymongo.MongoClient)
+        self.db = Mock()
+        self.db.collection_names.return_value = ['cve']
+        self.db.cve.count.return_value = 10
+        cursor_cve = self.db.cve.find.return_value
+        sort_cve = cursor_cve.sort.return_value
+        sort_cve.limit.return_value = [{'year': 2002}]
+        self.db.cve.drop.return_value = True
+        self.db.cve_info.drop.return_value = True
+
+
+class RemoveOnlyCVEForUpdateEquals2011MongoDbDriver(MongoDbDriver):
+    def __init__(self):
+        self.client = Mock(spec=pymongo.MongoClient)
+        self.db = Mock()
+        self.db.collection_names.return_value = ['cve']
+        self.db.cve.count.return_value = 10
+        cursor_cve = self.db.cve.find.return_value
+        sort_cve = cursor_cve.sort.return_value
+        sort_cve.limit.return_value = [{'year': 2012}]
+        self.db.cve.remove.return_value = True
+        self.db.cve_info.remove.return_value = True
+
+
 class GetEmptyInitDBStatusMongoDbDriver(MongoDbDriver):
     def __init__(self):
         self.client = Mock(spec=pymongo.MongoClient)
@@ -587,6 +656,26 @@ class GetInitDBStatusMongoDbDriver(MongoDbDriver):
         self.db = Mock()
         cursor = self.db.init_db_process_status.find.return_value
         cursor.sort.return_value = [{'status': 'Updated', 'timestamp': None}]
+
+
+class GetFullHistoryMongoDbDriver(MongoDbDriver):
+    def __init__(self):
+        self.client = Mock(spec=pymongo.MongoClient)
+        self.db = Mock()
+        cursor = self.db.image_history.find.return_value
+        cursor.sort.return_value = [{'_id': '58790707ed253944951ec5ba',
+                                     'image_name': 'jboss/wildfly',
+                                     'status': 'Completed',
+                                     'timestamp':1494609523.342605,
+                                     'static_analysis':{'os_packages':{'vuln_os_packages':2},
+                                                        'prog_lang_dependencies':{'vuln_dependencies':1}},
+                                     },
+                                    {'_id': '58790707ed253944951ec5ba',
+                                     'image_name': 'jboss/wildfly',
+                                     'status': 'Completed',
+                                     'timestamp':1494609523.342605,
+                                     'runtime_analysis':{"anomalous_activities_detected":
+                                                             {"anomalous_counts_by_severity": {"Warning": 2}}}}]
 
 
 if __name__ == '__main__':

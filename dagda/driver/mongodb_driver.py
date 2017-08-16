@@ -222,10 +222,11 @@ class MongoDbDriver:
                                                   .sort("exploit_db_id", pymongo.ASCENDING)
         # Prepare output
         output = []
+        included_cve = []
         for cve in cve_cursor:
             if cve is not None:
                 cve_temp = cve['cve_id']
-                if cve_temp not in output:
+                if cve_temp not in included_cve:
                     info = {}
                     cve_info = {}
                     cve_data = self.db.cve_info.find_one({'cveid': cve_temp})
@@ -237,10 +238,12 @@ class MongoDbDriver:
                         del cve_info["_id"]
                     info[cve_temp] = cve_info
                     output.append(info)
+                    included_cve.append(cve['cve_id'])
+        included_bid = []
         for bid in bid_cursor:
             if bid is not None:
                 bid_tmp = 'BID-' + str(bid['bugtraq_id'])
-                if bid_tmp not in output:
+                if bid_tmp not in included_bid:
                     info = {}
                     bid_info = {}
                     bid_data = self.db.bid_info.find_one({'bugtraq_id': bid['bugtraq_id']})
@@ -250,10 +253,12 @@ class MongoDbDriver:
                         del bid_info["_id"]
                     info[bid_tmp] = bid_info
                     output.append(info)
+                    included_bid.append(bid_tmp)
+        included_exploit = []
         for exploit_db in exploit_db_cursor:
             if exploit_db is not None:
                 exploit_db_tmp = 'EXPLOIT_DB_ID-' + str(exploit_db['exploit_db_id'])
-                if exploit_db_tmp not in output:
+                if exploit_db_tmp not in included_exploit:
                     info = {}
                     exploit_db_info = {}
                     exploit_data = self.db.exploit_db_info.find_one({'exploit_db_id': exploit_db['exploit_db_id']})
@@ -263,6 +268,7 @@ class MongoDbDriver:
                         del exploit_db_info["_id"]
                     info[exploit_db_tmp] = exploit_db_info
                     output.append(info)
+                    included_exploit.append(exploit_db_tmp)
         # Return
         return output
 

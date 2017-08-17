@@ -110,7 +110,7 @@ class DagdaServer:
 
     # 500 Internal Server error handler
     @app.errorhandler(500)
-    def not_found(self):
+    def internal_server_error(self):
         return json.dumps({'err': 500, 'msg': 'Internal Server Error'}, sort_keys=True), 500
 
     # -- Private methods

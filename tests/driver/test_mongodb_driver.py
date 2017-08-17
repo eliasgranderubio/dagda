@@ -400,6 +400,37 @@ class MongoDbDriverTestCase(unittest.TestCase):
                                     "status": "Completed"
                                 }])
 
+    def test_get_docker_image_history(self):
+        mock_driver = GetDockerImageHistory()
+        history = mock_driver.get_docker_image_history('jboss/wildfly')
+        self.assertEqual(history, [{
+                                      "id": "586f7631ed25396a829baaf4",
+                                      "image_name": "jboss/wildfly",
+                                      "timestamp": "2017-05-12 17:18:43.342605",
+                                      "status": "Completed",
+                                      "runtime_analysis": {
+                                         "container_id": "69dbf26ab368",
+                                         "start_timestamp": "2017-05-12 17:18:43.342605",
+                                         "stop_timestamp": "2017-05-12 17:18:43.342605",
+                                         "anomalous_activities_detected": {
+                                            "anomalous_counts_by_severity": {
+                                               "Warning": 2
+                                            },
+                                            "anomalous_activities_details": [{
+                                               "output": "10:49:47.492517329: Warning Unexpected setuid call by non-sudo, non-root program (user=<NA> command=ping 8.8.8.8 uid=<NA>) container=thirsty_spence (id=69dbf26ab368)",
+                                               "priority": "Warning",
+                                               "rule": "Non sudo setuid",
+                                               "time": "2017-01-06 10:49:47.492516"
+                                            }, {
+                                               "output": "10:49:53.181654702: Warning Unexpected setuid call by non-sudo, non-root program (user=<NA> command=ping 8.8.4.4 uid=<NA>) container=thirsty_spence (id=69dbf26ab368)",
+                                               "priority": "Warning",
+                                               "rule": "Non sudo setuid",
+                                               "time": "2017-01-06 10:49:53.181653"
+                                            }]
+                                         }
+                                        }
+                                    }])
+
 
 # -- Mock classes
 
@@ -673,9 +704,72 @@ class GetFullHistoryMongoDbDriver(MongoDbDriver):
                                     {'_id': '58790707ed253944951ec5ba',
                                      'image_name': 'jboss/wildfly',
                                      'status': 'Completed',
-                                     'timestamp':1494609523.342605,
+                                     'timestamp': 1494609523.342605,
                                      'runtime_analysis':{"anomalous_activities_detected":
                                                              {"anomalous_counts_by_severity": {"Warning": 2}}}}]
+
+
+class GetDockerImageHistory(MongoDbDriver):
+    def __init__(self):
+        self.client = Mock(spec=pymongo.MongoClient)
+        self.db = Mock()
+        self.db.image_history.count.return_value = 1
+        cursor = self.db.image_history.find.return_value
+        cursor.sort.return_value = [{
+                                      "_id": "586f7631ed25396a829baaf4",
+                                      "image_name": "jboss/wildfly",
+                                      "timestamp": 1494609523.342605,
+                                      "status": "Completed",
+                                      "runtime_analysis": {
+                                         "container_id": "69dbf26ab368",
+                                         "start_timestamp": 1494609523.342605,
+                                         "stop_timestamp": 1494609523.342605,
+                                         "anomalous_activities_detected": {
+                                            "anomalous_counts_by_severity": {
+                                               "Warning": 2
+                                            },
+                                            "anomalous_activities_details": [{
+                                               "output": "10:49:47.492517329: Warning Unexpected setuid call by non-sudo, non-root program (user=<NA> command=ping 8.8.8.8 uid=<NA>) container=thirsty_spence (id=69dbf26ab368)",
+                                               "priority": "Warning",
+                                               "rule": "Non sudo setuid",
+                                               "time": "2017-01-06 10:49:47.492516"
+                                            }, {
+                                               "output": "10:49:53.181654702: Warning Unexpected setuid call by non-sudo, non-root program (user=<NA> command=ping 8.8.4.4 uid=<NA>) container=thirsty_spence (id=69dbf26ab368)",
+                                               "priority": "Warning",
+                                               "rule": "Non sudo setuid",
+                                               "time": "2017-01-06 10:49:53.181653"
+                                            }]
+                                     }
+                                  }
+                                }]
+        self.db.image_history.find_one.return_value = {
+                                      "_id": "586f7631ed25396a829baaf4",
+                                      "image_name": "jboss/wildfly",
+                                      "timestamp": 1494609523.342605,
+                                      "status": "Completed",
+                                      "runtime_analysis": {
+                                         "container_id": "69dbf26ab368",
+                                         "start_timestamp": 1494609523.342605,
+                                         "stop_timestamp": 1494609523.342605,
+                                         "anomalous_activities_detected": {
+                                            "anomalous_counts_by_severity": {
+                                               "Warning": 2
+                                            },
+                                            "anomalous_activities_details": [{
+                                               "output": "10:49:47.492517329: Warning Unexpected setuid call by non-sudo, non-root program (user=<NA> command=ping 8.8.8.8 uid=<NA>) container=thirsty_spence (id=69dbf26ab368)",
+                                               "priority": "Warning",
+                                               "rule": "Non sudo setuid",
+                                               "time": "2017-01-06 10:49:47.492516"
+                                            }, {
+                                               "output": "10:49:53.181654702: Warning Unexpected setuid call by non-sudo, non-root program (user=<NA> command=ping 8.8.4.4 uid=<NA>) container=thirsty_spence (id=69dbf26ab368)",
+                                               "priority": "Warning",
+                                               "rule": "Non sudo setuid",
+                                               "time": "2017-01-06 10:49:53.181653"
+                                            }]
+                                     }
+                                  }
+                                }
+        self.db.falco_events.find.return_value = []
 
 
 if __name__ == '__main__':

@@ -21,6 +21,7 @@ import unittest
 import os
 import requests
 import time
+import json
 from unittest.mock import Mock
 from api.dagda_server import DagdaServer
 
@@ -39,6 +40,18 @@ class DagdaServerTestCase(unittest.TestCase):
             response = requests.get('http://127.0.0.1:55555/')
             self.assertEqual(response.status_code, 404)
             os.kill(new_pid, 9)
+
+    def test_error_messages(self):
+        ds = DagdaServerWithoutSysdigFalcoMonitor('127.0.0.1', 55555)
+        bad_rs, bad_code = ds.bad_request()
+        not_found_rs, not_found_code = ds.not_found()
+        internal_rs, internal_code = ds.internal_server_error()
+        self.assertEqual(bad_code, 400)
+        self.assertEqual(not_found_code, 404)
+        self.assertEqual(internal_code, 500)
+        self.assertEqual(bad_rs, json.dumps({'err': 400, 'msg': 'Bad Request'}))
+        self.assertEqual(not_found_rs, json.dumps({'err': 404, 'msg': 'Not Found'}))
+        self.assertEqual(internal_rs, json.dumps({'err': 500, 'msg': 'Internal Server Error'}))
 
 
 # -- Mock classes

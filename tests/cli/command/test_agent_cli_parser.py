@@ -32,8 +32,18 @@ class AgentCLIParserTestSuite(unittest.TestCase):
         status = AgentCLIParser.verify_args(empty_args)
         self.assertEqual(status, 1)
 
-    def test_wrong_dagda_server(self):
+    def test_wrong_dagda_server_1(self):
         wrong_args = generate_args('localhost:asdfg67', None, None)
+        status = AgentCLIParser.verify_args(wrong_args)
+        self.assertEqual(status, 1)
+
+    def test_wrong_dagda_server_2(self):
+        wrong_args = generate_args('localhost', None, None)
+        status = AgentCLIParser.verify_args(wrong_args)
+        self.assertEqual(status, 1)
+
+    def test_wrong_dagda_server_3(self):
+        wrong_args = generate_args('localhost:66666', None, None)
         status = AgentCLIParser.verify_args(wrong_args)
         self.assertEqual(status, 1)
 

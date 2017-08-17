@@ -74,3 +74,9 @@ class DagdaCLIParserTestSuite(unittest.TestCase):
         self.assertEqual(parsed_args.get_extra_args().get_dagda_server(), 'localhost:5000')
         self.assertEqual(parsed_args.get_extra_args().get_docker_image_name(), 'alpine')
         self.assertEqual(parsed_args.get_extra_args().get_container_id(), None)
+
+    def test_dagda_docker_happy_path(self):
+        sys.argv = ['dagda.py', 'docker', 'images', ]
+        parsed_args = DagdaCLIParser()
+        self.assertEqual(parsed_args.get_command(), 'docker')
+        self.assertEqual(parsed_args.get_extra_args().get_command(), 'images')

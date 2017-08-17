@@ -27,10 +27,28 @@ from cli.command.history_cli_parser import HistoryCLIParser
 
 class DockerHistoryCLIParserTestCase(unittest.TestCase):
 
-    def test_check_full_happy_path(self):
+    def test_check_full_happy_path_1(self):
         sys.argv = ['dagda.py', 'history', 'jboss/wildfly']
         parsed_args = HistoryCLIParser()
         self.assertEqual(parsed_args.get_docker_image_name(), 'jboss/wildfly')
+        self.assertEqual(parsed_args.get_fp(), None)
+        self.assertEqual(parsed_args.get_is_fp(), None)
+
+    def test_check_full_happy_path_2(self):
+        sys.argv = ['dagda.py', 'history', 'jboss/wildfly', '--fp', 'openldap:2.2.20']
+        parsed_args = HistoryCLIParser()
+        self.assertEqual(parsed_args.get_docker_image_name(), 'jboss/wildfly')
+        self.assertEqual(parsed_args.get_fp()[0], 'openldap')
+        self.assertEqual(parsed_args.get_fp()[1], '2.2.20')
+        self.assertEqual(parsed_args.get_is_fp(), None)
+
+    def test_check_full_happy_path_3(self):
+        sys.argv = ['dagda.py', 'history', 'jboss/wildfly', '--fp', 'mongodb']
+        parsed_args = HistoryCLIParser()
+        self.assertEqual(parsed_args.get_docker_image_name(), 'jboss/wildfly')
+        self.assertEqual(parsed_args.get_fp()[0], 'mongodb')
+        self.assertEqual(parsed_args.get_fp()[1], None)
+        self.assertEqual(parsed_args.get_is_fp(), None)
 
     def test_both_arguments(self):
         empty_args = generate_args(None, '43a6ca974743', 'openldap:2.2.20', None)

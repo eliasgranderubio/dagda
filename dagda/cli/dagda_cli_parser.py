@@ -38,7 +38,7 @@ class DagdaCLIParser:
         self.parser = DagdaGlobalParser(prog='dagda.py', usage=dagda_global_parser_text, add_help=False)
         self.parser.add_argument('command', choices=['vuln', 'check', 'history', 'start', 'monitor', 'docker', 'agent'])
         self.parser.add_argument('-h', '--help', action=_HelpAction)
-        self.parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.6.0')
+        self.parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.7.0')
         self.args, self.unknown = self.parser.parse_known_args()
         if self.get_command() == 'vuln':
             self.extra_args = VulnCLIParser()

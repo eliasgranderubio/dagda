@@ -49,9 +49,9 @@ class DagdaServerTestCase(unittest.TestCase):
         self.assertEqual(bad_code, 400)
         self.assertEqual(not_found_code, 404)
         self.assertEqual(internal_code, 500)
-        self.assertEqual(bad_rs, json.dumps({'err': 400, 'msg': 'Bad Request'}))
-        self.assertEqual(not_found_rs, json.dumps({'err': 404, 'msg': 'Not Found'}))
-        self.assertEqual(internal_rs, json.dumps({'err': 500, 'msg': 'Internal Server Error'}))
+        self.assertEqual(json.loads(bad_rs)['msg'], 'Bad Request')
+        self.assertEqual(json.loads(not_found_rs)['msg'], 'Not Found')
+        self.assertEqual(json.loads(internal_rs)['msg'], 'Internal Server Error')
 
 
 # -- Mock classes

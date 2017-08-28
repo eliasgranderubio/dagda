@@ -387,6 +387,7 @@ class MongoDbDriverTestCase(unittest.TestCase):
                                     "image_name": "jboss/wildfly",
                                     "libs_vulns": 1,
                                     "os_vulns": 2,
+                                    "malware_bins": 0,
                                     "reportid": "58790707ed253944951ec5ba",
                                     "start_date": "2017-05-12 17:18:43.342605",
                                     "status": "Completed"
@@ -395,6 +396,7 @@ class MongoDbDriverTestCase(unittest.TestCase):
                                     "image_name": "jboss/wildfly",
                                     "libs_vulns": 0,
                                     "os_vulns": 0,
+                                    "malware_bins": 0,
                                     "reportid": "58790707ed253944951ec5ba",
                                     "start_date": "2017-05-12 17:18:43.342605",
                                     "status": "Completed"
@@ -699,6 +701,7 @@ class GetFullHistoryMongoDbDriver(MongoDbDriver):
                                      'status': 'Completed',
                                      'timestamp':1494609523.342605,
                                      'static_analysis':{'os_packages':{'vuln_os_packages':2},
+                                                        'malware_binaries':[],
                                                         'prog_lang_dependencies':{'vuln_dependencies':1}},
                                      },
                                     {'_id': '58790707ed253944951ec5ba',

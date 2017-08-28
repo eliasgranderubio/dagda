@@ -399,6 +399,7 @@ class MongoDbDriver:
                     report['status'] = 'Unknown'
 
                 report['start_date'] = str(datetime.datetime.utcfromtimestamp(scan['timestamp']))
+                report['malware_bins'] = 0
                 report['os_vulns'] = 0
                 report['libs_vulns'] = 0
                 report['anomalies'] = 0
@@ -407,6 +408,8 @@ class MongoDbDriver:
                 if 'static_analysis' in scan:
                     if 'os_packages' in scan['static_analysis']:
                         report['os_vulns'] = scan['static_analysis']['os_packages']['vuln_os_packages']
+                    if 'malware_binaries' in scan['static_analysis']:
+                        report['malware_bins'] = len(scan['static_analysis']['malware_binaries'])
                     if 'prog_lang_dependencies' in scan['static_analysis']:
                         report['libs_vulns'] = scan['static_analysis']['prog_lang_dependencies']['vuln_dependencies']
 

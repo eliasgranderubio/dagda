@@ -434,6 +434,16 @@ The analysis can take several minutes for finishing, so be patient. If you typed
         "status": "Completed",
         "timestamp": "2016-12-14 13:17:12.802486",
         "static_analysis": {
+            "malware_binaries": [
+                {
+                    "file": "/tmp/test/removal-tool.exe",
+                    "malware": "Worm.Sober"
+                },
+                {
+                    "file": "/tmp/test/error.hta",
+                    "malware": "VBS.Inor.D"
+                }
+            ],
             "os_packages": {
                 "total_os_packages": 182,
                 "vuln_os_packages": 41,

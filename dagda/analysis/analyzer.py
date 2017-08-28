@@ -22,6 +22,7 @@ import requests
 import json
 from analysis.static.os import os_info_extractor
 from analysis.static.dependencies import dep_info_extractor
+from analysis.static.av import malware_extractor
 from api.internal.internal_server import InternalServer
 from log.dagda_logger import DagdaLogger
 
@@ -52,13 +53,18 @@ class Analyzer:
         image_name = self.dockerDriver.get_docker_image_name_by_container_id(container_id) if container_id \
                                                                                            else image_name
         os_packages = []
+        malware_binaries = []
         dependencies = None
         try:
-            # Get OS packages
+            # Get OS packages and malware binaries
             if container_id is None:  # Scans the docker image
                 os_packages = os_info_extractor.get_soft_from_docker_image(self.dockerDriver, image_name)
+                malware_binaries = malware_extractor.get_malware_included_in_docker_image(self.dockerDriver,
+                                                                                          image_name=image_name)
             else:  # Scans the docker container
                 os_packages = os_info_extractor.get_soft_from_docker_container_id(self.dockerDriver, container_id)
+                malware_binaries = malware_extractor.get_malware_included_in_docker_image(self.dockerDriver,
+                                                                                          container_id=container_id)
 
             # Get programming language dependencies
             dependencies = dep_info_extractor.get_dependencies_from_docker_image(self.dockerDriver, image_name)
@@ -76,16 +82,17 @@ class Analyzer:
 
         data['image_name'] = image_name
         data['timestamp'] = datetime.datetime.now().timestamp()
-        data['static_analysis'] = self.generate_static_analysis(image_name, os_packages, dependencies)
+        data['static_analysis'] = self.generate_static_analysis(image_name, os_packages, dependencies, malware_binaries)
 
         # -- Return
         return data
 
     # Generates the result of the static analysis
-    def generate_static_analysis(self, image_name, os_packages, dependencies):
+    def generate_static_analysis(self, image_name, os_packages, dependencies, malware_binaries):
         data = {}
         data['os_packages'] = self.generate_os_report(image_name, os_packages)
         data['prog_lang_dependencies'] = self.generate_dependencies_report(image_name, dependencies)
+        data['malware_binaries'] = malware_binaries
         return data
 
     # Generates dependencies report

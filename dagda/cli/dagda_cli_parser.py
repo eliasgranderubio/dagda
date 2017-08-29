@@ -97,9 +97,11 @@ dagda_global_parser_text = '''usage: dagda.py [--version] [--help] <command> [ar
 
 Dagda Commands:
   agent                 run a remote agent for performing the analysis of known 
-                        vulnerabilities in docker images/containers
-  check                 perform the analysis of known vulnerabilities in
-                        docker images/containers
+                        vulnerabilities, trojans, viruses, malware & other 
+                        malicious threats in docker images/containers
+  check                 perform the analysis of known vulnerabilities, trojans, 
+                        viruses, malware & other malicious threats in docker 
+                        images/containers
   docker                list all docker images/containers
   history               retrieve the analysis history for the docker images
   monitor               perform the monitoring of anomalous activities in

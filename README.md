@@ -4,11 +4,11 @@
 [![Python](https://img.shields.io/badge/python-3.3%2C%203.4%2C%203.5%2C%203.6-blue.svg)](https://github.com/eliasgranderubio/dagda)
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/eliasgranderubio/dagda)
 
-**Dagda** is a tool to perform static analysis of known vulnerabilities in docker images/containers and to monitor running docker containers for detecting anomalous activities.
+**Dagda** is a tool to perform static analysis of known vulnerabilities, trojans, viruses, malware & other malicious threats in docker images/containers and to monitor running docker containers for detecting anomalous activities.
 
 In order to fulfill its mission, first the known vulnerabilities as CVEs (Common Vulnerabilities and Exposures) and BIDs (Bugtraq IDs), and the known exploits from Offensive Security database are imported into a MongoDB to facilitate the search of these vulnerabilities and exploits when your analysis are in progress.
 
-Then, when you run a static analysis of known vulnerabilities, **Dagda** retrieves information about the software installed into your docker image, such as the OS packages and the dependencies of the programming languages, and verifies for each product and its version if it is free of vulnerabilities against the previously stored information into the MongoDB.
+Then, when you run a static analysis of known vulnerabilities, **Dagda** retrieves information about the software installed into your docker image, such as the OS packages and the dependencies of the programming languages, and verifies for each product and its version if it is free of vulnerabilities against the previously stored information into the MongoDB. Also, **Dagda** uses [ClamAV](https://www.clamav.net/) as antivirus engine for detecting trojans, viruses, malware & other malicious threats included within the docker images/containers.
 
 **Dagda** supports multiple Linux base images:
   * Red Hat/CentOS/Fedora
@@ -16,7 +16,7 @@ Then, when you run a static analysis of known vulnerabilities, **Dagda** retriev
   * OpenSUSE
   * Alpine
 
-Also, **Dagda** rests on [OWASP dependency check](https://github.com/jeremylong/DependencyCheck) + [Retire.js](https://github.com/retirejs/retire.js/) for analyzing multiple dependencies from:
+**Dagda** rests on [OWASP dependency check](https://github.com/jeremylong/DependencyCheck) + [Retire.js](https://github.com/retirejs/retire.js/) for analyzing multiple dependencies from:
   * java
   * python
   * nodejs
@@ -36,7 +36,7 @@ Finally, each analysis report of a docker image/container, included all static a
      * [Populating the database](#populating-the-database)
        * [Database contents](#database-contents)
      * [Analyzing docker images/containers](#analyzing-docker-imagescontainers)
-       * [Performing static analysis of known vulnerabilities](#performing-static-analysis-of-known-vulnerabilities)
+       * [Performing static analysis of known vulnerabilities and other malicious threats](#performing-static-analysis-of-known-vulnerabilities-and-other-malicious-threats)
        * [Monitoring running containers for detecting anomalous activities](#monitoring-running-containers-for-detecting-anomalous-activities)
      * [Bonus Track: Quick Start with Docker](#bonus-track-quick-start-with-docker)
    * [Troubleshooting](#troubleshooting)
@@ -386,10 +386,10 @@ The database is called `vuln_database` and there are 6 collections:
 
 ### Analyzing docker images/containers
 
-In the next subsections, both, performing static analysis of known vulnerabilities and monitoring running docker containers for detecting anomalous activities will be described in depth.
+In the next subsections, both, performing static analysis of known vulnerabilities, trojans, viruses, malware & other malicious threats and monitoring running docker containers for detecting anomalous activities will be described in depth.
 
-#### Performing static analysis of known vulnerabilities
-One of the main **Dagda** targets is perform the analysis of known vulnerabilities in docker images/containers, so if you want perform an analysis over a docker image/container, you must type:
+#### Performing static analysis of known vulnerabilities and other malicious threats
+One of the main **Dagda** targets is perform the analysis of known vulnerabilities, trojans, viruses, malware & other malicious threats in docker images/containers, so if you want perform an analysis over a docker image/container, you must type:
 ```
     python3 dagda.py check --docker_image jboss/wildfly
 ```

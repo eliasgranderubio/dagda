@@ -21,6 +21,7 @@ import docker
 from docker.errors import DockerException
 from docker.errors import NotFound
 from log.dagda_logger import DagdaLogger
+from exception.dagda_error import DagdaError
 
 
 class DockerDriver:
@@ -68,8 +69,19 @@ class DockerDriver:
 
     # Gets logs from docker container
     def docker_logs(self, container_id, show_stdout, show_stderr, follow):
-        return (self.cli.logs(container=container_id, stdout=show_stdout, stderr=show_stderr, follow=follow))\
-               .decode('utf-8')
+        try:
+            return (self.cli.logs(container=container_id, stdout=show_stdout, stderr=show_stderr, follow=follow))\
+                   .decode('utf-8')
+        except docker.errors.APIError as ex:
+            if "configured logging reader does not support reading" in str(ex):
+                message = "Docker logging driver is not set to be 'json-file' or 'journald'"
+                DagdaLogger.get_logger().error(message)
+                raise DagdaError(message)
+            else:
+                message = "Unexpected exception of type {0} occured: {1!r}" \
+                    .format(type(ex).__name__, str(ex))
+                DagdaLogger.get_logger().error(message)
+                raise ex
 
     # Creates container and return the container id
     def create_container(self, image_name, entrypoint=None, volumes=None, host_config=None):

@@ -17,6 +17,7 @@
 # under the License.
 #
 
+import json
 import os
 import shutil
 import tempfile
@@ -32,13 +33,17 @@ def extract_filesystem_bundle(docker_driver, container_id=None, image_name=None)
         name = container_id
     else:
         data = docker_driver.get_docker_client().get_image(image=image_name).data
-        name = image_name.replace('/', '_')
+        name = image_name.replace('/', '_').replace(':', '_')
     with open(temporary_dir + "/" + name + ".tar", "wb") as file:
         file.write(data)
     # Untar filesystem bundle
     tarfile = TarFile(temporary_dir + "/" + name + ".tar")
     tarfile.extractall(temporary_dir)
     os.remove(temporary_dir + "/" + name + ".tar")
+    # TODO eliasgr: PermissionError [FIX ME]
+    if image_name is not None:
+        layers = _get_layers_from_manifest(temporary_dir)
+        _untar_layers(temporary_dir, layers)
     # Return
     return temporary_dir
 
@@ -46,3 +51,25 @@ def extract_filesystem_bundle(docker_driver, container_id=None, image_name=None)
 # Clean the temporary directory
 def clean_up(temporary_dir):
     shutil.rmtree(temporary_dir)
+
+
+# -- Private methods
+
+# Gets docker image layers from manifest
+def _get_layers_from_manifest(dir):
+    layers = []
+    with open(dir + "/manifest.json", "r") as manifest_json:
+        json_info = json.loads(''.join(manifest_json.readlines()))
+        if len(json_info) == 1 and 'Layers' in json_info[0]:
+            for layer in json_info[0]['Layers']:
+                layers.append(layer)
+    return layers
+
+
+# Untar docker image layers
+def _untar_layers(dir, layers):
+    for layer in layers:
+        # Untar layer filesystem bundle
+        tarfile = TarFile(dir + "/" + layer)
+        tarfile.extractall(dir)
+        clean_up(dir + "/" + layer[:-10])

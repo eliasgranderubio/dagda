@@ -20,6 +20,8 @@
 import unittest
 import os
 import sys
+import tempfile
+import shutil
 from cli.command.start_cli_parser import StartCLIParser
 
 
@@ -58,13 +60,15 @@ class StartCLIParserTestCase(unittest.TestCase):
         self.assertEqual(status, 4)
 
     def test_fail_falco_rules(self):
-        filename = '/tmp/fail_falco_rules'
+        temporary_dir = tempfile.mkdtemp()
+        filename = temporary_dir + '/fail_falco_rules'
         with open(filename, 'a+') as f:
             f.write('{}$##')
             f.flush()
         args = generate_args(None, None, None, None, False, None, None, open(filename, 'rb+'))
         status = StartCLIParser.verify_args(args)
         os.remove(filename)
+        shutil.rmtree(temporary_dir)
         self.assertEqual(status, 5)
 
     def test_start_full_happy_path(self):

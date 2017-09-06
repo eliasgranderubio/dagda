@@ -17,9 +17,9 @@
 # under the License.
 #
 
-import json
 import datetime
 from flask import Blueprint
+from flask import jsonify
 from api.internal.internal_server import InternalServer
 
 # -- Global
@@ -42,7 +42,7 @@ def get_all_docker_images():
         i['created'] = str(datetime.datetime.utcfromtimestamp(image['Created']))
         i['size'] = sizeof_fmt(image['VirtualSize'])
         output.append(i)
-    return json.dumps(output, sort_keys=True)
+    return jsonify(output)
 
 
 # Gets all running containers info
@@ -58,7 +58,7 @@ def get_all_running_containers():
         c['status'] = container['State']
         c['name'] = container['Names'][0][1:]
         output.append(c)
-    return json.dumps(output, sort_keys=True)
+    return jsonify(output)
 
 
 # -- Util methods

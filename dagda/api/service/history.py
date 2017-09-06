@@ -20,6 +20,7 @@
 import json
 from flask import Blueprint
 from flask import request
+from flask import jsonify
 from api.internal.internal_server import InternalServer
 
 # -- Global
@@ -32,8 +33,8 @@ history_api = Blueprint('history_api', __name__)
 def get_history():
     history = InternalServer.get_mongodb_driver().get_docker_image_all_history()
     if len(history) == 0:
-        return json.dumps({'err': 404, 'msg': 'Analysis not found'}, sort_keys=True), 404
-    return json.dumps(history, sort_keys=True)
+        return jsonify({'err': 404, 'msg': 'Analysis not found'}), 404
+    return jsonify(history)
 
 
 # Get the history of an image analysis
@@ -42,8 +43,8 @@ def get_history_by_image_name(image_name):
     id = request.args.get('id')
     history = InternalServer.get_mongodb_driver().get_docker_image_history(image_name, id)
     if len(history) == 0:
-        return json.dumps({'err': 404, 'msg': 'History not found'}, sort_keys=True), 404
-    return json.dumps(history, sort_keys=True)
+        return jsonify({'err': 404, 'msg': 'History not found'}), 404
+    return jsonify(history)
 
 
 # Add a new image analysis to the history
@@ -55,7 +56,7 @@ def post_image_analysis_to_the_history(image_name):
     output = {}
     output['id'] = str(id)
     output['image_name'] = image_name
-    return json.dumps(output, sort_keys=True), 201
+    return jsonify(output)
 
 
 # Partial update of image analysis for setting the product vulnerability as false positive
@@ -66,7 +67,7 @@ def set_product_vulnerability_as_false_positive(image_name, product, version=Non
                                                                                      product=product,
                                                                                      version=version)
     if not updated:
-        return json.dumps({'err': 404, 'msg': 'Product vulnerability not found'}, sort_keys=True), 404
+        return jsonify({'err': 404, 'msg': 'Product vulnerability not found'}), 404
     return '', 204
 
 
@@ -76,5 +77,5 @@ def set_product_vulnerability_as_false_positive(image_name, product, version=Non
 def is_product_vulnerability_a_false_positive(image_name, product, version=None):
     is_fp = InternalServer.get_mongodb_driver().is_fp(image_name=image_name, product=product, version=version)
     if not is_fp:
-        return json.dumps({'err': 404, 'msg': 'Product vulnerability not found'}, sort_keys=True), 404
+        return jsonify({'err': 404, 'msg': 'Product vulnerability not found'}), 404
     return '', 204

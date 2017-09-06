@@ -17,10 +17,10 @@
 # under the License.
 #
 
-import json
 import re
 import datetime
 from flask import Blueprint
+from flask import jsonify
 from api.internal.internal_server import InternalServer
 
 
@@ -36,7 +36,7 @@ def init_or_update_db():
     # -- Return
     output = {}
     output['msg'] = 'Accepted the init db request'
-    return json.dumps(output, sort_keys=True), 202
+    return jsonify(output), 202
 
 
 # Get the init db process status
@@ -47,7 +47,7 @@ def get_init_or_update_db_status():
         status['timestamp'] = '-'
     else:
         status['timestamp'] = str(datetime.datetime.utcfromtimestamp(status['timestamp']))
-    return json.dumps(status, sort_keys=True)
+    return jsonify(status)
 
 
 # Gets CVEs, BIDs and Exploit_DB Ids by product and version
@@ -56,8 +56,8 @@ def get_init_or_update_db_status():
 def get_vulns_by_product_and_version(product, version=None):
     vulns = InternalServer.get_mongodb_driver().get_vulnerabilities(product, version)
     if len(vulns) == 0:
-        return json.dumps({'err': 404, 'msg': 'Vulnerabilities not found'}, sort_keys=True), 404
-    return json.dumps(vulns, sort_keys=True)
+        return jsonify({'err': 404, 'msg': 'Vulnerabilities not found'}), 404
+    return jsonify(vulns)
 
 
 # Gets products by CVE
@@ -103,14 +103,14 @@ def _execute_cve_query(cve_id, details):
     regex = r"(CVE-[0-9]{4}-[0-9]{4,5})"
     search_obj = re.search(regex, cve_id)
     if not search_obj or len(search_obj.group(0)) != len(cve_id):
-        return json.dumps({'err': 400, 'msg': 'Bad cve format'}, sort_keys=True), 400
+        return jsonify({'err': 400, 'msg': 'Bad cve format'}), 400
     if not details:
         result = InternalServer.get_mongodb_driver().get_products_by_cve(cve_id)
     else:
         result = InternalServer.get_mongodb_driver().get_cve_info_by_cve_id(cve_id)
     if len(result) == 0:
-        return json.dumps({'err': 404, 'msg': 'CVE not found'}, sort_keys=True), 404
-    return json.dumps(result, sort_keys=True)
+        return jsonify({'err': 404, 'msg': 'CVE not found'}), 404
+    return jsonify(result)
 
 
 # Executes BID query
@@ -120,8 +120,8 @@ def _execute_bid_query(bid_id, details):
     else:
         result = InternalServer.get_mongodb_driver().get_bid_info_by_id(bid_id)
     if len(result) == 0:
-        return json.dumps({'err': 404, 'msg': 'BugTraq Id not found'}, sort_keys=True), 404
-    return json.dumps(result, sort_keys=True)
+        return jsonify({'err': 404, 'msg': 'BugTraq Id not found'}), 404
+    return jsonify(result)
 
 
 # Executes Exploit DB query
@@ -131,5 +131,5 @@ def _execute_exploit_query(exploit_id, details):
     else:
         result = InternalServer.get_mongodb_driver().get_exploit_info_by_id(exploit_id)
     if len(result) == 0:
-        return json.dumps({'err': 404, 'msg': 'Exploit Id not found'}, sort_keys=True), 404
-    return json.dumps(result, sort_keys=True)
+        return jsonify({'err': 404, 'msg': 'Exploit Id not found'}), 404
+    return jsonify(result)

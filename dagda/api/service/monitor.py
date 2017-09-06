@@ -17,9 +17,9 @@
 # under the License.
 #
 
-import json
 import datetime
 from flask import Blueprint
+from flask import jsonify
 from api.internal.internal_server import InternalServer
 
 
@@ -33,22 +33,21 @@ monitor_api = Blueprint('monitor_api', __name__)
 def start_monitor_by_container_id(container_id):
     # -- Check runtime monitor status
     if not InternalServer.is_runtime_analysis_enabled():
-        return json.dumps({'err': 503, 'msg': 'Behaviour analysis service unavailable'}, sort_keys=True), 503
+        return jsonify({'err': 503, 'msg': 'Behaviour analysis service unavailable'}), 503
 
     # -- Checks input
     if not container_id:
-        return json.dumps({'err': 400, 'msg': 'Bad container id'}, sort_keys=True), 400
+        return jsonify({'err': 400, 'msg': 'Bad container id'}), 400
 
     # -- Retrieves docker image name
     try:
         image_name = InternalServer.get_docker_driver().get_docker_image_name_by_container_id(container_id)
     except:
-        return json.dumps({'err': 404, 'msg': 'Container Id not found'}, sort_keys=True), 404
+        return jsonify({'err': 404, 'msg': 'Container Id not found'}), 404
 
     # -- Checks if the container is already being monitoring
     if InternalServer.get_mongodb_driver().is_there_a_started_monitoring(container_id):
-        return json.dumps({'err': 400, 'msg': 'The monitoring for the requested container id is already started'},
-                          sort_keys=True), 400
+        return jsonify({'err': 400, 'msg': 'The monitoring for the requested container id is already started'}), 400
 
     now = datetime.datetime.now().timestamp()
     # -- Create image_history
@@ -67,7 +66,7 @@ def start_monitor_by_container_id(container_id):
     output['id'] = str(id)
     output['image_name'] = image_name
     output['msg'] = 'Monitoring of docker container with id <' + container_id + '> started'
-    return json.dumps(output, sort_keys=True), 202
+    return jsonify(output), 202
 
 
 # Stop monitor by container id
@@ -75,22 +74,21 @@ def start_monitor_by_container_id(container_id):
 def stop_monitor_by_container_id(container_id):
     # -- Check runtime monitor status
     if not InternalServer.is_runtime_analysis_enabled():
-        return json.dumps({'err': 503, 'msg': 'Behaviour analysis service unavailable'}, sort_keys=True), 503
+        return jsonify({'err': 503, 'msg': 'Behaviour analysis service unavailable'}), 503
 
     # -- Checks input
     if not container_id:
-        return json.dumps({'err': 400, 'msg': 'Bad container id'}, sort_keys=True), 400
+        return jsonify({'err': 400, 'msg': 'Bad container id'}), 400
 
     # -- Retrieves docker image name
     try:
         image_name = InternalServer.get_docker_driver().get_docker_image_name_by_container_id(container_id)
     except:
-        return json.dumps({'err': 404, 'msg': 'Container Id not found'}, sort_keys=True), 404
+        return jsonify({'err': 404, 'msg': 'Container Id not found'}), 404
 
     # -- Checks if the container is already being monitoring
     if not InternalServer.get_mongodb_driver().is_there_a_started_monitoring(container_id):
-        return json.dumps({'err': 400, 'msg': 'There is not monitoring for the requested container id'},
-                          sort_keys=True), 400
+        return jsonify({'err': 400, 'msg': 'There is not monitoring for the requested container id'}), 400
 
     now = datetime.datetime.now().timestamp()
     # -- Process request
@@ -104,4 +102,4 @@ def stop_monitor_by_container_id(container_id):
     InternalServer.get_mongodb_driver().update_docker_image_scan_result_to_history(id, monitoring_result)
 
     # -- Return
-    return json.dumps(InternalServer.get_mongodb_driver().get_docker_image_history(image_name, id)[0], sort_keys=True)
+    return jsonify(InternalServer.get_mongodb_driver().get_docker_image_history(image_name, id)[0])

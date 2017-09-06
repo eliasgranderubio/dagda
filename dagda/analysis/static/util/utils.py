@@ -22,6 +22,7 @@ import os
 import shutil
 import tempfile
 from tarfile import TarFile
+from tarfile import ReadError
 
 
 # Prepare filesystem bundle
@@ -40,7 +41,6 @@ def extract_filesystem_bundle(docker_driver, container_id=None, image_name=None)
     tarfile = TarFile(temporary_dir + "/" + name + ".tar")
     tarfile.extractall(temporary_dir)
     os.remove(temporary_dir + "/" + name + ".tar")
-    # TODO eliasgr: PermissionError [FIX ME]
     if image_name is not None:
         layers = _get_layers_from_manifest(temporary_dir)
         _untar_layers(temporary_dir, layers)
@@ -68,8 +68,18 @@ def _get_layers_from_manifest(dir):
 
 # Untar docker image layers
 def _untar_layers(dir, layers):
+    output = {}
+    # Untar layer filesystem bundle
     for layer in layers:
-        # Untar layer filesystem bundle
         tarfile = TarFile(dir + "/" + layer)
-        tarfile.extractall(dir)
+        for member in tarfile.getmembers():
+            output[member.name] = member
+    for member_name in output:
+        try:
+            tarfile.extract(output[member_name], path=dir, set_attrs=False)
+        except (ValueError, ReadError):
+            pass
+
+    # Clean up
+    for layer in layers:
         clean_up(dir + "/" + layer[:-10])

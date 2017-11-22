@@ -96,6 +96,14 @@ class DagdaServer:
             else:
                 DagdaServer.app.run(debug=False, host=self.dagda_server_host, port=self.dagda_server_port)
 
+    # -- Post process
+
+    # Apply headers
+    @app.after_request
+    def apply_headers(response):
+        response.headers["Content-Type"] = "application/json; charset=utf-8"
+        return response
+
     # -- Error handlers
 
     # 400 Bad Request error handler

@@ -17,9 +17,9 @@
 # under the License.
 #
 
-import json
 import datetime
 from flask import Blueprint
+from flask import jsonify
 from exception.dagda_error import DagdaError
 from log.dagda_logger import DagdaLogger
 from api.internal.internal_server import InternalServer
@@ -34,7 +34,7 @@ check_api = Blueprint('check_api', __name__)
 def check_docker_by_image_name(image_name):
     # -- Check input
     if not image_name:
-        return json.dumps({'err': 400, 'msg': 'Bad image name'}, sort_keys=True), 400
+        return jsonify({'err': 400, 'msg': 'Bad image name'}), 400
 
     # -- Docker pull from remote registry if it is necessary
     try:
@@ -47,7 +47,7 @@ def check_docker_by_image_name(image_name):
                 raise DagdaError(msg)
             pulled = True
     except:
-        return json.dumps({'err': 404, 'msg': 'Image name not found'}, sort_keys=True), 404
+        return jsonify({'err': 404, 'msg': 'Image name not found'}), 404
 
     # -- Process request
     data = {}
@@ -62,7 +62,7 @@ def check_docker_by_image_name(image_name):
     output = {}
     output['id'] = str(id)
     output['msg'] = 'Accepted the analysis of <' + image_name + '>'
-    return json.dumps(output, sort_keys=True), 202
+    return jsonify(output), 202
 
 
 # Check docker by container id
@@ -70,13 +70,13 @@ def check_docker_by_image_name(image_name):
 def check_docker_by_container_id(container_id):
     # -- Check input
     if not container_id:
-        return json.dumps({'err': 400, 'msg': 'Bad container id'}, sort_keys=True), 400
+        return jsonify({'err': 400, 'msg': 'Bad container id'}), 400
 
     # -- Retrieves docker image name
     try:
         image_name = InternalServer.get_docker_driver().get_docker_image_name_by_container_id(container_id)
     except:
-        return json.dumps({'err': 404, 'msg': 'Container Id not found'}, sort_keys=True), 404
+        return jsonify({'err': 404, 'msg': 'Container Id not found'}), 404
 
     # -- Process request
     data = {}
@@ -90,4 +90,4 @@ def check_docker_by_container_id(container_id):
     output = {}
     output['id'] = str(id)
     output['msg'] = 'Accepted the analysis of <' + image_name + '> with id: ' + container_id
-    return json.dumps(output, sort_keys=True), 202
+    return jsonify(output), 202

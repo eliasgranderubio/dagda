@@ -18,9 +18,9 @@
 #
 
 import os
-import json
 import datetime
 from flask import Flask
+from flask import jsonify
 from flask_cors import CORS, cross_origin
 from api.internal.internal_server import InternalServer
 from api.service.check import check_api
@@ -109,17 +109,17 @@ class DagdaServer:
     # 400 Bad Request error handler
     @app.errorhandler(400)
     def bad_request(self):
-        return json.dumps({'err': 400, 'msg': 'Bad Request'}, sort_keys=True), 400
+        return jsonify({'err': 400, 'msg': 'Bad Request'}), 400
 
     # 404 Not Found error handler
     @app.errorhandler(404)
     def not_found(self):
-        return json.dumps({'err': 404, 'msg': 'Not Found'}, sort_keys=True), 404
+        return jsonify({'err': 404, 'msg': 'Not Found'}), 404
 
     # 500 Internal Server error handler
     @app.errorhandler(500)
     def internal_server_error(self):
-        return json.dumps({'err': 500, 'msg': 'Internal Server Error'}, sort_keys=True), 500
+        return jsonify({'err': 500, 'msg': 'Internal Server Error'}), 500
 
     # -- Private methods
 

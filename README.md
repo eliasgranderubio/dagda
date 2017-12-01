@@ -777,6 +777,12 @@ Execute the following commands in the root folder of **Dagda** and then, the **D
     $ docker-compose up -d
 ```
 
+To execute **Dagda in development mode** execute the following commands:
+
+```
+    $ docker-compose -f docker-compose-dev.yml up
+```
+
 ## Troubleshooting
 
 Typically, Dagda works fine, but some scenarios can cause problems. If you get some issue, check the [Troubleshooting](https://github.com/eliasgranderubio/dagda/wiki/Troubleshooting) page for fixing it.

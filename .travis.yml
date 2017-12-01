@@ -1,9 +1,12 @@
+sudo: required
 language: python
 python:
   - "3.3"
   - "3.4"
   - "3.5"
   - "3.6"
+services:
+  - docker
 install: 
   - pip install -r requirements.txt
 before_script:
@@ -12,3 +15,9 @@ script:
   - make test
 after_success:
   - coveralls
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+      docker build -t 3grander/dagda:0.7.0 .
+      docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+      docker push 3grander/dagda:0.7.0;
+      docker logout;
+    fi

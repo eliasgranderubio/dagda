@@ -19,5 +19,4 @@ after_success:
       docker build --tag "$DOCKER_USERNAME"/dagda:0.7.0 .;
       docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
       docker push "$DOCKER_USERNAME"/dagda:0.7.0;
-      docker logout;
     fi

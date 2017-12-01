@@ -16,8 +16,8 @@ script:
 after_success:
   - coveralls
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
-      docker build -t 3grander/dagda:0.7.0 .
+      docker build --tag "$DOCKER_USERNAME"/dagda:0.7.0 .;
       docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-      docker push 3grander/dagda:0.7.0;
+      docker push "$DOCKER_USERNAME"/dagda:0.7.0;
       docker logout;
     fi

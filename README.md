@@ -773,7 +773,7 @@ Execute the following commands in the root folder of **Dagda** and then, the **D
 
 ```
     $ docker-compose build
-    $ docker-compose run --service-ports dagda
+    $ docker-compose up -d
 ```
 
 ## Troubleshooting

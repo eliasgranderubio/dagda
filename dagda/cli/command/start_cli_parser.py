@@ -30,7 +30,7 @@ class StartCLIParser:
     # StartCLIParser Constructor
     def __init__(self):
         super(StartCLIParser, self).__init__()
-        self.parser = DagdaStartParser(prog='dagda.py vuln', usage=start_parser_text)
+        self.parser = DagdaStartParser(prog='dagda.py start', usage=start_parser_text)
         self.parser.add_argument('-s', '--server_host', type=str)
         self.parser.add_argument('-p', '--server_port', type=int)
         self.parser.add_argument('-m', '--mongodb_host', type=str)

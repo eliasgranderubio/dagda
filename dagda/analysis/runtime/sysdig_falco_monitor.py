@@ -35,7 +35,7 @@ class SysdigFalcoMonitor:
 
     # -- Private attributes
 
-    _tmp_directory = tempfile.gettempdir()  # This directory should be resolved as /tmp
+    _tmp_directory = "/tmp"
     _falco_output_filename = _tmp_directory + '/falco_output.json'
     _falco_custom_rules_filename = _tmp_directory + '/custom_falco_rules.yaml'
 

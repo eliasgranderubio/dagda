@@ -69,11 +69,11 @@ class AgentCLIParserTestSuite(unittest.TestCase):
         parsed_args = AgentCLIParser()
         self.assertEqual(parsed_args.get_docker_image_name(), 'jboss/wildfly')
 
-    def test_check_exit_2(self):
-        sys.argv = ['dagda.py', 'agent']
+    def test_check_exit_1(self):
+        sys.argv = ['dagda.py', 'agent', 'localhost:0']
         with self.assertRaises(SystemExit) as cm:
             AgentCLIParser()
-        self.assertEqual(cm.exception.code, 2)
+        self.assertEqual(cm.exception.code, 1)
 
     def test_DagdaAgentParser_exit_2(self):
         with self.assertRaises(SystemExit) as cm:

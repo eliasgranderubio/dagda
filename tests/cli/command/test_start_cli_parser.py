@@ -23,6 +23,8 @@ import sys
 import tempfile
 import shutil
 from cli.command.start_cli_parser import StartCLIParser
+from cli.command.start_cli_parser import DagdaStartParser
+from cli.command.start_cli_parser import start_parser_text
 
 
 # -- Test suite
@@ -82,6 +84,20 @@ class StartCLIParserTestCase(unittest.TestCase):
         self.assertIsNone(parsed_args.get_mongodb_user())
         self.assertIsNone(parsed_args.get_mongodb_pass())
         self.assertIsNone(parsed_args.get_falco_rules_filename())
+
+    def test_check_exit_1(self):
+        sys.argv = ['dagda.py', 'start', '-p', '-1']
+        with self.assertRaises(SystemExit) as cm:
+            StartCLIParser()
+        self.assertEqual(cm.exception.code, 1)
+
+    def test_DagdaStartParser_exit_2(self):
+        with self.assertRaises(SystemExit) as cm:
+            DagdaStartParser().error("fail")
+        self.assertEqual(cm.exception.code, 2)
+
+    def test_DagdaStartParser_format_help(self):
+        self.assertEqual(DagdaStartParser().format_help(), start_parser_text)
 
 
 # -- Util methods

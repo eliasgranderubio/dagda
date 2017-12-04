@@ -21,6 +21,8 @@ import sys
 import unittest
 
 from cli.command.history_cli_parser import HistoryCLIParser
+from cli.command.history_cli_parser import DagdaHistoryParser
+from cli.command.history_cli_parser import history_parser_text
 
 
 # -- Test suite
@@ -74,6 +76,23 @@ class DockerHistoryCLIParserTestCase(unittest.TestCase):
         args = generate_args('jboss/wildfly', None, None, None)
         status = HistoryCLIParser.verify_args(args)
         self.assertEqual(status, 0)
+
+    def test_none_fp(self):
+        self.assertIsNone(HistoryCLIParser()._parse_product_and_version(None))
+
+    def test_check_exit_1(self):
+        sys.argv = ['dagda.py', 'history', '--id', '43a6ca974743', '--fp', 'openldap:2.2.20']
+        with self.assertRaises(SystemExit) as cm:
+            HistoryCLIParser()
+        self.assertEqual(cm.exception.code, 1)
+
+    def test_DagdaHistoryParser_exit_2(self):
+        with self.assertRaises(SystemExit) as cm:
+            DagdaHistoryParser().error("fail")
+        self.assertEqual(cm.exception.code, 2)
+
+    def test_DagdaHistoryParser_format_help(self):
+        self.assertEqual(DagdaHistoryParser().format_help(), history_parser_text)
 
 
 # -- Util methods

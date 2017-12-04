@@ -42,11 +42,11 @@ class MonitorCLIParserTestCase(unittest.TestCase):
         parsed_args = MonitorCLIParser()
         self.assertEqual(parsed_args.get_container_id(), '69dbf26ab368')
 
-    def test_check_exit_2(self):
-        sys.argv = ['dagda.py', 'monitor']
+    def test_check_exit_1(self):
+        sys.argv = ['dagda.py', 'monitor', '69dbf26ab368']
         with self.assertRaises(SystemExit) as cm:
             MonitorCLIParser()
-        self.assertEqual(cm.exception.code, 2)
+        self.assertEqual(cm.exception.code, 1)
 
     def test_DagdaMonitorParser_exit_2(self):
         with self.assertRaises(SystemExit) as cm:

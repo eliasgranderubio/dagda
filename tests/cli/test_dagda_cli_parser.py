@@ -21,6 +21,8 @@ import sys
 import unittest
 
 from cli.dagda_cli_parser import DagdaCLIParser
+from cli.dagda_cli_parser import DagdaGlobalParser
+from cli.dagda_cli_parser import dagda_global_parser_text
 
 
 # -- Test suite
@@ -80,3 +82,17 @@ class DagdaCLIParserTestSuite(unittest.TestCase):
         parsed_args = DagdaCLIParser()
         self.assertEqual(parsed_args.get_command(), 'docker')
         self.assertEqual(parsed_args.get_extra_args().get_command(), 'images')
+
+    def test_check_exit_2(self):
+        sys.argv = ['dagda.py', 'fake']
+        with self.assertRaises(SystemExit) as cm:
+            DagdaCLIParser()
+        self.assertEqual(cm.exception.code, 2)
+
+    def test_DagdaGlobalParser_exit_2(self):
+        with self.assertRaises(SystemExit) as cm:
+            DagdaGlobalParser().error("fail")
+        self.assertEqual(cm.exception.code, 2)
+
+    def test_DagdaGlobalParser_format_help(self):
+        self.assertEqual(DagdaGlobalParser().format_help(), dagda_global_parser_text)

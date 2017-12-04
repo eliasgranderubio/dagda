@@ -85,6 +85,11 @@ class StartCLIParserTestCase(unittest.TestCase):
         self.assertIsNone(parsed_args.get_mongodb_pass())
         self.assertIsNone(parsed_args.get_falco_rules_filename())
 
+    def test_check_falco_rules_file(self):
+        sys.argv = ['dagda.py', 'start', '--falco_rules_file', './tests/mock_files/falco_rules.yaml']
+        args = StartCLIParser()
+        self.assertEqual(args.get_falco_rules_filename(), './tests/mock_files/falco_rules.yaml')
+
     def test_check_exit_1(self):
         sys.argv = ['dagda.py', 'start', '-p', '-1']
         with self.assertRaises(SystemExit) as cm:

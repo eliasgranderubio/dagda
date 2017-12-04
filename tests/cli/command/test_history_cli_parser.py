@@ -80,6 +80,11 @@ class DockerHistoryCLIParserTestCase(unittest.TestCase):
     def test_none_fp(self):
         self.assertIsNone(HistoryCLIParser()._parse_product_and_version(None))
 
+    def test_is_fp(self):
+        sys.argv = ['dagda.py', 'history', 'jboss/wildfly', '--is_fp', 'openldap:2.2.20']
+        args = HistoryCLIParser()
+        self.assertEqual(args.get_is_fp(), ('openldap', '2.2.20'))
+
     def test_check_exit_1(self):
         sys.argv = ['dagda.py', 'history', '--id', '43a6ca974743', '--fp', 'openldap:2.2.20']
         with self.assertRaises(SystemExit) as cm:

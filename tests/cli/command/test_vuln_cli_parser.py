@@ -21,6 +21,8 @@ import sys
 import unittest
 
 from cli.command.vuln_cli_parser import VulnCLIParser
+from cli.command.vuln_cli_parser import DagdaVulnParser
+from cli.command.vuln_cli_parser import vuln_parser_text
 
 
 # -- Test suite
@@ -112,11 +114,55 @@ class VulnDBCliParserTestSuite(unittest.TestCase):
         status = VulnCLIParser.verify_args(args)
         self.assertEqual(status, 0)
 
+    def test_get_cve(self):
+        sys.argv = ['dagda.py', 'vuln', '--cve', 'CVE-2002-2002']
+        parsed_args = VulnCLIParser()
+        self.assertEqual(parsed_args.get_cve(), 'CVE-2002-2002')
+
+    def test_get_cve_info(self):
+        sys.argv = ['dagda.py', 'vuln', '--cve_info', 'CVE-2002-2002']
+        parsed_args = VulnCLIParser()
+        self.assertEqual(parsed_args.get_cve_info(), 'CVE-2002-2002')
+
+    def test_get_bid(self):
+        sys.argv = ['dagda.py', 'vuln', '--bid', '15']
+        parsed_args = VulnCLIParser()
+        self.assertEqual(parsed_args.get_bid(), 15)
+
+    def test_get_bid_info(self):
+        sys.argv = ['dagda.py', 'vuln', '--bid_info', '15']
+        parsed_args = VulnCLIParser()
+        self.assertEqual(parsed_args.get_bid_info(), 15)
+
+    def test_get_exploit_db_id(self):
+        sys.argv = ['dagda.py', 'vuln', '--exploit_db', '15']
+        parsed_args = VulnCLIParser()
+        self.assertEqual(parsed_args.get_exploit_db_id(), 15)
+
+    def test_get_exploit_db_info_id(self):
+        sys.argv = ['dagda.py', 'vuln', '--exploit_db_info', '15']
+        parsed_args = VulnCLIParser()
+        self.assertEqual(parsed_args.get_exploit_db_info_id(), 15)
+
     def test_check_full_happy_path(self):
         sys.argv = ['dagda.py', 'vuln', '--product', 'openldap', '--product_version', '2.2.20']
         parsed_args = VulnCLIParser()
         self.assertEqual(parsed_args.get_product(), 'openldap')
         self.assertEqual(parsed_args.get_product_version(), '2.2.20')
+
+    def test_check_exit_1(self):
+        sys.argv = ['dagda.py', 'vuln']
+        with self.assertRaises(SystemExit) as cm:
+            VulnCLIParser()
+        self.assertEqual(cm.exception.code, 1)
+
+    def test_DagdaVulnParser_exit_2(self):
+        with self.assertRaises(SystemExit) as cm:
+            DagdaVulnParser().error("fail")
+        self.assertEqual(cm.exception.code, 2)
+
+    def test_DagdaVulnParser_format_help(self):
+        self.assertEqual(DagdaVulnParser().format_help(), vuln_parser_text)
 
 
 # -- Util methods

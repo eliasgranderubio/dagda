@@ -21,6 +21,8 @@ import unittest
 import sys
 
 from cli.command.monitor_cli_parser import MonitorCLIParser
+from cli.command.monitor_cli_parser import DagdaMonitorParser
+from cli.command.monitor_cli_parser import monitor_parser_text
 
 
 class MonitorCLIParserTestCase(unittest.TestCase):
@@ -39,6 +41,20 @@ class MonitorCLIParserTestCase(unittest.TestCase):
         sys.argv = ['dagda.py', 'monitor', '69dbf26ab368', '--start']
         parsed_args = MonitorCLIParser()
         self.assertEqual(parsed_args.get_container_id(), '69dbf26ab368')
+
+    def test_check_exit_2(self):
+        sys.argv = ['dagda.py', 'monitor']
+        with self.assertRaises(SystemExit) as cm:
+            MonitorCLIParser()
+        self.assertEqual(cm.exception.code, 2)
+
+    def test_DagdaMonitorParser_exit_2(self):
+        with self.assertRaises(SystemExit) as cm:
+            DagdaMonitorParser().error("fail")
+        self.assertEqual(cm.exception.code, 2)
+
+    def test_DagdaMonitorParser_format_help(self):
+        self.assertEqual(DagdaMonitorParser().format_help(), monitor_parser_text)
 
 
 # -- Util methods

@@ -21,6 +21,8 @@ import sys
 import unittest
 
 from cli.command.agent_cli_parser import AgentCLIParser
+from cli.command.agent_cli_parser import agent_parser_text
+from cli.command.agent_cli_parser import DagdaAgentParser
 
 
 # -- Test suite
@@ -66,6 +68,20 @@ class AgentCLIParserTestSuite(unittest.TestCase):
         sys.argv = ['dagda.py', 'agent', 'localhost:5000', '-i', 'jboss/wildfly']
         parsed_args = AgentCLIParser()
         self.assertEqual(parsed_args.get_docker_image_name(), 'jboss/wildfly')
+
+    def test_check_exit_2(self):
+        sys.argv = ['dagda.py', 'agent']
+        with self.assertRaises(SystemExit) as cm:
+            AgentCLIParser()
+        self.assertEqual(cm.exception.code, 2)
+
+    def test_DagdaAgentParser_exit_2(self):
+        with self.assertRaises(SystemExit) as cm:
+            DagdaAgentParser().error("fail")
+        self.assertEqual(cm.exception.code, 2)
+
+    def test_DagdaAgentParser_format_help(self):
+        self.assertEqual(DagdaAgentParser().format_help(), agent_parser_text)
 
 
 # -- Util methods

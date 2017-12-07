@@ -18,29 +18,9 @@
 #
 
 import json
-import os
-import requests
+from cli.dagda_cli import execute_dagda_cmd
 from cli.dagda_cli_parser import DagdaCLIParser
 from log.dagda_logger import DagdaLogger
-
-
-# -- Get Dagda server base url
-def get_dagda_base_url():
-    # -- Load env variables
-    try:
-        dagda_host = os.environ['DAGDA_HOST']
-    except KeyError:
-        DagdaLogger.get_logger().error('DAGDA_HOST environment variable is not set.')
-        exit(1)
-
-    try:
-        dagda_port = os.environ['DAGDA_PORT']
-    except KeyError:
-        DagdaLogger.get_logger().error('DAGDA_PORT environment variable is not set.')
-        exit(1)
-
-    # -- Return Dagda server base url
-    return 'http://' + dagda_host + ':' + dagda_port + '/v1'
 
 
 # -- Main function
@@ -49,113 +29,20 @@ def main(parsed_args):
     cmd = parsed_args.get_command()
     parsed_args = parsed_args.get_extra_args()
 
-    # Executes start sub-command
-    if cmd == 'start':
-        from api.dagda_server import DagdaServer
-        ds = DagdaServer(dagda_server_host=parsed_args.get_server_host(),
-                         dagda_server_port=parsed_args.get_server_port(),
-                         mongodb_host=parsed_args.get_mongodb_host(),
-                         mongodb_port=parsed_args.get_mongodb_port(),
-                         mongodb_ssl=parsed_args.is_mongodb_ssl_enabled(),
-                         mongodb_user=parsed_args.get_mongodb_user(),
-                         mongodb_pass=parsed_args.get_mongodb_pass(),
-                         falco_rules_filename=parsed_args.get_falco_rules_filename())
-        ds.run()
-
-    # Executes agent sub-command
-    elif cmd == 'agent':
-        from remote.agent import Agent
-        agent = Agent(dagda_server_url='http://' + parsed_args.get_dagda_server() + '/v1')
-        agent.run_static_analysis(image_name=parsed_args.get_docker_image_name(),
-                                  container_id=parsed_args.get_container_id())
-
-    # CLI commands
-    else:
-        dagda_base_url = get_dagda_base_url()
-        # -- Executes vuln sub-command
-        if cmd == 'vuln':
-            if parsed_args.is_initialization_required():
-                # Init db
-                r = requests.post(dagda_base_url + '/vuln/init')
-            elif parsed_args.is_init_status_requested():
-                # Retrieves the init status
-                r = requests.get(dagda_base_url + '/vuln/init-status')
-            else:
-                if parsed_args.get_cve():
-                    # Gets products by CVE
-                    r = requests.get(dagda_base_url + '/vuln/cve/' + parsed_args.get_cve())
-                elif parsed_args.get_cve_info():
-                    # Gets CVE details
-                    r = requests.get(dagda_base_url + '/vuln/cve/' + parsed_args.get_cve_info() + '/details')
-                elif parsed_args.get_bid():
-                    # Gets products by BID
-                    r = requests.get(dagda_base_url + '/vuln/bid/' + str(parsed_args.get_bid()))
-                elif parsed_args.get_bid_info():
-                    # Gets BID details
-                    r = requests.get(dagda_base_url + '/vuln/bid/' + str(parsed_args.get_bid_info()) + '/details')
-                elif parsed_args.get_exploit_db_id():
-                    # Gets products by Exploit DB Id
-                    r = requests.get(dagda_base_url + '/vuln/exploit/' + str(parsed_args.get_exploit_db_id()))
-                elif parsed_args.get_exploit_db_info_id():
-                    # Gets Exploit details
-                    r = requests.get(dagda_base_url + '/vuln/exploit/' + str(parsed_args.get_exploit_db_info_id()) +
-                                     '/details')
-                else:
-                    # Gets CVEs, BIDs and Exploit_DB Ids by product and version
-                    if not parsed_args.get_product_version():
-                        r = requests.get(dagda_base_url + '/vuln/products/' + parsed_args.get_product())
-                    else:
-                        r = requests.get(dagda_base_url + '/vuln/products/' + parsed_args.get_product() + '/' +
-                                         parsed_args.get_product_version())
-
-        # Executes check sub-command
-        elif cmd == 'check':
-            if parsed_args.get_docker_image_name():
-                r = requests.post(dagda_base_url + '/check/images/' + parsed_args.get_docker_image_name())
-            else:
-                r = requests.post(dagda_base_url + '/check/containers/' + parsed_args.get_container_id())
-
-        # Executes history sub-command
-        elif cmd == 'history':
-            # Gets the global history
-            if not parsed_args.get_docker_image_name():
-                r = requests.get(dagda_base_url + '/history')
-            else:
-                # Updates product vulnerability as false positive
-                if parsed_args.get_fp() is not None:
-                    fp_product, fp_version = parsed_args.get_fp()
-                    if fp_version is not None:
-                        fp_product += '/' + fp_version
-                    r = requests.patch(dagda_base_url + '/history/' + parsed_args.get_docker_image_name() + '/fp/'
-                                       + fp_product)
-                # Checks if a product vulnerability is a false positive
-                if parsed_args.get_is_fp() is not None:
-                    fp_product, fp_version = parsed_args.get_is_fp()
-                    if fp_version is not None:
-                        fp_product += '/' + fp_version
-                    r = requests.get(dagda_base_url + '/history/' + parsed_args.get_docker_image_name() + '/fp/'
-                                     + fp_product)
-                # Gets the image history
-                else:
-                    query_params = ''
-                    if parsed_args.get_report_id() is not None:
-                        query_params = '?id=' + parsed_args.get_report_id()
-                    r = requests.get(dagda_base_url + '/history/' + parsed_args.get_docker_image_name() + query_params)
-
-        # Executes monitor sub-command
-        elif cmd == 'monitor':
-            if parsed_args.is_start():
-                r = requests.post(dagda_base_url + '/monitor/containers/' + parsed_args.get_container_id() + '/start')
-            elif parsed_args.is_stop():
-                r = requests.post(dagda_base_url + '/monitor/containers/' + parsed_args.get_container_id() + '/stop')
-
-        # Executes docker sub-command
-        elif cmd == 'docker':
-            r = requests.get(dagda_base_url + '/docker/' + parsed_args.get_command())
+    try:
+        # Execute Dagda command
+        r = execute_dagda_cmd(cmd=cmd, args=parsed_args)
 
         # -- Print cmd output
         if r is not None and r.content:
-            print(json.dumps(json.loads(r.content.decode('utf-8')), sort_keys=True, indent=4))
+            output = r.content.decode('utf-8')
+            try:
+                print(json.dumps(json.loads(output), sort_keys=True, indent=4))
+            except json.decoder.JSONDecodeError as err:
+                DagdaLogger.get_logger().error('JSONDecodeError with the received response: "' + output + '"')
+                DagdaLogger.get_logger().error(str(err))
+    except BaseException as err:
+        DagdaLogger.get_logger().error(str(err))
 
 
 if __name__ == "__main__":

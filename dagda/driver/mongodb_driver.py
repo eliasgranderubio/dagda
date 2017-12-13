@@ -108,6 +108,30 @@ class MongoDbDriver:
         self.db.exploit_db_info.create_index([('exploit_db_id', pymongo.DESCENDING)])
         self.db.exploit_db_info.insert_many(exploit_db_info_list)
 
+    # Bulk insert the rhsa list
+    def bulk_insert_rhsa(self, rhsa_list):
+        # Bulk insert
+        self.db.rhsa.create_index([('product', pymongo.DESCENDING)])
+        self.db.rhsa.insert_many(rhsa_list)
+
+    # Bulk insert the rhba list
+    def bulk_insert_rhba(self, rhba_list):
+        # Bulk insert
+        self.db.rhba.create_index([('product', pymongo.DESCENDING)])
+        self.db.rhba.insert_many(rhba_list)
+
+    # Bulk insert the rhsa info list
+    def bulk_insert_rhsa_info(self, rhsa_info_list):
+        # Bulk insert
+        self.db.rhsa_info.create_index([('rhsa_id', pymongo.DESCENDING)])
+        self.db.rhsa_info.insert_many(rhsa_info_list)
+
+    # Bulk insert the rhba info list
+    def bulk_insert_rhba_info(self, rhba_info_list):
+        # Bulk insert
+        self.db.rhba_info.create_index([('rhba_id', pymongo.DESCENDING)])
+        self.db.rhba_info.insert_many(rhba_info_list)
+
     # Bulk insert the sysdig/falco events
     def bulk_insert_sysdig_falco_events(self, events):
         sysdig_falco_events = []
@@ -175,6 +199,22 @@ class MongoDbDriver:
     # Removes bid info collection
     def delete_bid_info_collection(self):
         self.db.bid_info.drop()
+
+    # Removes rhsa collection
+    def delete_rhsa_collection(self):
+        self.db.rhsa.drop()
+
+    # Removes rhsa info collection
+    def delete_rhsa_info_collection(self):
+        self.db.rhsa_info.drop()
+
+    # Removes rhba collection
+    def delete_rhba_collection(self):
+        self.db.rhba.drop()
+
+    # Removes rhba info collection
+    def delete_rhba_info_collection(self):
+        self.db.rhba_info.drop()
 
     # Removes falco_events collection
     def delete_falco_events_collection(self):

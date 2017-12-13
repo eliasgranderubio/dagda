@@ -28,6 +28,7 @@ from vulnDB.ext_source_util import get_http_resource_content
 from vulnDB.bid_downloader import bid_downloader
 from vulnDB.ext_source_util import get_cve_description_from_file
 from vulnDB.ext_source_util import get_cve_cweid_from_file
+from vulnDB.ext_source_util import get_rhsa_and_rhba_lists_from_file
 
 
 # Static field
@@ -72,7 +73,7 @@ class DBComposer:
         self.mongoDbDriver.delete_exploit_db_collection()
         self.mongoDbDriver.delete_exploit_db_info_collection()
         csv_content = get_http_resource_content(
-            'https://github.com/offensive-security/exploit-database/raw/master/files.csv')
+            'https://raw.githubusercontent.com/offensive-security/exploit-database/master/files_exploits.csv')
         exploit_db_list, exploit_db_info_list = get_exploit_db_list_from_csv(csv_content.decode("utf-8"))
         self.mongoDbDriver.bulk_insert_exploit_db_ids(exploit_db_list)
         self.mongoDbDriver.bulk_insert_exploit_db_info(exploit_db_info_list)
@@ -103,9 +104,24 @@ class DBComposer:
         bid_items_array, bid_detail_array = get_bug_traqs_lists_from_online_mode(bid_downloader(first_bid=max_bid+1,
                                                                                                 last_bid=102000))
         # Insert BIDs
-        for bid_items_list in bid_items_array:
-            self.mongoDbDriver.bulk_insert_bids(bid_items_list)
-            bid_items_list.clear()
+        if len(bid_items_array) > 0:
+            for bid_items_list in bid_items_array:
+                self.mongoDbDriver.bulk_insert_bids(bid_items_list)
+                bid_items_list.clear()
         # Insert BID details
-        self.mongoDbDriver.bulk_insert_bid_info(bid_detail_array)
-        bid_detail_array.clear()
+        if len(bid_detail_array) > 0:
+            self.mongoDbDriver.bulk_insert_bid_info(bid_detail_array)
+            bid_detail_array.clear()
+
+        # -- RHSA (Red Hat Security Advisory) and RHBA (Red Hat Bug Advisory)
+        # Adding or updating rhsa and rhba collections
+        self.mongoDbDriver.delete_rhba_collection()
+        self.mongoDbDriver.delete_rhba_info_collection()
+        self.mongoDbDriver.delete_rhsa_collection()
+        self.mongoDbDriver.delete_rhsa_info_collection()
+        bz2_file = get_http_resource_content('https://www.redhat.com/security/data/oval/rhsa.tar.bz2')
+        rhsa_list, rhba_list, rhsa_info_list, rhba_info_list = get_rhsa_and_rhba_lists_from_file(bz2_file)
+        self.mongoDbDriver.bulk_insert_rhsa(rhsa_list)
+        self.mongoDbDriver.bulk_insert_rhba(rhba_list)
+        self.mongoDbDriver.bulk_insert_rhsa_info(rhsa_info_list)
+        self.mongoDbDriver.bulk_insert_rhba_info(rhba_info_list)

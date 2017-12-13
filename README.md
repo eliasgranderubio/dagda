@@ -7,7 +7,7 @@
 
 **Dagda** is a tool to perform static analysis of known vulnerabilities, trojans, viruses, malware & other malicious threats in docker images/containers and to monitor running docker containers for detecting anomalous activities.
 
-In order to fulfill its mission, first the known vulnerabilities as CVEs (Common Vulnerabilities and Exposures) and BIDs (Bugtraq IDs), and the known exploits from Offensive Security database are imported into a MongoDB to facilitate the search of these vulnerabilities and exploits when your analysis are in progress.
+In order to fulfill its mission, first the known vulnerabilities as CVEs (Common Vulnerabilities and Exposures), BIDs (Bugtraq IDs), RHSAs (Red Hat Security Advisories) and RHBAs (Red Hat Bug Advisories), and the known exploits from Offensive Security database are imported into a MongoDB to facilitate the search of these vulnerabilities and exploits when your analysis are in progress.
 
 Then, when you run a static analysis of known vulnerabilities, **Dagda** retrieves information about the software installed into your docker image, such as the OS packages and the dependencies of the programming languages, and verifies for each product and its version if it is free of vulnerabilities against the previously stored information into the MongoDB. Also, **Dagda** uses [ClamAV](https://www.clamav.net/) as antivirus engine for detecting trojans, viruses, malware & other malicious threats included within the docker images/containers.
 
@@ -376,7 +376,7 @@ If you want to know more details about `dagda.py vuln`, type `python3 dagda.py v
 
 #### Database contents
 
-The database is called `vuln_database` and there are 6 collections:
+The database is called `vuln_database` and there are 10 collections:
 
 * cve (Common Vulnerabilities and Exposure items) - source NVD NIST
    * cve_info (Extends the information about CVE items)
@@ -384,6 +384,10 @@ The database is called `vuln_database` and there are 6 collections:
    * bid_info (Extends the information about BugTraqs Ids items)
 * exploit_db (Offensive Security - Exploit Database) - source [Offensive Security](https://github.com/offensive-security/exploit-database)
    * exploit_db_info (Extends the information about exploits)
+* rhba (Red Hat Bug Advisory) - source [OVAL definitions for Red Hat Enterprise Linux 3 and above](https://www.redhat.com/security/data/oval/)
+   * rhba_info (Extends the information about RHBAs)
+* rhsa (Red Hat Security Advisory) - source [OVAL definitions for Red Hat Enterprise Linux 3 and above](https://www.redhat.com/security/data/oval/)
+   * rhsa_info (Extends the information about RHSAs)
 
 ### Analyzing docker images/containers
 

@@ -244,9 +244,13 @@ def get_rhsa_and_rhba_lists_from_file(bz2_file):
     # Init
     tar = tarfile.open(mode='r:bz2', fileobj=BytesIO(bz2_file))
     rhsa_list = []
+    rhsa_id_list = []
     rhba_list = []
+    rhba_id_list = []
     rhsa_info_list = []
+    rhsa_info_id_list = []
     rhba_info_list = []
+    rhba_info_id_list = []
     for xml_file in tar.getmembers():
         if xml_file.size > 0:
             xml_file_content = tar.extractfile(xml_file.name)
@@ -263,13 +267,15 @@ def get_rhsa_and_rhba_lists_from_file(bz2_file):
                 for reference in metadata.findall("{http://oval.mitre.org/XMLSchema/oval-definitions-5}reference"):
                     # Get RHSA (Red Hat Security Advisory)
                     if reference.attrib['source'] == 'RHSA':
-                       rhsa_id = reference.attrib['ref_id']
+                        rhsa_id = reference.attrib['ref_id']
+                        rhsa_id = rhsa_id[:rhsa_id.index("-", 5)]
                     # RHBA (Red Hat Bug Advisory)
                     if reference.attrib['source'] == 'RHBA':
-                       rhba_id = reference.attrib['ref_id']
+                        rhba_id = reference.attrib['ref_id']
+                        rhba_id = rhba_id[:rhba_id.index("-", 5)]
                     # Get related CVEs
                     if reference.attrib['source'] == 'CVE':
-                       cves.append(reference.attrib['ref_id'])
+                        cves.append(reference.attrib['ref_id'])
 
                 detail_info['cve'] = cves
 
@@ -283,10 +289,14 @@ def get_rhsa_and_rhba_lists_from_file(bz2_file):
                 # Append detail info
                 if rhsa_id is not None:
                     detail_info['rhsa_id'] = rhsa_id
-                    rhsa_info_list.append(detail_info)
-                else:
+                    if rhsa_id not in rhsa_info_id_list:
+                        rhsa_info_id_list.append(rhsa_id)
+                        rhsa_info_list.append(detail_info)
+                if rhba_id is not None:
                     detail_info['rhba_id'] = rhba_id
-                    rhba_info_list.append(detail_info)
+                    if rhba_id not in rhba_info_id_list:
+                        rhba_info_id_list.append(rhba_id)
+                        rhba_info_list.append(detail_info)
 
                 # Get vulnerable products
                 affected_cpe_list = metadata.find("{http://oval.mitre.org/XMLSchema/oval-definitions-5}advisory") \
@@ -300,12 +310,20 @@ def get_rhsa_and_rhba_lists_from_file(bz2_file):
                         info_item['version'] = splitted_product[4]
                     except IndexError:
                         info_item['version'] = '-'
+
+                    tmp = '#' + info_item['vendor'] + '#' + info_item['product'] + '#' + info_item['version']
                     if rhsa_id is not None:
                         info_item['rhsa_id'] = rhsa_id
-                        rhsa_list.append(info_item)
-                    else:
+                        tmp = rhsa_id + tmp
+                        if tmp not in rhsa_id_list:
+                            rhsa_id_list.append(tmp)
+                            rhsa_list.append(info_item)
+                    if rhba_id is not None:
                         info_item['rhba_id'] = rhba_id
-                        rhba_list.append(info_item)
+                        tmp = rhba_id + tmp
+                        if tmp not in rhba_id_list:
+                            rhba_id_list.append(tmp)
+                            rhba_list.append(info_item)
 
     # Return
     return rhsa_list, rhba_list, rhsa_info_list, rhba_info_list

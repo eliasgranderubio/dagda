@@ -107,8 +107,8 @@ Dagda Commands:
   monitor               perform the monitoring of anomalous activities in
                         running docker containers
   start                 start the Dagda server
-  vuln                  perform operations over your personal CVE, BID &
-                        ExploitDB database
+  vuln                  perform operations over your personal CVE, BID, RHBA, 
+                        RHSA & ExploitDB database
 
 Optional Arguments:
   -h, --help            show this help message and exit

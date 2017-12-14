@@ -96,6 +96,30 @@ def get_exploit_details(exploit_id):
     return _execute_exploit_query(exploit_id=exploit_id, details=True)
 
 
+# Gets products by RHSA
+@vuln_api.route('/v1/vuln/rhsa/<string:rhsa_id>', methods=['GET'])
+def get_products_by_rhsa(rhsa_id):
+    return _execute_rhsa_query(rhsa_id=rhsa_id, details=False)
+
+
+# Gets RHSA details
+@vuln_api.route('/v1/vuln/rhsa/<string:rhsa_id>/details', methods=['GET'])
+def get_rhsa_details(rhsa_id):
+    return _execute_rhsa_query(rhsa_id=rhsa_id, details=True)
+
+
+# Gets products by RHBA
+@vuln_api.route('/v1/vuln/rhba/<string:rhba_id>', methods=['GET'])
+def get_products_by_rhba(rhba_id):
+    return _execute_rhba_query(rhba_id=rhba_id, details=False)
+
+
+# Gets RHBA details
+@vuln_api.route('/v1/vuln/rhba/<string:rhba_id>/details', methods=['GET'])
+def get_rhba_details(rhba_id):
+    return _execute_rhba_query(rhba_id=rhba_id, details=True)
+
+
 # -- Private methods
 
 # Executes CVE query
@@ -132,4 +156,34 @@ def _execute_exploit_query(exploit_id, details):
         result = InternalServer.get_mongodb_driver().get_exploit_info_by_id(exploit_id)
     if len(result) == 0:
         return json.dumps({'err': 404, 'msg': 'Exploit Id not found'}, sort_keys=True), 404
+    return json.dumps(result, sort_keys=True)
+
+
+# Executes RHSA query
+def _execute_rhsa_query(rhsa_id, details):
+    regex = r"(RHSA-[0-9]{4}:[0-9]+)"
+    search_obj = re.search(regex, rhsa_id)
+    if not search_obj or len(search_obj.group(0)) != len(rhsa_id):
+        return json.dumps({'err': 400, 'msg': 'Bad rhsa format'}, sort_keys=True), 400
+    if not details:
+        result = InternalServer.get_mongodb_driver().get_products_by_rhsa(rhsa_id)
+    else:
+        result = InternalServer.get_mongodb_driver().get_rhsa_info_by_id(rhsa_id)
+    if len(result) == 0:
+        return json.dumps({'err': 404, 'msg': 'RHSA not found'}, sort_keys=True), 404
+    return json.dumps(result, sort_keys=True)
+
+
+# Executes RHBA query
+def _execute_rhba_query(rhba_id, details):
+    regex = r"(RHBA-[0-9]{4}:[0-9]+)"
+    search_obj = re.search(regex, rhba_id)
+    if not search_obj or len(search_obj.group(0)) != len(rhba_id):
+        return json.dumps({'err': 400, 'msg': 'Bad rhba format'}, sort_keys=True), 400
+    if not details:
+        result = InternalServer.get_mongodb_driver().get_products_by_rhba(rhba_id)
+    else:
+        result = InternalServer.get_mongodb_driver().get_rhba_info_by_id(rhba_id)
+    if len(result) == 0:
+        return json.dumps({'err': 404, 'msg': 'RHBA not found'}, sort_keys=True), 404
     return json.dumps(result, sort_keys=True)

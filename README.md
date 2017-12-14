@@ -62,7 +62,7 @@ Before **Dagda** usage, you must have installed the next requirements:
   * Defusedxml
 
 The requirements can be installed with pip:
-```
+```bash
     sudo pip3 install -r requirements.txt
 ```
 
@@ -79,7 +79,7 @@ You must have installed MongoDB 2.4 or later for using **Dagda** because in Mong
 If you need instructions for MongoDB installation, see the [How-to install MongoDB Community Edition](https://docs.mongodb.com/manual/administration/install-community/) page.
 
 You can also run MongoDB using docker:
-```
+```bash
     docker pull mongo
     docker run -d -p 27017:27017 mongo
 ```
@@ -104,7 +104,7 @@ rmmod: ERROR: Module sysdig_probe is not currently loaded
 You must run `python3 dagda.py start` for starting the **Dagda** server. See the [*start* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#start-sub-command) in the wiki page for details.
 
 After the **Dagda** server started and before the **Dagda** CLI usage, you must set the next environment variables as you need:
-```
+```bash
     export DAGDA_HOST='127.0.0.1'
     export DAGDA_PORT=5000
 ```
@@ -114,7 +114,7 @@ Although in this usage documentation only the CLI usage is shown, **Dagda** has 
 ### Populating the database
 
 For the initial run, you need to populate the vulnerabilities and the exploits in the database by running:
-```
+```bash
     python3 dagda.py vuln --init
 ```
 The previous command can take several minutes for finishing so be patient.
@@ -122,12 +122,12 @@ The previous command can take several minutes for finishing so be patient.
 If you need repopulating your database for updating with the new vulnerabilities and exploits, you only need rerun the previous command.
 
 Also, you can run queries on your personal database with `dagda.py vuln`. A usage example would be the next one:
-```
+```bash
     python3 dagda.py vuln --product openldap --product_version 2.2.20
 ```
 
 The expected output for the previous query is shown below:
-```
+```json
     [
         {
             "CVE-2005-4442": {
@@ -339,11 +339,11 @@ The expected output for the previous query is shown below:
 ```
 
 For getting all information about a specific CVE, you must run the next command:
-```
+```bash
     python3 dagda.py vuln --cve_info CVE-2009-2890
 ```
 The expected output for the previous query is shown below:
-```
+```json
     [
         {
             "cveid": "CVE-2009-2890",
@@ -395,14 +395,14 @@ In the next subsections, both, performing static analysis of known vulnerabiliti
 
 #### Performing static analysis of known vulnerabilities and other malicious threats
 One of the main **Dagda** targets is perform the analysis of known vulnerabilities, trojans, viruses, malware & other malicious threats in docker images/containers, so if you want perform an analysis over a docker image/container, you must type:
-```
+```bash
     python3 dagda.py check --docker_image jboss/wildfly
 ```
 See the [*check* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#check-sub-command) wiki page for details.
 
 
 The expected output for the previous command will be the next one. In this output, **Dagda** responses with the analysis `id`.
-```
+```json
     {
         "id": "58667994ed253915723c50e7",
         "msg": "Accepted the analysis of <jboss/wildfly>"
@@ -411,12 +411,12 @@ The expected output for the previous command will be the next one. In this outpu
 
 
 Also, if you want run a static analysis in a remote way, you can use the [*agent* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#agent-sub-command):
-```
+```bash
     python3 dagda.py agent localhost:5000 -i jboss/wildfly
 ```
 
 The expected output for the previous command will be the next one. In this output, **Dagda** responses with the analysis `id`.
-```
+```json
     {
         "id": "58667994ed253915723c50e7",
         "image_name": "jboss/wildfly"
@@ -425,14 +425,14 @@ The expected output for the previous command will be the next one. In this outpu
 
 
 If you want review a concrete docker analysis, you must type:
-```
+```bash
     python3 dagda.py history <DOCKER_IMAGE_NAME_HERE> --id <REPORT_ID_HERE>
 ```
 For more details about `dagda.py history`, type `python3 dagda.py history --help` or see the [*history* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#history-sub-command) in the wiki page.
 
 
 The analysis can take several minutes for finishing, so be patient. If you typed the previous command, when you type `python3 dagda.py history jboss/wildfly --id 58667994ed253915723c50e7`, the expected output looks like as shown below.
-```
+```json
     {
         "id": "58667994ed253915723c50e7",
         "image_name": "jboss/wildfly",
@@ -717,14 +717,14 @@ The analysis can take several minutes for finishing, so be patient. If you typed
 
 #### Monitoring running containers for detecting anomalous activities
 Another of the main **Dagda** targets is perform the monitoring of running docker containers for detecting anomalous activities, so if you want perform the monitoring over a running docker container, you must type:
-```
+```bash
     python3 dagda.py monitor 69dbf26ab368 --start
 ```
 See the [*monitor* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#monitor-sub-command) wiki page for details.
 
 
 The expected output looks like as shown below:
-```
+```json
     {
         "id": "586f7631ed25396a829baaf4",
         "image_name": "jboss/wildfly",
@@ -733,12 +733,12 @@ The expected output looks like as shown below:
 ```
 
 You can stop the monitoring when you want if you type:
-```
+```bash
     python3 dagda.py monitor 69dbf26ab368 --stop
 ```
 
 The expected output when you stop the monitoring over a running container looks like as shown below:
-```
+```json
   {
       "id": "586f7631ed25396a829baaf4",
       "image_name": "jboss/wildfly",
@@ -776,9 +776,9 @@ This section describes the installation of **Dagda** using Docker containers, in
 
 Execute the following commands in the root folder of **Dagda** and then, the **Dagda** server will start listening at port 5000:
 
-```
-    $ docker-compose build
-    $ docker-compose up -d
+```bash
+    docker-compose build
+    docker-compose up -d
 ```
 
 ## Troubleshooting

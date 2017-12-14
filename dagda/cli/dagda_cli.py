@@ -78,8 +78,20 @@ def execute_dagda_cmd(cmd, args):
                     # Gets Exploit details
                     r = requests.get(dagda_base_url + '/vuln/exploit/' + str(args.get_exploit_db_info_id()) +
                                      '/details')
+                elif args.get_rhsa():
+                    # Gets products by RHSA
+                    r = requests.get(dagda_base_url + '/vuln/rhsa/' + args.get_rhsa())
+                elif args.get_rhsa_info():
+                    # Gets RHSA details
+                    r = requests.get(dagda_base_url + '/vuln/rhsa/' + args.get_rhsa_info() + '/details')
+                elif args.get_rhba():
+                    # Gets products by RHBA
+                    r = requests.get(dagda_base_url + '/vuln/rhba/' + args.get_rhba())
+                elif args.get_rhba_info():
+                    # Gets RHBA details
+                    r = requests.get(dagda_base_url + '/vuln/rhba/' + args.get_rhba_info() + '/details')
                 else:
-                    # Gets CVEs, BIDs and Exploit_DB Ids by product and version
+                    # Gets CVEs, BIDs, RHBAs, RHSAs and Exploit_DB Ids by product and version
                     if not args.get_product_version():
                         r = requests.get(dagda_base_url + '/vuln/products/' + args.get_product())
                     else:

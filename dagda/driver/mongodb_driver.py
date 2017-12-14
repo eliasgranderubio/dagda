@@ -246,6 +246,12 @@ class MongoDbDriver:
             exploit_db_cursor = self.db.exploit_db.find({'$text': {'$search': filt_prod, '$language': 'none'}},
                                                         {'product': 0, 'version': 0, '_id': 0})\
                                                   .sort("exploit_db_id", pymongo.ASCENDING)
+            # Gets RHSAs
+            rhsa_cursor = self.db.rhsa.find({'product': product}, {'product': 0, 'version': 0, '_id': 0}) \
+                                      .sort("rhsa_id", pymongo.ASCENDING)
+            # Gets RHBAs
+            rhba_cursor = self.db.rhba.find({'product': product}, {'product': 0, 'version': 0, '_id': 0}) \
+                                      .sort("rhba_id", pymongo.ASCENDING)
         else:
             # Gets CVEs
             cve_cursor = self.db.cve.find({'product': product, 'version': version},
@@ -260,6 +266,15 @@ class MongoDbDriver:
                                                          'version': version},
                                                         {'product': 0, 'version': 0, '_id': 0})\
                                                   .sort("exploit_db_id", pymongo.ASCENDING)
+            # Gets RHSAs
+            rhsa_cursor = self.db.rhsa.find({'product': product, 'version': version}, \
+                                            {'product': 0, 'version': 0, '_id': 0}) \
+                                      .sort("rhsa_id", pymongo.ASCENDING)
+            # Gets RHBAs
+            rhba_cursor = self.db.rhba.find({'product': product, 'version': version}, \
+                                            {'product': 0, 'version': 0, '_id': 0}) \
+                                    .sort("rhba_id", pymongo.ASCENDING)
+
         # Prepare output
         output = []
         included_cve = []
@@ -309,6 +324,36 @@ class MongoDbDriver:
                     info[exploit_db_tmp] = exploit_db_info
                     output.append(info)
                     included_exploit.append(exploit_db_tmp)
+        included_rhsa = []
+        for rhsa in rhsa_cursor:
+            if rhsa is not None:
+                rhsa_temp = rhsa['rhsa_id']
+                if rhsa_temp not in included_rhsa:
+                    info = {}
+                    rhsa_info = {}
+                    rhsa_data = self.db.rhsa_info.find_one({'rhsa_id': rhsa['rhsa_id']})
+                    if rhsa_data is not None:
+                        # delte objectid
+                        rhsa_info = rhsa_data.copy()
+                        del rhsa_info["_id"]
+                    info[rhsa_temp] = rhsa_info
+                    output.append(info)
+                    included_rhsa.append(rhsa_temp)
+        included_rhba = []
+        for rhba in rhba_cursor:
+            if rhba is not None:
+                rhba_temp = rhba['rhba_id']
+                if rhba_temp not in included_rhba:
+                    info = {}
+                    rhba_info = {}
+                    rhba_data = self.db.rhba_info.find_one({'rhba_id': rhba['rhba_id']})
+                    if rhba_data is not None:
+                        # delte objectid
+                        rhba_info = rhba_data.copy()
+                        del rhba_info["_id"]
+                    info[rhba_temp] = rhba_info
+                    output.append(info)
+                    included_rhsa.append(rhba_temp)
         # Return
         return output
 
@@ -340,6 +385,30 @@ class MongoDbDriver:
     def get_products_by_exploit_db_id(self, exploit_db_id):
         cursor = self.db.exploit_db.find({'exploit_db_id': exploit_db_id}, {'exploit_db_id': 0, '_id': 0}).sort(
             [("product", pymongo.ASCENDING), ("version", pymongo.ASCENDING)])
+        # Prepare output
+        output = []
+        for product in cursor:
+            if product is not None:
+                output.append(product)
+        # Return
+        return output
+
+    # Gets products by RHSA
+    def get_products_by_rhsa(self, rhsa):
+        cursor = self.db.rhsa.find({'rhsa_id': rhsa}, {'rhsa_id': 0, '_id': 0}).sort([("product", pymongo.ASCENDING),
+                                                                                      ("version", pymongo.ASCENDING)])
+        # Prepare output
+        output = []
+        for product in cursor:
+            if product is not None:
+                output.append(product)
+        # Return
+        return output
+
+    # Gets products by RHBA
+    def get_products_by_rhba(self, rhba):
+        cursor = self.db.rhba.find({'rhba_id': rhba}, {'rhba_id': 0, '_id': 0}).sort([("product", pymongo.ASCENDING),
+                                                                                      ("version", pymongo.ASCENDING)])
         # Prepare output
         output = []
         for product in cursor:
@@ -381,6 +450,32 @@ class MongoDbDriver:
     def get_exploit_info_by_id(self, exploit_db_id):
         cursor = self.db.exploit_db_info.find({'exploit_db_id': exploit_db_id}).sort(
             [("exploit_db_id", pymongo.ASCENDING)])
+        # Prepare output
+        output = []
+        for info in cursor:
+            if info is not None:
+                # delete objectid
+                del info['_id']
+                output.append(info)
+        # Return
+        return output
+
+    # Gets RHSA description by id
+    def get_rhsa_info_by_id(self, rhsa_id):
+        cursor = self.db.rhsa_info.find({'rhsa_id': rhsa_id}).sort([("rhsa_id", pymongo.ASCENDING)])
+        # Prepare output
+        output = []
+        for info in cursor:
+            if info is not None:
+                # delete objectid
+                del info['_id']
+                output.append(info)
+        # Return
+        return output
+
+    # Gets RHBA description by id
+    def get_rhba_info_by_id(self, rhba_id):
+        cursor = self.db.rhba_info.find({'rhba_id': rhba_id}).sort([("rhba_id", pymongo.ASCENDING)])
         # Prepare output
         output = []
         for info in cursor:

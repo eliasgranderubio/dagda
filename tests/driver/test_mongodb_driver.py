@@ -488,6 +488,10 @@ class FullGetVulnProdMongoDbDriver(MongoDbDriver):
                                                     "remote": "yes",
                                                     "title": "NetPBM PNMToPNG Buffer Overflow Vulnerability"
                                                 }
+        cursor_rhba = self.db.rhba.find.return_value
+        cursor_rhba.sort.return_value = []
+        cursor_rhsa = self.db.rhsa.find.return_value
+        cursor_rhsa.sort.return_value = []
 
 
 class FullGetVulnProdAndVersionMongoDbDriver(MongoDbDriver):
@@ -501,6 +505,10 @@ class FullGetVulnProdAndVersionMongoDbDriver(MongoDbDriver):
         cursor_bid.sort.return_value = [{'bugtraq_id': 83610}, {'bugtraq_id': 83843}]
         cursor_expl = self.db.exploit_db.find.return_value
         cursor_expl.sort.return_value = []
+        cursor_rhba = self.db.rhba.find.return_value
+        cursor_rhba.sort.return_value = []
+        cursor_rhsa = self.db.rhsa.find.return_value
+        cursor_rhsa.sort.return_value = []
         self.db.cve_info.find_one.return_value = {"cvss_access_vector": "Network",
                                                   "_id": "58d11025100e75000e789c9a",
                                                   "cveid": "CVE-2005-4442",

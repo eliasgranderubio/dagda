@@ -27,11 +27,36 @@ from dagda.vulnDB.ext_source_util import get_bug_traqs_lists_from_file
 from dagda.vulnDB.ext_source_util import get_bug_traqs_lists_from_online_mode
 from dagda.vulnDB.ext_source_util import get_cve_description_from_file
 from dagda.vulnDB.ext_source_util import get_cve_cweid_from_file
+from dagda.vulnDB.ext_source_util import get_rhsa_and_rhba_lists_from_file
 
 
 # -- Test suite
 
 class ExtSourceUtilTestCase(unittest.TestCase):
+
+    def test_get_rhsa_from_file(self):
+        content = None
+        with open('./tests/mock_files/com.redhat.rhsa-2010.tar.bz2', 'rb') as content_file:
+            content = content_file.read()
+        rhsa_list, rhba_list, rhsa_info_list, rhba_info_list = get_rhsa_and_rhba_lists_from_file(content)
+        self.assertEqual(len(rhsa_list), 384)
+        self.assertEqual(len(rhba_list), 0)
+        self.assertEqual(len(rhsa_info_list), 251)
+        self.assertEqual(len(rhba_info_list), 0)
+        self.assertEqual(rhsa_list[0], {'product': 'enterprise_linux', 'vendor': 'redhat', 'rhsa_id': 'RHSA-2010:0002', 'version': '4'})
+        self.assertEqual(rhsa_info_list[0], {'severity': 'Moderate', 'rhsa_id': 'RHSA-2010:0002', 'title': 'RHSA-2010:0002: PyXML security update (Moderate)', 'cve': ['CVE-2009-3720'], 'description': "PyXML provides XML libraries for Python. The distribution contains a\nvalidating XML parser, an implementation of the SAX and DOM programming\ninterfaces, and an interface to the Expat parser.\n\nA buffer over-read flaw was found in the way PyXML's Expat parser handled\nmalformed UTF-8 sequences when processing XML files. A specially-crafted\nXML file could cause Python applications using PyXML's Expat parser to\ncrash while parsing the file. (CVE-2009-3720)\n\nThis update makes PyXML use the system Expat library rather than its own\ninternal copy; therefore, users must install the RHSA-2009:1625 expat\nupdate together with this PyXML update to resolve the CVE-2009-3720 issue.\n\nAll PyXML users should upgrade to this updated package, which changes PyXML\nto use the system Expat library. After installing this update along with\nRHSA-2009:1625, applications using the PyXML library must be restarted for\nthe update to take effect."})
+
+    def test_get_rhba_from_file(self):
+        content = None
+        with open('./tests/mock_files/com.redhat.rhba-20171767.tar.bz2', 'rb') as content_file:
+            content = content_file.read()
+        rhsa_list, rhba_list, rhsa_info_list, rhba_info_list = get_rhsa_and_rhba_lists_from_file(content)
+        self.assertEqual(len(rhsa_list), 0)
+        self.assertEqual(len(rhba_list), 1)
+        self.assertEqual(len(rhsa_info_list), 0)
+        self.assertEqual(len(rhba_info_list), 1)
+        self.assertEqual(rhba_list[0], {'version': '7', 'product': 'enterprise_linux', 'rhba_id': 'RHBA-2017:1767', 'vendor': 'redhat'})
+        self.assertEqual(rhba_info_list[0], {'description': 'The Berkeley Internet Name Domain (BIND) is an implementation of the Domain Name System (DNS) protocols. BIND includes a DNS server (named); a resolver library (routines for applications to use when interfacing with DNS); and tools for verifying that the DNS server is operating correctly.\n\nFor detailed information on changes in this release, see the Red Hat Enterprise Linux 7.4 Release Notes linked from the References section.\n\nUsers of bind are advised to upgrade to these updated packages.', 'rhba_id': 'RHBA-2017:1767', 'cve': ['CVE-2016-2775'], 'severity': 'None', 'title': 'RHBA-2017:1767: bind bug fix update (None)'})
 
     def test_get_cve_list_from_file(self):
         cve_list = get_cve_list_from_file(base64.b64decode(mock_cve_gz_compressed_content), 2003)

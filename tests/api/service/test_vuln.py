@@ -23,6 +23,8 @@ from dagda.api.service.vuln import get_vulns_by_product_and_version
 from dagda.api.service.vuln import get_products_by_cve
 from dagda.api.service.vuln import get_products_by_bid
 from dagda.api.service.vuln import get_products_by_exploit_id
+from dagda.api.service.vuln import get_products_by_rhsa
+from dagda.api.service.vuln import get_products_by_rhba
 from dagda.api.service.vuln import init_or_update_db
 from dagda.api.service.vuln import get_init_or_update_db_status
 
@@ -46,6 +48,12 @@ class VulnApiTestCase(unittest.TestCase):
         def get_products_by_exploit_db_id(self, exploit_id):
             return []
 
+        def get_products_by_rhba(self, rhba_id):
+            return []
+
+        def get_products_by_rhsa(self, rhsa_id):
+            return []
+
         def get_init_db_process_status(self):
             return {'timestamp': None}
 
@@ -60,6 +68,12 @@ class VulnApiTestCase(unittest.TestCase):
             return [{'product':'product_name', 'version': '1.0.0'}]
 
         def get_products_by_exploit_db_id(self, exploit_id):
+            return [{'product':'product_name', 'version': '1.0.0'}]
+
+        def get_products_by_rhba(self, rhba_id):
+            return [{'product':'product_name', 'version': '1.0.0'}]
+
+        def get_products_by_rhsa(self, rhsa_id):
             return [{'product':'product_name', 'version': '1.0.0'}]
 
         def get_init_db_process_status(self):
@@ -82,6 +96,16 @@ class VulnApiTestCase(unittest.TestCase):
         self.assertEqual(code, 400)
 
     @patch('api.internal.internal_server.InternalServer.get_mongodb_driver', return_value=MockMongoDriverEmptyLists())
+    def test_get_products_by_rhba_400(self, m):
+        response, code = get_products_by_rhba('product')
+        self.assertEqual(code, 400)
+
+    @patch('api.internal.internal_server.InternalServer.get_mongodb_driver', return_value=MockMongoDriverEmptyLists())
+    def test_get_products_by_rhsa_400(self, m):
+        response, code = get_products_by_rhsa('product')
+        self.assertEqual(code, 400)
+
+    @patch('api.internal.internal_server.InternalServer.get_mongodb_driver', return_value=MockMongoDriverEmptyLists())
     def test_get_products_by_cve_404(self, m):
         response, code = get_products_by_cve('CVE-2002-2002')
         self.assertEqual(code, 404)
@@ -94,6 +118,16 @@ class VulnApiTestCase(unittest.TestCase):
     @patch('api.internal.internal_server.InternalServer.get_mongodb_driver', return_value=MockMongoDriverEmptyLists())
     def test_get_products_by_exploit_id_404(self, m):
         response, code = get_products_by_exploit_id(1)
+        self.assertEqual(code, 404)
+
+    @patch('api.internal.internal_server.InternalServer.get_mongodb_driver', return_value=MockMongoDriverEmptyLists())
+    def test_get_products_by_rhba_404(self, m):
+        response, code = get_products_by_rhba('RHBA-2012:2002')
+        self.assertEqual(code, 404)
+
+    @patch('api.internal.internal_server.InternalServer.get_mongodb_driver', return_value=MockMongoDriverEmptyLists())
+    def test_get_products_by_rhsa_404(self, m):
+        response, code = get_products_by_rhsa('RHSA-2012:2002')
         self.assertEqual(code, 404)
 
     @patch('api.internal.internal_server.InternalServer.get_mongodb_driver', return_value=MockMongoDriverWithContent())
@@ -114,6 +148,16 @@ class VulnApiTestCase(unittest.TestCase):
     @patch('api.internal.internal_server.InternalServer.get_mongodb_driver', return_value=MockMongoDriverWithContent())
     def test_get_products_by_exploit_id_200(self, m):
         response = get_products_by_exploit_id(1)
+        self.assertEqual(response, '[{"product": "product_name", "version": "1.0.0"}]')
+
+    @patch('api.internal.internal_server.InternalServer.get_mongodb_driver', return_value=MockMongoDriverWithContent())
+    def test_get_products_by_rhba_200(self, m):
+        response = get_products_by_rhba('RHBA-2012:2002')
+        self.assertEqual(response, '[{"product": "product_name", "version": "1.0.0"}]')
+
+    @patch('api.internal.internal_server.InternalServer.get_mongodb_driver', return_value=MockMongoDriverWithContent())
+    def test_get_products_by_rhsa_200(self, m):
+        response = get_products_by_rhsa('RHSA-2012:2002')
         self.assertEqual(response, '[{"product": "product_name", "version": "1.0.0"}]')
 
     @patch('api.internal.internal_server.InternalServer.get_dagda_edn', return_value=MockDagdaEdn())

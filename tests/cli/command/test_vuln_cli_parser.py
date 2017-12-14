@@ -109,6 +109,46 @@ class VulnDBCliParserTestSuite(unittest.TestCase):
         status = VulnCLIParser.verify_args(args)
         self.assertEqual(status, 16)
 
+    def test_not_only_rhba(self):
+        args = generate_args(False, False, None, None, None, None, None, None, 'openldap', None, 'RHBA-2012:002', None, None, None)
+        status = VulnCLIParser.verify_args(args)
+        self.assertEqual(status, 17)
+
+    def test_bad_rhba(self):
+        args = generate_args(False, False, None, None, None, None, None, None, None, None, 'RHBA--2012:002', None, None, None)
+        status = VulnCLIParser.verify_args(args)
+        self.assertEqual(status, 18)
+
+    def test_not_only_rhba_info(self):
+        args = generate_args(False, False, None, None, None, None, None, None, 'openldap', None, None, 'RHBA-2012:002', None, None)
+        status = VulnCLIParser.verify_args(args)
+        self.assertEqual(status, 19)
+
+    def test_bad_rhba_info(self):
+        args = generate_args(False, False, None, None, None, None, None, None, None, None, None, 'RHBA--2012:002', None, None)
+        status = VulnCLIParser.verify_args(args)
+        self.assertEqual(status, 20)
+
+    def test_not_only_rhsa(self):
+        args = generate_args(False, False, None, None, None, None, None, None, 'openldap', None, None, None, 'RHSA-2012:002', None)
+        status = VulnCLIParser.verify_args(args)
+        self.assertEqual(status, 21)
+
+    def test_bad_rhsa(self):
+        args = generate_args(False, False, None, None, None, None, None, None, None, None,  None, None, 'RHSA-20122:002', None)
+        status = VulnCLIParser.verify_args(args)
+        self.assertEqual(status, 22)
+
+    def test_not_only_rhsa_info(self):
+        args = generate_args(False, False, None, None, None, None, None, None, 'openldap', None, None, None, None, 'RHSA-2012:002')
+        status = VulnCLIParser.verify_args(args)
+        self.assertEqual(status, 23)
+
+    def test_bad_rhsa_info(self):
+        args = generate_args(False, False, None, None, None, None, None, None, None, None, None, None, None, 'RHSA-201222:002')
+        status = VulnCLIParser.verify_args(args)
+        self.assertEqual(status, 24)
+
     def test_ok(self):
         args = generate_args(False, False, None, None, None, None, None, None, 'openldap', '2.2.20', None, None, None, None)
         status = VulnCLIParser.verify_args(args)

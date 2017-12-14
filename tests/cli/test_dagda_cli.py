@@ -126,7 +126,7 @@ class DagdaCLITestSuite(unittest.TestCase):
             err = DagdaCLITestSuite._get_path(err)
             self.assertEqual(err, '/v1/history/jboss/wildfly?id=69dbf26ab368')
 
-    def test_dagda_history_fp_full_happy_path(self):
+    def test_dagda_history_fp_full_happy_with_version_path(self):
         os.environ['DAGDA_HOST'] = str('localhost')
         os.environ['DAGDA_PORT'] = str('50000')
         sys.argv = ['dagda.py', 'history', 'jboss/wildfly', '--fp', 'openldap:2.2.20']
@@ -149,6 +149,18 @@ class DagdaCLITestSuite(unittest.TestCase):
         except requests.exceptions.ConnectionError as err:
             err = DagdaCLITestSuite._get_path(err)
             self.assertEqual(err, '/v1/history/jboss/wildfly/fp/openldap')
+
+    def test_dagda_history_is_fp_with_version_full_happy_path(self):
+        os.environ['DAGDA_HOST'] = str('localhost')
+        os.environ['DAGDA_PORT'] = str('50000')
+        sys.argv = ['dagda.py', 'history', 'jboss/wildfly', '--is_fp', 'openldap:2.2.20']
+        parsed_args = DagdaCLIParser()
+        try:
+            execute_dagda_cmd(parsed_args.get_command(), parsed_args.get_extra_args())
+            self.fail()
+        except requests.exceptions.ConnectionError as err:
+            err = DagdaCLITestSuite._get_path(err)
+            self.assertEqual(err, '/v1/history/jboss/wildfly/fp/openldap/2.2.20')
 
     def test_dagda_vuln_init_happy_path(self):
         os.environ['DAGDA_HOST'] = str('localhost')
@@ -197,6 +209,54 @@ class DagdaCLITestSuite(unittest.TestCase):
         except requests.exceptions.ConnectionError as err:
             err = DagdaCLITestSuite._get_path(err)
             self.assertEqual(err, '/v1/vuln/cve/CVE-2002-2002/details')
+
+    def test_dagda_vuln_rhba_happy_path(self):
+        os.environ['DAGDA_HOST'] = str('localhost')
+        os.environ['DAGDA_PORT'] = str('50000')
+        sys.argv = ['dagda.py', 'vuln', '--rhba', 'RHBA-2012:2002']
+        parsed_args = DagdaCLIParser()
+        try:
+            execute_dagda_cmd(parsed_args.get_command(), parsed_args.get_extra_args())
+            self.fail()
+        except requests.exceptions.ConnectionError as err:
+            err = DagdaCLITestSuite._get_path(err)
+            self.assertEqual(err, '/v1/vuln/rhba/RHBA-2012:2002')
+
+    def test_dagda_vuln_rhba_details_happy_path(self):
+        os.environ['DAGDA_HOST'] = str('localhost')
+        os.environ['DAGDA_PORT'] = str('50000')
+        sys.argv = ['dagda.py', 'vuln', '--rhba_info', 'RHBA-2012:2002']
+        parsed_args = DagdaCLIParser()
+        try:
+            execute_dagda_cmd(parsed_args.get_command(), parsed_args.get_extra_args())
+            self.fail()
+        except requests.exceptions.ConnectionError as err:
+            err = DagdaCLITestSuite._get_path(err)
+            self.assertEqual(err, '/v1/vuln/rhba/RHBA-2012:2002/details')
+
+    def test_dagda_vuln_rhsa_happy_path(self):
+        os.environ['DAGDA_HOST'] = str('localhost')
+        os.environ['DAGDA_PORT'] = str('50000')
+        sys.argv = ['dagda.py', 'vuln', '--rhsa', 'RHSA-2012:2002']
+        parsed_args = DagdaCLIParser()
+        try:
+            execute_dagda_cmd(parsed_args.get_command(), parsed_args.get_extra_args())
+            self.fail()
+        except requests.exceptions.ConnectionError as err:
+            err = DagdaCLITestSuite._get_path(err)
+            self.assertEqual(err, '/v1/vuln/rhsa/RHSA-2012:2002')
+
+    def test_dagda_vuln_rhsa_details_happy_path(self):
+        os.environ['DAGDA_HOST'] = str('localhost')
+        os.environ['DAGDA_PORT'] = str('50000')
+        sys.argv = ['dagda.py', 'vuln', '--rhsa_info', 'RHSA-2012:2002']
+        parsed_args = DagdaCLIParser()
+        try:
+            execute_dagda_cmd(parsed_args.get_command(), parsed_args.get_extra_args())
+            self.fail()
+        except requests.exceptions.ConnectionError as err:
+            err = DagdaCLITestSuite._get_path(err)
+            self.assertEqual(err, '/v1/vuln/rhsa/RHSA-2012:2002/details')
 
     def test_dagda_vuln_bid_happy_path(self):
         os.environ['DAGDA_HOST'] = str('localhost')

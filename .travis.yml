@@ -15,8 +15,10 @@ script:
   - make test
 after_success:
   - coveralls
-  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+  - if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" ==  "false" ]; then
       docker build --tag "$DOCKER_USERNAME"/dagda:0.7.0 .;
       docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
       docker push "$DOCKER_USERNAME"/dagda:0.7.0;
     fi
+notifications:
+  webhooks: https://app.fossa.io/hooks/travisci

@@ -44,6 +44,7 @@ Finally, each analysis report of a docker image/container, included all static a
    * [Troubleshooting](#troubleshooting)
    * [Change Log](#change-log)
    * [Bugs and Feedback](#bugs-and-feedback)
+   * [License](#license)
 
 ## Requirements
 Before **Dagda** usage, you must have installed the next requirements:

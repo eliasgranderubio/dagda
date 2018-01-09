@@ -42,7 +42,7 @@ class SysdigFalcoMonitor:
     # -- Public methods
 
     # SysdigFalcoMonitor Constructor
-    def __init__(self, docker_driver, mongodb_driver, falco_rules_filename):
+    def __init__(self, docker_driver, mongodb_driver, falco_rules_filename, external_falco_output_filename):
         super(SysdigFalcoMonitor, self).__init__()
         self.mongodb_driver = mongodb_driver
         self.docker_driver = docker_driver
@@ -52,81 +52,90 @@ class SysdigFalcoMonitor:
         else:
             copyfile(falco_rules_filename, SysdigFalcoMonitor._falco_custom_rules_filename)
             self.falco_rules = ' -o rules_file=/host' + SysdigFalcoMonitor._falco_custom_rules_filename
+        if external_falco_output_filename is not None:
+            self.external_falco = True
+            SysdigFalcoMonitor._falco_output_filename = external_falco_output_filename
+        else:
+            self.external_falco = False
 
     # Pre check for Sysdig falco container
     def pre_check(self):
-        # Init
-        linux_distro = SysdigFalcoMonitor._get_linux_distro()
-        uname_r = os.uname().release
+        if not self.external_falco:
+            # Init
+            linux_distro = SysdigFalcoMonitor._get_linux_distro()
+            uname_r = os.uname().release
 
-        # Check requirements
-        if not os.path.isfile('/.dockerenv'):  # I'm living in real world!
-            if 'Red Hat' in linux_distro or 'CentOS' in linux_distro or 'Fedora' in linux_distro \
-                    or 'openSUSE' in linux_distro:
-                # Red Hat/CentOS/Fedora/openSUSE
-                return_code = subprocess.call(["rpm", "-q", "kernel-devel-" + uname_r],
-                                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            elif 'Debian' in linux_distro or 'Ubuntu' in linux_distro:
-                # Debian/Ubuntu
-                return_code = subprocess.call(["dpkg", "-l", "linux-headers-" + uname_r],
-                                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            # Check requirements
+            if not os.path.isfile('/.dockerenv'):  # I'm living in real world!
+                if 'Red Hat' in linux_distro or 'CentOS' in linux_distro or 'Fedora' in linux_distro \
+                        or 'openSUSE' in linux_distro:
+                    # Red Hat/CentOS/Fedora/openSUSE
+                    return_code = subprocess.call(["rpm", "-q", "kernel-devel-" + uname_r],
+                                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                elif 'Debian' in linux_distro or 'Ubuntu' in linux_distro:
+                    # Debian/Ubuntu
+                    return_code = subprocess.call(["dpkg", "-l", "linux-headers-" + uname_r],
+                                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                else:
+                    raise DagdaError('Linux distribution not supported yet.')
+
+                if return_code != 0:
+                    raise DagdaError('The kernel headers are not installed in the host operating system.')
+            else:  # I'm running inside a docker container
+                DagdaLogger.get_logger().warning("I'm running inside a docker container, so I can't check if the kernel "
+                                                 "headers are installed in the host operating system. Please, review it!!")
+
+            # Check Docker driver
+            if self.docker_driver.get_docker_client() is None:
+                raise DagdaError('Error while fetching Docker server API version.')
+
+            # Docker pull for ensuring the sysdig/falco image
+            self.docker_driver.docker_pull('sysdig/falco')
+
+            # Stops sysdig/falco containers if there are any
+            container_ids = self.docker_driver.get_docker_container_ids_by_image_name('sysdig/falco')
+            if len(container_ids) > 0:
+                for container_id in container_ids:
+                    self.docker_driver.docker_stop(container_id)
+                    self.docker_driver.docker_remove_container(container_id)
+
+            # Cleans mongodb falco_events collection
+            self.mongodb_driver.delete_falco_events_collection()
+
+            # Starts sysdig running container without custom entrypoint for avoiding:
+            # --> Runtime error: error opening device /host/dev/sysdig0
+            self.running_container_id = self._start_container()
+            time.sleep(30)
+            logs = self.docker_driver.docker_logs(self.running_container_id, True, True, False)
+            if "Runtime error: error opening device /host/dev/sysdig0" not in logs:
+                self.docker_driver.docker_stop(self.running_container_id)
             else:
-                raise DagdaError('Linux distribution not supported yet.')
-
-            if return_code != 0:
-                raise DagdaError('The kernel headers are not installed in the host operating system.')
-        else:  # I'm running inside a docker container
-            DagdaLogger.get_logger().warning("I'm running inside a docker container, so I can't check if the kernel "
-                                             "headers are installed in the host operating system. Please, review it!!")
-
-        # Check Docker driver
-        if self.docker_driver.get_docker_client() is None:
-            raise DagdaError('Error while fetching Docker server API version.')
-
-        # Docker pull for ensuring the sysdig/falco image
-        self.docker_driver.docker_pull('sysdig/falco')
-
-        # Stops sysdig/falco containers if there are any
-        container_ids = self.docker_driver.get_docker_container_ids_by_image_name('sysdig/falco')
-        if len(container_ids) > 0:
-            for container_id in container_ids:
-                self.docker_driver.docker_stop(container_id)
-                self.docker_driver.docker_remove_container(container_id)
-
-        # Cleans mongodb falco_events collection
-        self.mongodb_driver.delete_falco_events_collection()
-
-        # Starts sysdig running container without custom entrypoint for avoiding:
-        # --> Runtime error: error opening device /host/dev/sysdig0
-        self.running_container_id = self._start_container()
-        time.sleep(30)
-        logs = self.docker_driver.docker_logs(self.running_container_id, True, True, False)
-        if "Runtime error: error opening device /host/dev/sysdig0" not in logs:
-            self.docker_driver.docker_stop(self.running_container_id)
-        else:
-            raise DagdaError('Runtime error opening device /host/dev/sysdig0.')
-        # Clean up
-        self.docker_driver.docker_remove_container(self.running_container_id)
+                raise DagdaError('Runtime error opening device /host/dev/sysdig0.')
+            # Clean up
+            self.docker_driver.docker_remove_container(self.running_container_id)
 
     # Runs SysdigFalcoMonitor
     def run(self):
-        self.running_container_id = self._start_container('falco -pc -o json_output=true -o file_output.enabled=true ' +
-                                                          '-o file_output.filename=/host' +
-                                                          SysdigFalcoMonitor._falco_output_filename +
-                                                          self.falco_rules)
+        if not self.external_falco:
+            self.running_container_id = self._start_container('falco -pc -o json_output=true -o file_output.enabled=true ' +
+                                                              '-o file_output.filename=/host' +
+                                                              SysdigFalcoMonitor._falco_output_filename +
+                                                              self.falco_rules)
 
-        # Wait 3 seconds for sysdig/falco start up and creates the output file
-        time.sleep(3)
+            # Wait 3 seconds for sysdig/falco start up and creates the output file
+            time.sleep(3)
 
         # Check output file and running docker container
         if not os.path.isfile(SysdigFalcoMonitor._falco_output_filename) or \
-           len(self.docker_driver.get_docker_container_ids_by_image_name('sysdig/falco')) == 0:
+            (not self.external_falco and \
+            len(self.docker_driver.get_docker_container_ids_by_image_name('sysdig/falco')) == 0):
             raise DagdaError('Sysdig/falco output file not found.')
 
         # Review sysdig/falco logs after rules parser
-        sysdig_falco_logs = self.docker_driver.docker_logs(self.running_container_id, True, True, False)
-        if "Rule " in sysdig_falco_logs:
-            SysdigFalcoMonitor._parse_log_and_show_dagda_warnings(sysdig_falco_logs)
+        if not self.external_falco:
+            sysdig_falco_logs = self.docker_driver.docker_logs(self.running_container_id, True, True, False)
+            if "Rule " in sysdig_falco_logs:
+                SysdigFalcoMonitor._parse_log_and_show_dagda_warnings(sysdig_falco_logs)
 
         # Read file
         with open(SysdigFalcoMonitor._falco_output_filename, 'rb') as f:
@@ -157,6 +166,10 @@ class SysdigFalcoMonitor:
     # Gets running container id
     def get_running_container_id(self):
         return self.running_container_id
+
+    # Gets if it is an external sysdig/falco
+    def is_external_falco(self):
+        return self.external_falco
 
     # -- Private methods
 

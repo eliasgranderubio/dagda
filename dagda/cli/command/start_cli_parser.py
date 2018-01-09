@@ -39,6 +39,7 @@ class StartCLIParser:
         self.parser.add_argument('--mongodb_user', type=str)
         self.parser.add_argument('--mongodb_pass', type=str)
         self.parser.add_argument('--falco_rules_file', type=argparse.FileType('r'))
+        self.parser.add_argument('-ef', '--external_falco', type=argparse.FileType('r'))
         self.args, self.unknown = self.parser.parse_known_args(sys.argv[2:])
         # Verify command line arguments
         status = self.verify_args(self.args)
@@ -82,6 +83,13 @@ class StartCLIParser:
         else:
             return self.args.falco_rules_file.name
 
+    # Gets external falco output file
+    def get_external_falco_output_filename(self):
+        if self.args.external_falco is None:
+            return None
+        else:
+            return self.args.external_falco.name
+
     # -- Static methods
 
     # Verify command line arguments
@@ -101,13 +109,17 @@ class StartCLIParser:
             DagdaLogger.get_logger().error('Argument --mongodb_user: this argument should not be empty if you set '
                                            '"--mongodb_pass".')
             return 4
-        elif args.falco_rules_file:
+        elif args.falco_rules_file and not args.external_falco:
             with args.falco_rules_file as content_file:
                 try:
                     yaml.safe_load(content_file.read())
                 except:
                     DagdaLogger.get_logger().error('Argument --falco_rules_file: Malformed yaml file.')
                     return 5
+        elif args.falco_rules_file and args.external_falco:
+            DagdaLogger.get_logger().error('Argument --external_falco: this argument is not compatible with ' +
+                                                                      '--falco_rules_file.')
+            return 6
         # Else
         return 0
 
@@ -131,7 +143,7 @@ class DagdaStartParser(argparse.ArgumentParser):
 start_parser_text = '''usage: dagda.py start [-h] [--server_host SERVER_HOST] [--server_port SERVER_PORT]
                   [--mongodb_host MONGODB_HOST] [--mongodb_port MONGODB_PORT]
                   [--mongodb_ssl] [--mongodb_user MONGODB_USER] [--mongodb_pass MONGODB_PASS]
-                  [--falco_rules_file RULES_FILE]
+                  [--falco_rules_file RULES_FILE] [--external_falco OUTPUT_FILE]
 
 The Dagda server.
 
@@ -162,7 +174,13 @@ Optional Arguments:
   --mongodb_pass        password for basic authentication with MongoDB. By
                         default, authentication is disabled
 
-  --falco_rules_file    sysdig/falco custom rules file (See 'Falco Rules' wiki
+  --falco_rules_file RULES_FILE    
+                        sysdig/falco custom rules file (See 'Falco Rules' wiki
                         page [https://github.com/draios/falco/wiki/Falco-Rules]
                         for details)
+                        
+  -ef OUTPUT_FILE, --external_falco OUTPUT_FILE
+                        Dagda doesn't start its own sysdig/falco and it will 
+                        read the external sysdig/falco output file passed by
+                        parameter
 '''

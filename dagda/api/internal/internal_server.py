@@ -31,6 +31,7 @@ class InternalServer:
     _dagda_edn = multiprocessing.Queue()
     _mongodb_driver = MongoDbDriver()
     _docker_driver = DockerDriver()
+    _external_falco = False
 
     # -- Static methods
 
@@ -60,6 +61,16 @@ class InternalServer:
         InternalServer._mongodb_driver = MongoDbDriver(mongodb_host, mongodb_port, mongodb_ssl,
                                                        mongodb_user, mongodb_pass)
 
+    # Gets if it is an external falco
+    @staticmethod
+    def is_external_falco():
+        return InternalServer._external_falco
+
+    # Sets if it is an external falco
+    @staticmethod
+    def set_external_falco(is_external_falco):
+        InternalServer._external_falco = is_external_falco
+
     # Gets Docker Driver
     @staticmethod
     def get_docker_driver():
@@ -68,5 +79,6 @@ class InternalServer:
     # Is runtime analysis enabled
     @staticmethod
     def is_runtime_analysis_enabled():
-        return len(InternalServer._docker_driver.get_docker_container_ids_by_image_name('sysdig/falco')) > 0
+        return InternalServer._external_falco or \
+               len(InternalServer._docker_driver.get_docker_container_ids_by_image_name('sysdig/falco')) > 0
 

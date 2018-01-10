@@ -182,5 +182,10 @@ Optional Arguments:
   -ef OUTPUT_FILE, --external_falco OUTPUT_FILE
                         Dagda doesn't start its own sysdig/falco and it will 
                         read the external sysdig/falco output file passed by
-                        parameter
+                        parameter. The external sysdig/falco must be started
+                        with the next parameters (See Falco wiki for details
+                        [https://github.com/draios/falco/wiki]):
+                            -pc 
+                            -o json_output=true 
+                            -o file_output.enabled=true
 '''

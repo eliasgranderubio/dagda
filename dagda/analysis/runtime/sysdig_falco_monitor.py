@@ -21,12 +21,12 @@ import io
 import os
 import time
 import json
-import tempfile
 import subprocess
 import datetime
 from shutil import copyfile
 from exception.dagda_error import DagdaError
 from log.dagda_logger import DagdaLogger
+from api.internal.internal_server import InternalServer
 
 
 # Sysdig Falco monitor class
@@ -53,14 +53,12 @@ class SysdigFalcoMonitor:
             copyfile(falco_rules_filename, SysdigFalcoMonitor._falco_custom_rules_filename)
             self.falco_rules = ' -o rules_file=/host' + SysdigFalcoMonitor._falco_custom_rules_filename
         if external_falco_output_filename is not None:
-            self.external_falco = True
+            InternalServer.set_external_falco(True)
             SysdigFalcoMonitor._falco_output_filename = external_falco_output_filename
-        else:
-            self.external_falco = False
 
     # Pre check for Sysdig falco container
     def pre_check(self):
-        if not self.external_falco:
+        if not InternalServer.is_external_falco():
             # Init
             linux_distro = SysdigFalcoMonitor._get_linux_distro()
             uname_r = os.uname().release
@@ -116,7 +114,7 @@ class SysdigFalcoMonitor:
 
     # Runs SysdigFalcoMonitor
     def run(self):
-        if not self.external_falco:
+        if not InternalServer.is_external_falco():
             self.running_container_id = self._start_container('falco -pc -o json_output=true -o file_output.enabled=true ' +
                                                               '-o file_output.filename=/host' +
                                                               SysdigFalcoMonitor._falco_output_filename +
@@ -127,12 +125,12 @@ class SysdigFalcoMonitor:
 
         # Check output file and running docker container
         if not os.path.isfile(SysdigFalcoMonitor._falco_output_filename) or \
-            (not self.external_falco and \
+            (not InternalServer.is_external_falco() and \
             len(self.docker_driver.get_docker_container_ids_by_image_name('sysdig/falco')) == 0):
             raise DagdaError('Sysdig/falco output file not found.')
 
         # Review sysdig/falco logs after rules parser
-        if not self.external_falco:
+        if not InternalServer.is_external_falco():
             sysdig_falco_logs = self.docker_driver.docker_logs(self.running_container_id, True, True, False)
             if "Rule " in sysdig_falco_logs:
                 SysdigFalcoMonitor._parse_log_and_show_dagda_warnings(sysdig_falco_logs)
@@ -166,10 +164,6 @@ class SysdigFalcoMonitor:
     # Gets running container id
     def get_running_container_id(self):
         return self.running_container_id
-
-    # Gets if it is an external sysdig/falco
-    def is_external_falco(self):
-        return self.external_falco
 
     # -- Private methods
 

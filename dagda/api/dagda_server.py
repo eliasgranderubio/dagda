@@ -91,7 +91,7 @@ class DagdaServer:
                     DagdaLogger.get_logger().warning('Runtime behaviour monitor disabled.')
                 except KeyboardInterrupt:
                     # Pressed CTRL+C to quit
-                    if not self.sysdig_falco_monitor.is_external_falco():
+                    if not InternalServer.is_external_falco():
                         InternalServer.get_docker_driver().docker_stop(self.sysdig_falco_monitor.get_running_container_id())
                         InternalServer.get_docker_driver().docker_remove_container(
                             self.sysdig_falco_monitor.get_running_container_id())

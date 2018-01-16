@@ -25,6 +25,8 @@ from analysis.static.dependencies import dep_info_extractor
 from analysis.static.av import malware_extractor
 from api.internal.internal_server import InternalServer
 from log.dagda_logger import DagdaLogger
+from analysis.static.util.utils import extract_filesystem_bundle
+from analysis.static.util.utils import clean_up
 
 
 # Analyzer class
@@ -55,16 +57,19 @@ class Analyzer:
         os_packages = []
         malware_binaries = []
         dependencies = None
+        temp_dir = None
         try:
-            # Get OS packages and malware binaries
+            # Get OS packages
             if container_id is None:  # Scans the docker image
                 os_packages = os_info_extractor.get_soft_from_docker_image(self.dockerDriver, image_name)
-                malware_binaries = malware_extractor.get_malware_included_in_docker_image(self.dockerDriver,
-                                                                                          image_name=image_name)
+                temp_dir = extract_filesystem_bundle(docker_driver=self.dockerDriver, image_name=image_name)
             else:  # Scans the docker container
                 os_packages = os_info_extractor.get_soft_from_docker_container_id(self.dockerDriver, container_id)
-                malware_binaries = malware_extractor.get_malware_included_in_docker_image(self.dockerDriver,
-                                                                                          container_id=container_id)
+                temp_dir = extract_filesystem_bundle(docker_driver=self.dockerDriver, container_id=container_id)
+
+            # Get malware binaries
+            malware_binaries = malware_extractor.get_malware_included_in_docker_image(self.dockerDriver,
+                                                                                      temp_dir=temp_dir)
 
             # Get programming language dependencies
             dependencies = dep_info_extractor.get_dependencies_from_docker_image(self.dockerDriver, image_name)
@@ -73,6 +78,10 @@ class Analyzer:
                 .format(type(ex).__name__,  ex.get_message() if type(ex).__name__ == 'DagdaError' else ex.args)
             DagdaLogger.get_logger().error(message)
             data['status'] = message
+
+        # -- Cleanup
+        if temp_dir is not None:
+            clean_up(temporary_dir=temp_dir)
 
         # -- Prepare output
         if dependencies is not None:

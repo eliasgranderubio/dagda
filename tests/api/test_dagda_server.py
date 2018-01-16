@@ -30,17 +30,6 @@ from api.dagda_server import DagdaServer
 
 class DagdaServerTestCase(unittest.TestCase):
 
-    def test_DagdaServer(self):
-        ds = DagdaServerWithoutSysdigFalcoMonitor('127.0.0.1', 55555)
-        new_pid = os.fork()
-        if new_pid == 0:
-            ds.run()
-        else:
-            time.sleep(2)
-            response = requests.get('http://127.0.0.1:55555/')
-            self.assertEqual(response.status_code, 404)
-            os.kill(new_pid, 9)
-
     def test_error_messages(self):
         ds = DagdaServerWithoutSysdigFalcoMonitor('127.0.0.1', 55555)
         bad_rs, bad_code = ds.bad_request()

@@ -90,8 +90,8 @@ class DockerDriver:
         return container.get('Id')
 
     # Docker pull
-    def docker_pull(self, image_name):
-        return self.cli.pull(image_name, tag='latest')
+    def docker_pull(self, image_name, tag='latest'):
+        return self.cli.pull(image_name, tag=tag)
 
     # Removes the docker image
     def docker_remove_image(self, image_name):

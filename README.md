@@ -558,6 +558,7 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                         {
                             "product": "xalan-java",
                             "version": "2.5.2",
+                            "product_file_path": "/opt/jboss/java/xalan.2.5.2.jar",
                             "is_vulnerable": true,
                             "is_false_positive": false,
                             "vulnerabilities": [
@@ -604,6 +605,7 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                         {
                             "product": "jboss_wildfly_application_server",
                             "version": "-",
+                            "product_file_path": "/opt/jboss/java/jboss_wildfly_application_server.jar",
                             "is_vulnerable": true,
                             "is_false_positive": false,
                             "vulnerabilities": [
@@ -639,6 +641,7 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                         , {
                             "product": "jboss_weld",
                             "version": "3.0.0",
+                            "product_file_path": "/opt/jboss/java/jboss_weld.3.0.0.jar",
                             "is_vulnerable": true,
                             "is_false_positive": false,
                             "vulnerabilities": [
@@ -678,6 +681,7 @@ The analysis can take several minutes for finishing, so be patient. If you typed
                         {
                             "product": "lxml",
                             "version": "1.0.1",
+                            "product_file_path": "/opt/jboss/python/lxml.1.0.1.py",
                             "is_vulnerable": true,
                             "is_false_positive": false,
                             "vulnerabilities": [

@@ -2,7 +2,7 @@ version: '2'
 services:
   dagda:
     build: .
-    image: dagda:0.7.0
+    image: 3grander/dagda:0.7.0
     container_name: dagda
     networks:
       - mdb

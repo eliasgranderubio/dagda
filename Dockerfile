@@ -1,9 +1,7 @@
-FROM python:3.4.5-alpine
+FROM python:3.6.4-alpine3.6
 COPY requirements.txt /opt/app/requirements.txt
 WORKDIR /opt/app
-RUN apk update && \
-    apk add --upgrade expat zlib && \
-    pip install -r requirements.txt
+RUN pip install -r requirements.txt
 COPY dagda /opt/app
 COPY ./dockerfiles/run.sh /
 RUN chmod +x /run.sh

@@ -37,7 +37,8 @@ def execute_dagda_cmd(cmd, args):
                          mongodb_ssl=args.is_mongodb_ssl_enabled(),
                          mongodb_user=args.get_mongodb_user(),
                          mongodb_pass=args.get_mongodb_pass(),
-                         falco_rules_filename=args.get_falco_rules_filename())
+                         falco_rules_filename=args.get_falco_rules_filename(),
+                         external_falco_output_filename=args.get_external_falco_output_filename())
         ds.run()
 
     # Executes agent sub-command

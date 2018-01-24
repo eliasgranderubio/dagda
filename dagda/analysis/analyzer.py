@@ -25,6 +25,8 @@ from analysis.static.dependencies import dep_info_extractor
 from analysis.static.av import malware_extractor
 from api.internal.internal_server import InternalServer
 from log.dagda_logger import DagdaLogger
+from analysis.static.util.utils import extract_filesystem_bundle
+from analysis.static.util.utils import clean_up
 
 
 # Analyzer class
@@ -55,24 +57,37 @@ class Analyzer:
         os_packages = []
         malware_binaries = []
         dependencies = None
+        temp_dir = None
         try:
-            # Get OS packages and malware binaries
+            # Get OS packages
             if container_id is None:  # Scans the docker image
-                os_packages = os_info_extractor.get_soft_from_docker_image(self.dockerDriver, image_name)
-                malware_binaries = malware_extractor.get_malware_included_in_docker_image(self.dockerDriver,
-                                                                                          image_name=image_name)
+                os_packages = os_info_extractor.get_soft_from_docker_image(docker_driver=self.dockerDriver,
+                                                                           image_name=image_name)
+                temp_dir = extract_filesystem_bundle(docker_driver=self.dockerDriver,
+                                                     image_name=image_name)
             else:  # Scans the docker container
-                os_packages = os_info_extractor.get_soft_from_docker_container_id(self.dockerDriver, container_id)
-                malware_binaries = malware_extractor.get_malware_included_in_docker_image(self.dockerDriver,
-                                                                                          container_id=container_id)
+                os_packages = os_info_extractor.get_soft_from_docker_container_id(docker_driver=self.dockerDriver,
+                                                                                  container_id=container_id)
+                temp_dir = extract_filesystem_bundle(docker_driver=self.dockerDriver,
+                                                     container_id=container_id)
+
+            # Get malware binaries
+            malware_binaries = malware_extractor.get_malware_included_in_docker_image(docker_driver=self.dockerDriver,
+                                                                                      temp_dir=temp_dir)
 
             # Get programming language dependencies
-            dependencies = dep_info_extractor.get_dependencies_from_docker_image(self.dockerDriver, image_name)
+            dependencies = dep_info_extractor.get_dependencies_from_docker_image(docker_driver=self.dockerDriver,
+                                                                                 image_name=image_name,
+                                                                                 temp_dir=temp_dir)
         except Exception as ex:
             message = "Unexpected exception of type {0} occured: {1!r}"\
                 .format(type(ex).__name__,  ex.get_message() if type(ex).__name__ == 'DagdaError' else ex.args)
             DagdaLogger.get_logger().error(message)
             data['status'] = message
+
+        # -- Cleanup
+        if temp_dir is not None:
+            clean_up(temporary_dir=temp_dir)
 
         # -- Prepare output
         if dependencies is not None:
@@ -111,6 +126,7 @@ class Analyzer:
             splitted_dep = dependency.split("#")
             d['product'] = splitted_dep[1]
             d['version'] = splitted_dep[2]
+            d['product_file_path'] = splitted_dep[3]
             d['vulnerabilities'] = self.get_vulnerabilities(d['product'], d['version'])
             d['is_vulnerable'] = True
             d['is_false_positive'] = self.is_fp(image_name, d['product'], d['version'])

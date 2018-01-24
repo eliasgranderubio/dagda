@@ -32,32 +32,32 @@ from cli.command.start_cli_parser import start_parser_text
 class StartCLIParserTestCase(unittest.TestCase):
 
     def test_ok_empty_args(self):
-        args = generate_args(None, None, None, None, False, None, None, None)
+        args = generate_args(None, None, None, None, False, None, None, None, None)
         status = StartCLIParser.verify_args(args)
         self.assertEqual(status, 0)
 
     def test_ok_server_ports(self):
-        args = generate_args(None, 5555, None, 27017, False, None, None, None)
+        args = generate_args(None, 5555, None, 27017, False, None, None, None, None)
         status = StartCLIParser.verify_args(args)
         self.assertEqual(status, 0)
 
     def test_fail_server_port(self):
-        args = generate_args(None, 65536, None, None, False, None, None, None)
+        args = generate_args(None, 65536, None, None, False, None, None, None, None)
         status = StartCLIParser.verify_args(args)
         self.assertEqual(status, 1)
 
     def test_fail_mongodb_port(self):
-        args = generate_args(None, None, None, 65536, False, None, None, None)
+        args = generate_args(None, None, None, 65536, False, None, None, None, None)
         status = StartCLIParser.verify_args(args)
         self.assertEqual(status, 2)
 
     def test_fail_only_mongodb_user(self):
-        args = generate_args(None, None, None, None, False, 'admin', None, None)
+        args = generate_args(None, None, None, None, False, 'admin', None, None, None)
         status = StartCLIParser.verify_args(args)
         self.assertEqual(status, 3)
 
     def test_fail_only_mongodb_pass(self):
-        args = generate_args(None, None, None, None, False, None, '1234', None)
+        args = generate_args(None, None, None, None, False, None, '1234', None, None)
         status = StartCLIParser.verify_args(args)
         self.assertEqual(status, 4)
 
@@ -67,11 +67,23 @@ class StartCLIParserTestCase(unittest.TestCase):
         with open(filename, 'a+') as f:
             f.write('{}$##')
             f.flush()
-        args = generate_args(None, None, None, None, False, None, None, open(filename, 'rb+'))
+        args = generate_args(None, None, None, None, False, None, None, open(filename, 'rb+'), None)
         status = StartCLIParser.verify_args(args)
         os.remove(filename)
         shutil.rmtree(temporary_dir)
         self.assertEqual(status, 5)
+
+    def test_fail_external_falco(self):
+        temporary_dir = tempfile.mkdtemp()
+        filename = temporary_dir + '/fail_falco_rules'
+        with open(filename, 'a+') as f:
+            f.write('{}$##')
+            f.flush()
+        args = generate_args(None, None, None, None, False, None, None, open(filename, 'rb+'), open(filename, 'rb+'))
+        status = StartCLIParser.verify_args(args)
+        os.remove(filename)
+        shutil.rmtree(temporary_dir)
+        self.assertEqual(status, 6)
 
     def test_start_full_happy_path(self):
         sys.argv = ['dagda.py', 'start', '-s', '127.0.0.1', '-p', '5000', '-m', '127.0.0.1', '-mp', '27017']
@@ -108,10 +120,11 @@ class StartCLIParserTestCase(unittest.TestCase):
 # -- Util methods
 
 def generate_args(server_host, server_port, mongodb_host, mongodb_port, mongodb_ssl, mongodb_user, mongodb_pass,
-                  falco_rules_file):
+                  falco_rules_file, external_falco):
     return AttrDict([('server_host', server_host), ('server_port', server_port), ('mongodb_host', mongodb_host),
                      ('mongodb_port', mongodb_port), ('mongodb_ssl', mongodb_ssl), ('mongodb_user', mongodb_user),
-                     ('mongodb_pass', mongodb_pass), ('falco_rules_file', falco_rules_file)])
+                     ('mongodb_pass', mongodb_pass), ('falco_rules_file', falco_rules_file),
+                     ('external_falco', external_falco)])
 
 
 # -- Util classes

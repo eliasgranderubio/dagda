@@ -40,9 +40,15 @@ def check_docker_by_image_name(image_name):
     try:
         pulled = False
         if not InternalServer.get_docker_driver().is_docker_image(image_name):
-            output = InternalServer.get_docker_driver().docker_pull(image_name)
+            if ':' in image_name:
+                tmp = image_name.split(':')[0]
+                tag = image_name.split(':')[1]
+                msg = 'Error: image library/' + image_name + ':' + tag + ' not found'
+                output = InternalServer.get_docker_driver().docker_pull(tmp, tag=tag)
+            else:
+                msg = 'Error: image library/' + image_name + ':latest not found'
+                output = InternalServer.get_docker_driver().docker_pull(image_name)
             if 'errorDetail' in output:
-                msg = 'Error: image library/'+ image_name + ':latest not found'
                 DagdaLogger.get_logger().error(msg)
                 raise DagdaError(msg)
             pulled = True

@@ -784,52 +784,51 @@ If you want review all your reports, see the [*history*](https://github.com/elia
 ```bash
     python3 dagda.py docker events
 ```
-See the [*docker* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#docker-sub-command) wiki page for details.
 
 The expected output looks like as shown below:
 ```json
-[
-    {
-        "Action": "attach",
-            "Actor": {
-                "Attributes": {
-                    "build-date": "20171128",
-                    "image": "jboss/wildfly",
-                    "license": "GPLv2",
-                    "name": "amazing_wilson",
-                    "vendor": "CentOS"
-                },
-                "ID": "73c5ed015df661ce799baa685a39c32125a47b71f3476e9d452adc381fb8114c"
-            },
-            "Type": "container",
-            "from": "jboss/wildfly",
-            "id": "73c5ed015df661ce799baa685a39c32125a47b71f3476e9d452adc381fb8114c",
-            "scope": "local",
-            "status": "attach",
-            "time": 1517323482,
-            "timeNano": 1517323482957358115
-        },
+    [
         {
-            "Action": "create",
-            "Actor": {
-                "Attributes": {
-                    "build-date": "20171128",
-                    "image": "jboss/wildfly",
-                    "license": "GPLv2",
-                    "name": "amazing_wilson",
-                    "vendor": "CentOS"
+            "Action": "attach",
+                "Actor": {
+                    "Attributes": {
+                        "build-date": "20171128",
+                        "image": "jboss/wildfly",
+                        "license": "GPLv2",
+                        "name": "amazing_wilson",
+                        "vendor": "CentOS"
+                    },
+                    "ID": "73c5ed015df661ce799baa685a39c32125a47b71f3476e9d452adc381fb8114c"
                 },
-                "ID": "73c5ed015df661ce799baa685a39c32125a47b71f3476e9d452adc381fb8114c"
+                "Type": "container",
+                "from": "jboss/wildfly",
+                "id": "73c5ed015df661ce799baa685a39c32125a47b71f3476e9d452adc381fb8114c",
+                "scope": "local",
+                "status": "attach",
+                "time": 1517323482,
+                "timeNano": 1517323482957358115
             },
-            "Type": "container",
-            "from": "jboss/wildfly",
-            "id": "73c5ed015df661ce799baa685a39c32125a47b71f3476e9d452adc381fb8114c",
-            "scope": "local",
-            "status": "create",
-            "time": 1517323482,
-            "timeNano": 1517323482944595092
-    }
-]
+            {
+                "Action": "create",
+                "Actor": {
+                    "Attributes": {
+                        "build-date": "20171128",
+                        "image": "jboss/wildfly",
+                        "license": "GPLv2",
+                        "name": "amazing_wilson",
+                        "vendor": "CentOS"
+                    },
+                    "ID": "73c5ed015df661ce799baa685a39c32125a47b71f3476e9d452adc381fb8114c"
+                },
+                "Type": "container",
+                "from": "jboss/wildfly",
+                "id": "73c5ed015df661ce799baa685a39c32125a47b71f3476e9d452adc381fb8114c",
+                "scope": "local",
+                "status": "create",
+                "time": 1517323482,
+                "timeNano": 1517323482944595092
+        }
+    ]
 ```
 
 If you want review all allowed filters for this command, see the [*docker*](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#docker-sub-command) command.

@@ -93,15 +93,12 @@ class DagdaDockerParser(argparse.ArgumentParser):
 docker_parser_text = '''usage: dagda.py docker [-h] <command> [--event_action ACTION] 
                   [--event_from FROM] [--event_type TYPE] 
 
-
 Your personal docker API.
-
 
 Dagda Commands:
   containers            list all running docker containers
   events                list all docker daemon events
   images                list all docker images
-
 
 Optional Arguments:
   -h, --help            show this help message and exit

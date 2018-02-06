@@ -109,6 +109,10 @@ class DockerDriver:
     def docker_stop(self, container_id):
         self.cli.stop(container=container_id)
 
+    # Gets docker daemon events
+    def docker_events(self):
+        return self.cli.events()
+
     # Gets docker client
     def get_docker_client(self):
         return self.cli

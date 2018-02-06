@@ -20,6 +20,7 @@
 import json
 import datetime
 from flask import Blueprint
+from flask import request
 from api.internal.internal_server import InternalServer
 
 # -- Global
@@ -59,6 +60,29 @@ def get_all_running_containers():
         c['name'] = container['Names'][0][1:]
         output.append(c)
     return json.dumps(output, sort_keys=True)
+
+
+# Gets docker daemon events
+@docker_api.route('/v1/docker/events', methods=['GET'])
+def get_docker_daemon_events():
+    # Init
+    event_from = request.args.get('event_from')
+    if not event_from:
+        event_from = None
+    event_type = request.args.get('event_type')
+    if not event_type:
+        event_type = None
+    event_action = request.args.get('event_action')
+    if not event_action:
+        event_action = None
+    # Run query
+    events = InternalServer.get_mongodb_driver().get_docker_events_daemon(op_from=event_from,
+                                                                          op_type=event_type,
+                                                                          op_action=event_action)
+    # Return
+    if len(events) == 0:
+        return json.dumps({'err': 404, 'msg': 'Docker daemon events not found'}, sort_keys=True), 404
+    return json.dumps(events, sort_keys=True)
 
 
 # -- Util methods

@@ -132,6 +132,13 @@ class MongoDbDriver:
         self.db.rhba_info.create_index([('rhba_id', pymongo.DESCENDING)])
         self.db.rhba_info.insert_many(rhba_info_list)
 
+    # Bulk insert the docker daemon events
+    def bulk_insert_docker_daemon_events(self, events):
+        self.db.docker_events.create_index([('from', pymongo.DESCENDING)])
+        self.db.docker_events.create_index([('Action', pymongo.DESCENDING)])
+        self.db.docker_events.create_index([('Type', pymongo.DESCENDING)])
+        self.db.docker_events.insert_many(events)
+
     # Bulk insert the sysdig/falco events
     def bulk_insert_sysdig_falco_events(self, events):
         sysdig_falco_events = []
@@ -230,6 +237,26 @@ class MongoDbDriver:
             last_bid = self.db.bid.find({}, {'product': 0, 'version': 0, '_id': 0})\
                                   .sort('bugtraq_id', pymongo.DESCENDING).limit(1)
             return last_bid[0]['bugtraq_id']
+
+    # Gets docker daemon events
+    def get_docker_events_daemon(self, op_from=None, op_action=None, op_type=None):
+        # Init
+        query = {}
+        if op_from is not None:
+            query['from'] = op_from
+        if op_action is not None:
+            query['Action'] = op_action
+        if op_type is not None:
+            query['Type'] = op_type
+        # Perform the query
+        cursor = self.db.docker_events.find(query, {'_id': 0}).sort("timeNano", pymongo.DESCENDING)
+        # Prepare output
+        events = []
+        for event in cursor:
+            if event is not None:
+                events.append(event)
+        # Return
+        return events
 
     # Gets the product vulnerabilities
     def get_vulnerabilities(self, product, version=None):

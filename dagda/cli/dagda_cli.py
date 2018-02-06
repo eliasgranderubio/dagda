@@ -142,7 +142,21 @@ def execute_dagda_cmd(cmd, args):
 
         # Executes docker sub-command
         elif cmd == 'docker':
-            r = requests.get(dagda_base_url + '/docker/' + args.get_command())
+            query_params = ''
+            if args.get_command() == 'events':
+                if args.get_event_action() or args.get_event_from() or args.get_event_type():
+                    query_params = '?'
+                    if args.get_event_action():
+                        query_params += 'event_action=' + args.get_event_action()
+                    if args.get_event_from():
+                        if query_params != '?':
+                            query_params += '&'
+                        query_params += 'event_from=' + args.get_event_from()
+                    if args.get_event_type():
+                        if query_params != '?':
+                            query_params += '&'
+                        query_params += 'event_type=' + args.get_event_type()
+            r = requests.get(dagda_base_url + '/docker/' + args.get_command() + query_params)
 
     # Return
     return r

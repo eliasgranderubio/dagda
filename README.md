@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/eliasgranderubio/dagda)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Feliasgranderubio%2Fdagda.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Feliasgranderubio%2Fdagda?ref=badge_shield)
 
-**Dagda** is a tool to perform static analysis of known vulnerabilities, trojans, viruses, malware & other malicious threats in docker images/containers and to monitor running docker containers for detecting anomalous activities.
+**Dagda** is a tool to perform static analysis of known vulnerabilities, trojans, viruses, malware & other malicious threats in docker images/containers and to monitor the docker daemon and running docker containers for detecting anomalous activities.
 
 In order to fulfill its mission, first the known vulnerabilities as CVEs (Common Vulnerabilities and Exposures), BIDs (Bugtraq IDs), RHSAs (Red Hat Security Advisories) and RHBAs (Red Hat Bug Advisories), and the known exploits from Offensive Security database are imported into a MongoDB to facilitate the search of these vulnerabilities and exploits when your analysis are in progress.
 
@@ -26,7 +26,7 @@ Then, when you run a static analysis of known vulnerabilities, **Dagda** retriev
   * ruby
   * php
 
-On the other hand, **Dagda** is integrated with [Sysdig Falco](http://www.sysdig.org/falco/) for monitoring running docker containers to detect anomalous activities.
+On the other hand, **Dagda** is integrated with [Sysdig Falco](http://www.sysdig.org/falco/) for monitoring running docker containers to detect anomalous activities. Also, **Dagda** includes the gathering of real time events from docker daemon.
 
 Finally, each analysis report of a docker image/container, included all static analysis and all runtime monitoring, is stored into the same MongoDB for having available the history of each docker image/container when it is needed.
 
@@ -40,6 +40,7 @@ Finally, each analysis report of a docker image/container, included all static a
      * [Analyzing docker images/containers](#analyzing-docker-imagescontainers)
        * [Performing static analysis of known vulnerabilities and other malicious threats](#performing-static-analysis-of-known-vulnerabilities-and-other-malicious-threats)
        * [Monitoring running containers for detecting anomalous activities](#monitoring-running-containers-for-detecting-anomalous-activities)
+     * [Getting docker daemon events](#getting-docker-daemon-events)
      * [Bonus Track: Quick Start with Docker](#bonus-track-quick-start-with-docker)
    * [Troubleshooting](#troubleshooting)
    * [Change Log](#change-log)
@@ -774,7 +775,65 @@ The expected output when you stop the monitoring over a running container looks 
   }
 ```
 
-If you want review all your reports, see the [*history*](#history-sub-command) command.
+If you want review all your reports, see the [*history*](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#history-sub-command) command.
+
+
+### Getting docker daemon events
+
+**Dagda** includes the gathering of real time events from docker daemon, so if you want get all docker daemon events, you must type:
+```bash
+    python3 dagda.py docker events
+```
+See the [*docker* sub-command](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#docker-sub-command) wiki page for details.
+
+The expected output looks like as shown below:
+```json
+[
+    {
+        "Action": "attach",
+            "Actor": {
+                "Attributes": {
+                    "build-date": "20171128",
+                    "image": "jboss/wildfly",
+                    "license": "GPLv2",
+                    "name": "amazing_wilson",
+                    "vendor": "CentOS"
+                },
+                "ID": "73c5ed015df661ce799baa685a39c32125a47b71f3476e9d452adc381fb8114c"
+            },
+            "Type": "container",
+            "from": "jboss/wildfly",
+            "id": "73c5ed015df661ce799baa685a39c32125a47b71f3476e9d452adc381fb8114c",
+            "scope": "local",
+            "status": "attach",
+            "time": 1517323482,
+            "timeNano": 1517323482957358115
+        },
+        {
+            "Action": "create",
+            "Actor": {
+                "Attributes": {
+                    "build-date": "20171128",
+                    "image": "jboss/wildfly",
+                    "license": "GPLv2",
+                    "name": "amazing_wilson",
+                    "vendor": "CentOS"
+                },
+                "ID": "73c5ed015df661ce799baa685a39c32125a47b71f3476e9d452adc381fb8114c"
+            },
+            "Type": "container",
+            "from": "jboss/wildfly",
+            "id": "73c5ed015df661ce799baa685a39c32125a47b71f3476e9d452adc381fb8114c",
+            "scope": "local",
+            "status": "create",
+            "time": 1517323482,
+            "timeNano": 1517323482944595092
+    }
+]
+```
+
+If you want review all allowed filters for this command, see the [*docker*](https://github.com/eliasgranderubio/dagda/wiki/CLI-Usage#docker-sub-command) command.
+
 
 ### Bonus Track: Quick Start with Docker
 

@@ -102,7 +102,8 @@ Dagda Commands:
   check                 perform the analysis of known vulnerabilities, trojans, 
                         viruses, malware & other malicious threats in docker 
                         images/containers
-  docker                list all docker images/containers
+  docker                list all docker images/containers and all docker daemon
+                        events
   history               retrieve the analysis history for the docker images
   monitor               perform the monitoring of anomalous activities in
                         running docker containers

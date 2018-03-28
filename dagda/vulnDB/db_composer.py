@@ -79,16 +79,16 @@ class DBComposer:
         self.mongoDbDriver.bulk_insert_exploit_db_info(exploit_db_info_list)
 
         # -- BID
-        # Adding BugTraqs from 20170507_sf_db.json.gz, where 98325 is the max bid in the gz file
+        # Adding BugTraqs from 20180328_sf_db.json.gz, where 103525 is the max bid in the gz file
         max_bid = self.mongoDbDriver.get_max_bid_inserted()
-        if max_bid < 98325:
+        if max_bid < 103525:
             # Clean
             if max_bid != 0:
                 self.mongoDbDriver.delete_bid_collection()
                 self.mongoDbDriver.delete_bid_info_collection()
             # Adding BIDs
             compressed_file = io.BytesIO(get_http_resource_content(
-                "https://github.com/eliasgranderubio/bidDB_downloader/raw/master/bonus_track/20170507_sf_db.json.gz"))
+                "https://github.com/eliasgranderubio/bidDB_downloader/raw/master/bonus_track/20180328_sf_db.json.gz"))
             bid_items_array, bid_detail_array = get_bug_traqs_lists_from_file(compressed_file)
             # Insert BIDs
             for bid_items_list in bid_items_array:
@@ -98,11 +98,11 @@ class DBComposer:
             self.mongoDbDriver.bulk_insert_bid_info(bid_detail_array)
             bid_detail_array.clear()
             # Set the new max bid
-            max_bid = 98325
+            max_bid = 103525
 
         # Updating BugTraqs from http://www.securityfocus.com/
         bid_items_array, bid_detail_array = get_bug_traqs_lists_from_online_mode(bid_downloader(first_bid=max_bid+1,
-                                                                                                last_bid=102000))
+                                                                                                last_bid=104000))
         # Insert BIDs
         if len(bid_items_array) > 0:
             for bid_items_list in bid_items_array:

@@ -66,6 +66,20 @@ class DagdaCLITestSuite(unittest.TestCase):
             err = DagdaCLITestSuite._get_path(err)
             self.assertEqual(err, '/v1/docker/images')
 
+    def test_dagda_docker_events_happy_path(self):
+        os.environ['DAGDA_HOST'] = str('localhost')
+        os.environ['DAGDA_PORT'] = str('50000')
+        sys.argv = ['dagda.py', 'docker', 'events', '--event_from', 'FROM',
+                                                    '--event_type', 'TYPE',
+                                                    '--event_action', 'ACTION']
+        parsed_args = DagdaCLIParser()
+        try:
+            execute_dagda_cmd(parsed_args.get_command(), parsed_args.get_extra_args())
+            self.fail()
+        except requests.exceptions.ConnectionError as err:
+            err = DagdaCLITestSuite._get_path(err)
+            self.assertEqual(err, '/v1/docker/events?event_action=ACTION&event_from=FROM&event_type=TYPE')
+
     def test_dagda_monitor_start_full_happy_path(self):
         os.environ['DAGDA_HOST'] = str('localhost')
         os.environ['DAGDA_PORT'] = str('50000')

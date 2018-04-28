@@ -302,6 +302,7 @@ def get_rhsa_and_rhba_lists_from_file(bz2_file):
                 affected_cpe_list = metadata.find("{http://oval.mitre.org/XMLSchema/oval-definitions-5}advisory") \
                                             .find("{http://oval.mitre.org/XMLSchema/oval-definitions-5}affected_cpe_list")
                 for cpe in affected_cpe_list:
+                  if cpe.text is not None:
                     info_item = {}
                     splitted_product = cpe.text.split(":")
                     info_item['vendor'] = splitted_product[2]

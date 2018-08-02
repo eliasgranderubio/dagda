@@ -19,6 +19,7 @@
 
 import io
 from datetime import date
+from log.dagda_logger import DagdaLogger
 from api.internal.internal_server import InternalServer
 from vulnDB.ext_source_util import get_bug_traqs_lists_from_file
 from vulnDB.ext_source_util import get_bug_traqs_lists_from_online_mode
@@ -47,10 +48,19 @@ class DBComposer:
 
     # Compose vuln DB
     def compose_vuln_db(self):
+        if InternalServer.is_debug_logging_enabled():
+            DagdaLogger.get_logger().debug('ENTRY to the method for composing VulnDB')
+
         # -- CVE
         # Adding or updating CVEs
+        if InternalServer.is_debug_logging_enabled():
+            DagdaLogger.get_logger().debug('Updating CVE collection ...')
+
         first_year = self.mongoDbDriver.remove_only_cve_for_update()
         for i in range(first_year, next_year):
+            if InternalServer.is_debug_logging_enabled():
+                DagdaLogger.get_logger().debug('... Including CVEs - ' + str(i))
+
             compressed_content = get_http_resource_content(
                 "https://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-" + str(i) + ".xml.gz")
             cve_list = get_cve_list_from_file(compressed_content, i)
@@ -68,8 +78,14 @@ class DBComposer:
             if len(cve_ext_info_list) > 0:
                 self.mongoDbDriver.bulk_insert_cves_info(cve_ext_info_list)
 
+        if InternalServer.is_debug_logging_enabled():
+            DagdaLogger.get_logger().debug('CVE collection updated')
+
         # -- Exploit DB
         # Adding or updating Exploit_db and Exploit_db info
+        if InternalServer.is_debug_logging_enabled():
+            DagdaLogger.get_logger().debug('Updating Exploit DB collection ...')
+
         self.mongoDbDriver.delete_exploit_db_collection()
         self.mongoDbDriver.delete_exploit_db_info_collection()
         csv_content = get_http_resource_content(
@@ -78,8 +94,14 @@ class DBComposer:
         self.mongoDbDriver.bulk_insert_exploit_db_ids(exploit_db_list)
         self.mongoDbDriver.bulk_insert_exploit_db_info(exploit_db_info_list)
 
+        if InternalServer.is_debug_logging_enabled():
+            DagdaLogger.get_logger().debug('Exploit DB collection updated')
+
         # -- BID
         # Adding BugTraqs from 20180328_sf_db.json.gz, where 103525 is the max bid in the gz file
+        if InternalServer.is_debug_logging_enabled():
+            DagdaLogger.get_logger().debug('Updating BugTraqs Id collection ...')
+
         max_bid = self.mongoDbDriver.get_max_bid_inserted()
         if max_bid < 103525:
             # Clean
@@ -113,8 +135,14 @@ class DBComposer:
             self.mongoDbDriver.bulk_insert_bid_info(bid_detail_array)
             bid_detail_array.clear()
 
+        if InternalServer.is_debug_logging_enabled():
+            DagdaLogger.get_logger().debug('BugTraqs Id collection updated')
+
         # -- RHSA (Red Hat Security Advisory) and RHBA (Red Hat Bug Advisory)
         # Adding or updating rhsa and rhba collections
+        if InternalServer.is_debug_logging_enabled():
+            DagdaLogger.get_logger().debug('Updating RHSA & RHBA collections ...')
+
         self.mongoDbDriver.delete_rhba_collection()
         self.mongoDbDriver.delete_rhba_info_collection()
         self.mongoDbDriver.delete_rhsa_collection()
@@ -125,3 +153,9 @@ class DBComposer:
         self.mongoDbDriver.bulk_insert_rhba(rhba_list)
         self.mongoDbDriver.bulk_insert_rhsa_info(rhsa_info_list)
         self.mongoDbDriver.bulk_insert_rhba_info(rhba_info_list)
+
+        if InternalServer.is_debug_logging_enabled():
+            DagdaLogger.get_logger().debug('RHSA & RHBA collections updated')
+
+        if InternalServer.is_debug_logging_enabled():
+            DagdaLogger.get_logger().debug('EXIT from the method for composing VulnDB')

@@ -31,6 +31,7 @@ class StartCLIParser:
     def __init__(self):
         super(StartCLIParser, self).__init__()
         self.parser = DagdaStartParser(prog='dagda.py start', usage=start_parser_text)
+        self.parser.add_argument('-d','--debug', action='store_true')
         self.parser.add_argument('-s', '--server_host', type=str)
         self.parser.add_argument('-p', '--server_port', type=int)
         self.parser.add_argument('-m', '--mongodb_host', type=str)
@@ -47,6 +48,10 @@ class StartCLIParser:
             exit(status)
 
     # -- Getters
+
+    # Gets if debug logging is required
+    def is_debug_logging_required(self):
+        return self.args.debug
 
     # Gets server host
     def get_server_host(self):
@@ -140,7 +145,7 @@ class DagdaStartParser(argparse.ArgumentParser):
 
 # Custom text
 
-start_parser_text = '''usage: dagda.py start [-h] [--server_host SERVER_HOST] [--server_port SERVER_PORT]
+start_parser_text = '''usage: dagda.py start [-h] [-d] [--server_host SERVER_HOST] [--server_port SERVER_PORT]
                   [--mongodb_host MONGODB_HOST] [--mongodb_port MONGODB_PORT]
                   [--mongodb_ssl] [--mongodb_user MONGODB_USER] [--mongodb_pass MONGODB_PASS]
                   [--falco_rules_file RULES_FILE] [--external_falco OUTPUT_FILE]
@@ -149,6 +154,7 @@ The Dagda server.
 
 Optional Arguments:
   -h, --help            show this help message and exit
+  -d, --debug           enable debug logging
 
   -s SERVER_HOST, --server_host SERVER_HOST
                         address/interface where the server binds itself. By

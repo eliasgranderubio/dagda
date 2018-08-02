@@ -25,8 +25,10 @@ import logging
 class DagdaLogger(logging.Logger):
 
     # -- Init
-    logging.basicConfig(format='<%(asctime)s> <%(levelname)s> <DagdaServer> <%(module)s> <%(message)s>')
+    logging.basicConfig(format='<%(asctime)s> <%(levelname)s> <DagdaServer> <%(module)s> <%(funcName)s:%(lineno)d> ' +
+                               '<%(message)s>')
     _logger = logging.getLogger('DagdaLogger')
+    _logger.setLevel('DEBUG')
 
     # -- Static methods
 

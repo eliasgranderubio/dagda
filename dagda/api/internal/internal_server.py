@@ -32,6 +32,7 @@ class InternalServer:
     _mongodb_driver = MongoDbDriver()
     _docker_driver = DockerDriver()
     _external_falco = False
+    _debug_logging = False
 
     # -- Static methods
 
@@ -82,3 +83,12 @@ class InternalServer:
         return InternalServer._external_falco or \
                len(InternalServer._docker_driver.get_docker_container_ids_by_image_name('sysdig/falco')) > 0
 
+    # Sets if debug logging is enabled
+    @staticmethod
+    def set_debug_logging_enabled(debug_logging):
+        InternalServer._debug_logging = debug_logging
+
+    # Is debug logging enabled
+    @staticmethod
+    def is_debug_logging_enabled():
+        return InternalServer._debug_logging

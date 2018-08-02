@@ -38,7 +38,8 @@ def execute_dagda_cmd(cmd, args):
                          mongodb_user=args.get_mongodb_user(),
                          mongodb_pass=args.get_mongodb_pass(),
                          falco_rules_filename=args.get_falco_rules_filename(),
-                         external_falco_output_filename=args.get_external_falco_output_filename())
+                         external_falco_output_filename=args.get_external_falco_output_filename(),
+                         debug_logging=args.is_debug_logging_required())
         ds.run()
 
     # Executes agent sub-command

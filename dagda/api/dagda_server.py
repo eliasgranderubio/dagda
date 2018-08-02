@@ -20,6 +20,7 @@
 import os
 import json
 import datetime
+import traceback
 from flask import Flask
 from flask_cors import CORS, cross_origin
 from api.internal.internal_server import InternalServer
@@ -55,10 +56,11 @@ class DagdaServer:
     # DagdaServer Constructor
     def __init__(self, dagda_server_host='127.0.0.1', dagda_server_port=5000, mongodb_host='127.0.0.1',
                  mongodb_port=27017, mongodb_ssl=False, mongodb_user=None, mongodb_pass=None,
-                 falco_rules_filename=None, external_falco_output_filename=None):
+                 falco_rules_filename=None, external_falco_output_filename=None, debug_logging=False):
         super(DagdaServer, self).__init__()
         self.dagda_server_host = dagda_server_host
         self.dagda_server_port = dagda_server_port
+        InternalServer.set_debug_logging_enabled(debug_logging)
         InternalServer.set_mongodb_driver(mongodb_host, mongodb_port, mongodb_ssl, mongodb_user, mongodb_pass)
         self.sysdig_falco_monitor = SysdigFalcoMonitor(InternalServer.get_docker_driver(),
                                                        InternalServer.get_mongodb_driver(),
@@ -150,6 +152,8 @@ class DagdaServer:
         except Exception as ex:
             message = "Unexpected exception of type {0} occured: {1!r}".format(type(ex).__name__,  ex.args)
             DagdaLogger.get_logger().error(message)
+            if InternalServer.is_debug_logging_enabled():
+                traceback.print_exc()
             InternalServer.get_mongodb_driver().insert_init_db_process_status(
                     {'status': message, 'timestamp': datetime.datetime.now().timestamp()})
 

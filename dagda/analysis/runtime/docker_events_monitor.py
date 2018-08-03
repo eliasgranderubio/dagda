@@ -19,6 +19,10 @@
 
 import json
 import requests
+import bson
+import traceback
+from log.dagda_logger import DagdaLogger
+from api.internal.internal_server import InternalServer
 
 
 # Docker daemon events monitor class
@@ -40,8 +44,19 @@ class DockerDaemonEventsMonitor:
             try:
                 for event in self.docker_driver.docker_events():
                     e = json.loads(event.decode('UTF-8').replace("\n", ""))
+                    if 'Actor' in e and 'Attributes' in e['Actor']:
+                        for key in e['Actor']['Attributes']:
+                            if '.' in key:
+                                del e['Actor']['Attributes'][key]
+                                break
                     # Bulk insert
                     self.mongodb_driver.bulk_insert_docker_daemon_events([e])
             except requests.packages.urllib3.exceptions.ReadTimeoutError:
                 # Nothing to do
                 pass
+            except bson.errors.InvalidDocument as ex:
+                message = "Unexpected exception of type {0} occured: {1!r}" \
+                    .format(type(ex).__name__, ex.get_message() if type(ex).__name__ == 'DagdaError' else ex.args)
+                DagdaLogger.get_logger().error(message)
+                if InternalServer.is_debug_logging_enabled():
+                    traceback.print_exc()

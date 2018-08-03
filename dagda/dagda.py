@@ -18,6 +18,7 @@
 #
 
 import json
+import traceback
 from cli.dagda_cli import execute_dagda_cmd
 from cli.dagda_cli_parser import DagdaCLIParser
 from log.dagda_logger import DagdaLogger
@@ -43,6 +44,7 @@ def main(parsed_args):
                 DagdaLogger.get_logger().error(str(err))
     except BaseException as err:
         DagdaLogger.get_logger().error(str(err))
+        traceback.print_exc()
 
 
 if __name__ == "__main__":

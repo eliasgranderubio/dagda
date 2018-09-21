@@ -23,6 +23,8 @@ import shutil
 import tempfile
 from tarfile import TarFile
 from tarfile import ReadError
+from api.internal.internal_server import InternalServer
+from log.dagda_logger import DagdaLogger
 
 
 # Prepare filesystem bundle
@@ -77,8 +79,15 @@ def _untar_layers(dir, layers):
     for member_name in output:
         try:
             tarfile.extract(output[member_name], path=dir, set_attrs=False)
-        except (ValueError, ReadError):
-            pass
+        except (ValueError, ReadError) as ex:
+            if InternalServer.is_debug_logging_enabled():
+                message = "Unexpected exception of type {0} occured while untaring the docker image: {1!r}" \
+                    .format(type(ex).__name__, ex.get_message() if type(ex).__name__ == 'DagdaError' else ex.args)
+                DagdaLogger.get_logger().debug(message)
+        except PermissionError as ex:
+            message = "Unexpected error occured while untaring the docker image: " + \
+                      "Operation not permitted on {0!r}".format(member_name)
+            DagdaLogger.get_logger().warn(message)
 
     # Clean up
     for layer in layers:

@@ -52,7 +52,11 @@ def check_docker_by_image_name(image_name):
                 DagdaLogger.get_logger().error(msg)
                 raise DagdaError(msg)
             pulled = True
-    except:
+    except Exception as ex:
+        if InternalServer.is_debug_logging_enabled():
+            message = "Unexpected exception of type {0} occured while pulling the docker image: {1!r}" \
+                .format(type(ex).__name__, ex.get_message() if type(ex).__name__ == 'DagdaError' else ex.args)
+            DagdaLogger.get_logger().debug(message)
         return json.dumps({'err': 404, 'msg': 'Image name not found'}, sort_keys=True), 404
 
     # -- Process request

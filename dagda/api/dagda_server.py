@@ -150,7 +150,7 @@ class DagdaServer:
             InternalServer.get_mongodb_driver().insert_init_db_process_status(
                 {'status': 'Updated', 'timestamp': datetime.datetime.now().timestamp()})
         except Exception as ex:
-            message = "Unexpected exception of type {0} occured: {1!r}".format(type(ex).__name__,  ex.args)
+            message = "Unexpected exception of type {0} occurred: {1!r}".format(type(ex).__name__,  ex.args)
             DagdaLogger.get_logger().error(message)
             if InternalServer.is_debug_logging_enabled():
                 traceback.print_exc()

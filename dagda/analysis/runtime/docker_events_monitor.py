@@ -55,7 +55,7 @@ class DockerDaemonEventsMonitor:
                 # Nothing to do
                 pass
             except bson.errors.InvalidDocument as ex:
-                message = "Unexpected exception of type {0} occured: {1!r}" \
+                message = "Unexpected exception of type {0} occurred: {1!r}" \
                     .format(type(ex).__name__, ex.get_message() if type(ex).__name__ == 'DagdaError' else ex.args)
                 DagdaLogger.get_logger().error(message)
                 if InternalServer.is_debug_logging_enabled():

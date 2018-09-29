@@ -1,9 +1,9 @@
-pymongo==3.3.1
-requests==2.11.1
-python-dateutil==2.6.0
-joblib==0.10.3
-docker==2.2.0
-Flask==0.11.1
-flask-cors==3.0.2
-PyYAML==3.12
+pymongo==3.7.1
+requests==2.19.1
+python-dateutil==2.7.3
+joblib==0.12.5
+docker==3.5.0
+Flask==1.0.2
+flask-cors==3.0.6
+PyYAML==3.13
 defusedxml==0.5.0

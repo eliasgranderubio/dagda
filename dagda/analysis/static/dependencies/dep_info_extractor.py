@@ -25,13 +25,14 @@ from exception.dagda_error import DagdaError
 
 # Gets programming languages dependencies from docker image
 def get_dependencies_from_docker_image(docker_driver, image_name, temp_dir):
+    # Init
+    filtered_image_name = image_name.replace(' ', '_').replace('/', '_').replace(':', '_')
     # Docker pull for ensuring the 3grander/4depcheck image
     docker_driver.docker_pull('3grander/4depcheck', '0.1.0')
     # Start container
     container_id = docker_driver.create_container('3grander/4depcheck:0.1.0',
-                                                  'python3 /opt/app/4depcheck.py ' +
-                                                    image_name.replace(' ', '_').replace('/', '_') + ' ' +
-                                                    temp_dir,
+                                                  'python3 /opt/app/4depcheck.py ' + filtered_image_name + ' ' +
+                                                   temp_dir,
                                                   [
                                                          temp_dir,
                                                          tempfile.gettempdir() + '/4depcheck'
@@ -47,7 +48,7 @@ def get_dependencies_from_docker_image(docker_driver, image_name, temp_dir):
     # Wait for 3grander/4depcheck
     docker_driver.docker_logs(container_id, True, False, True)
     # Get dependencies info
-    dependencies_info = json.loads(read_4depcheck_output_file(image_name))
+    dependencies_info = json.loads(read_4depcheck_output_file(filtered_image_name))
     # Stop container
     docker_driver.docker_stop(container_id)
     # Clean up
@@ -69,7 +70,6 @@ def get_filtered_dependencies_info(dependencies, temp_dir):
 
 # Reads the 4depcheck output file
 def read_4depcheck_output_file(image_name):
-    image_name = image_name.replace(' ', '_').replace('/', '_')
     filename = tempfile.gettempdir() + '/4depcheck/' + image_name + '.json'
 
     # Check file

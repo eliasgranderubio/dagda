@@ -76,24 +76,10 @@ class MockDockerDriver(DockerDriver):
         return self
 
     def get_image(self, image):
-        return generate_dict(base64.b64decode(mock_image_filesystem_bundle_base64))
+        return [base64.b64decode(mock_image_filesystem_bundle_base64)]
 
     def export(self, container):
-        return generate_dict(base64.b64decode(mock_container_filesystem_bundle_base64))
-
-
-# -- Util methods
-
-def generate_dict(data):
-    return AttrDict([('data', data)])
-
-
-# -- Util classes
-
-class AttrDict(dict):
-    def __init__(self, *args, **kwargs):
-        super(AttrDict, self).__init__(*args, **kwargs)
-        self.__dict__ = self
+        return [base64.b64decode(mock_container_filesystem_bundle_base64)]
 
 
 # -- Mock Constants

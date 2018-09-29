@@ -32,13 +32,14 @@ def extract_filesystem_bundle(docker_driver, container_id=None, image_name=None)
     temporary_dir = tempfile.mkdtemp()
     # Get and save filesystem bundle
     if container_id is not None:
-        data = docker_driver.get_docker_client().export(container=container_id).data
+        image = docker_driver.get_docker_client().export(container=container_id)
         name = container_id
     else:
-        data = docker_driver.get_docker_client().get_image(image=image_name).data
+        image = docker_driver.get_docker_client().get_image(image=image_name)
         name = image_name.replace('/', '_').replace(':', '_')
     with open(temporary_dir + "/" + name + ".tar", "wb") as file:
-        file.write(data)
+        for chunk in image:
+            file.write(chunk)
     # Untar filesystem bundle
     tarfile = TarFile(temporary_dir + "/" + name + ".tar")
     tarfile.extractall(temporary_dir)

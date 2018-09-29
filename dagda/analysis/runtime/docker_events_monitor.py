@@ -45,10 +45,10 @@ class DockerDaemonEventsMonitor:
                 for event in self.docker_driver.docker_events():
                     e = json.loads(event.decode('UTF-8').replace("\n", ""))
                     if 'Actor' in e and 'Attributes' in e['Actor']:
-                        for key in e['Actor']['Attributes']:
+                        iter = list(e['Actor']['Attributes'])
+                        for key in iter:
                             if '.' in key:
                                 del e['Actor']['Attributes'][key]
-                                break
                     # Bulk insert
                     self.mongodb_driver.bulk_insert_docker_daemon_events([e])
             except requests.packages.urllib3.exceptions.ReadTimeoutError:

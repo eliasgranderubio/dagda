@@ -344,13 +344,6 @@ class DagdaCLITestSuite(unittest.TestCase):
             err = DagdaCLITestSuite._get_path(err)
             self.assertEqual(err, '/v1/vuln/products/openldap')
 
-
-
-
-
-
-
-
     def test_empty_dagda_host_and_port_exit_1(self):
         try:
             del os.environ['DAGDA_HOST']
@@ -386,31 +379,3 @@ class DagdaCLITestSuite(unittest.TestCase):
     def _get_path(err):
         err = str(err)[81:]
         return err[:err.index(' ')]
-
-
-
-
-
-
-
-
-    #
-    #
-
-    #
-    # def test_dagda_start_full_happy_path(self):
-    #     sys.argv = ['dagda.py', 'start', '--server_host', 'localhost', '--server_port', '5555']
-    #     parsed_args = DagdaCLIParser()
-    #     self.assertEqual(parsed_args.get_command(), 'start')
-    #     self.assertEqual(parsed_args.get_extra_args().get_server_host(), 'localhost')
-    #     self.assertEqual(parsed_args.get_extra_args().get_server_port(), 5555)
-    #     self.assertEqual(parsed_args.get_extra_args().get_mongodb_host(), None)
-    #     self.assertEqual(parsed_args.get_extra_args().get_mongodb_port(), None)
-    #
-    # def test_dagda_agent_full_happy_path(self):
-    #     sys.argv = ['dagda.py', 'agent', 'localhost:5000', '-i', 'alpine']
-    #     parsed_args = DagdaCLIParser()
-    #     self.assertEqual(parsed_args.get_command(), 'agent')
-    #     self.assertEqual(parsed_args.get_extra_args().get_dagda_server(), 'localhost:5000')
-    #     self.assertEqual(parsed_args.get_extra_args().get_docker_image_name(), 'alpine')
-    #     self.assertEqual(parsed_args.get_extra_args().get_container_id(), None)

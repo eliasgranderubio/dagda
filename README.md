@@ -65,6 +65,7 @@ Before **Dagda** usage, you must have installed the next requirements:
   * Flask-cors
   * PyYAML
   * Defusedxml
+  * Waitress
 
 The requirements can be installed with pip:
 ```bash

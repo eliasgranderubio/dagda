@@ -55,19 +55,19 @@ class StartCLIParser:
 
     # Gets server host
     def get_server_host(self):
-        return self.args.server_host
+        return self.args.server_host if self.args.server_host is not None else '127.0.0.1'
 
     # Gets server port
     def get_server_port(self):
-        return self.args.server_port
+        return self.args.server_port if self.args.server_port is not None else 5000
 
     # Gets mongodb host
     def get_mongodb_host(self):
-        return self.args.mongodb_host
+        return self.args.mongodb_host if self.args.mongodb_host is not None else '127.0.0.1'
 
     # Gets mongodb port
     def get_mongodb_port(self):
-        return self.args.mongodb_port
+        return self.args.mongodb_port if self.args.mongodb_port is not None else 27017
 
     # Gets if mongodb ssl is enabled
     def is_mongodb_ssl_enabled(self):

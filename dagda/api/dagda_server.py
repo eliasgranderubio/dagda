@@ -21,6 +21,7 @@ import os
 import json
 import datetime
 import traceback
+from waitress import serve
 from flask import Flask
 from flask_cors import CORS, cross_origin
 from api.internal.internal_server import InternalServer
@@ -109,7 +110,7 @@ class DagdaServer:
                             InternalServer.get_docker_driver().docker_remove_container(
                                 self.sysdig_falco_monitor.get_running_container_id())
                 else:
-                    DagdaServer.app.run(debug=False, host=self.dagda_server_host, port=self.dagda_server_port)
+                    serve(DagdaServer.app, host=self.dagda_server_host, port=self.dagda_server_port)
 
     # -- Post process
 

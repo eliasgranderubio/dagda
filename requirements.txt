@@ -2,7 +2,7 @@ pymongo==3.7.1
 requests==2.20.1
 python-dateutil==2.7.3
 joblib==0.12.5
-docker==3.5.0
+docker==3.6.0
 Flask==1.0.2
 flask-cors==3.0.6
 PyYAML==3.13

@@ -19,6 +19,7 @@
 
 import io
 from datetime import date
+from threading import Thread
 from log.dagda_logger import DagdaLogger
 from api.internal.internal_server import InternalServer
 from vulnDB.ext_source_util import get_bug_traqs_lists_from_file
@@ -57,26 +58,15 @@ class DBComposer:
             DagdaLogger.get_logger().debug('Updating CVE collection ...')
 
         first_year = self.mongoDbDriver.remove_only_cve_for_update()
+        threads = list()
         for i in range(first_year, next_year):
-            if InternalServer.is_debug_logging_enabled():
-                DagdaLogger.get_logger().debug('... Including CVEs - ' + str(i))
+            tmp_thread = Thread(target=DBComposer._threaded_cve_gathering, args=(self.mongoDbDriver, i))
+            threads.append(tmp_thread)
+            tmp_thread.start()
 
-            compressed_content = get_http_resource_content(
-                "https://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-" + str(i) + ".xml.gz")
-            cve_list = get_cve_list_from_file(compressed_content, i)
-            if len(cve_list) > 0:
-                self.mongoDbDriver.bulk_insert_cves(cve_list)
-
-            # Add CVE info collection with additional info like score
-            compressed_content_info = get_http_resource_content("https://nvd.nist.gov/download/nvdcve-"
-                                                                + str(i) + ".xml.zip")
-            cve_info_list = get_cve_description_from_file(compressed_content_info)
-            compressed_ext_content_info = \
-                get_http_resource_content("https://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-"
-                                                                    + str(i) + ".xml.zip")
-            cve_ext_info_list = get_cve_cweid_from_file(compressed_ext_content_info, cve_info_list)
-            if len(cve_ext_info_list) > 0:
-                self.mongoDbDriver.bulk_insert_cves_info(cve_ext_info_list)
+        # Waiting for the threads
+        for i in threads:
+            i.join()
 
         if InternalServer.is_debug_logging_enabled():
             DagdaLogger.get_logger().debug('CVE collection updated')
@@ -97,47 +87,6 @@ class DBComposer:
         if InternalServer.is_debug_logging_enabled():
             DagdaLogger.get_logger().debug('Exploit DB collection updated')
 
-        # -- BID
-        # Adding BugTraqs from 20180328_sf_db.json.gz, where 103525 is the max bid in the gz file
-        if InternalServer.is_debug_logging_enabled():
-            DagdaLogger.get_logger().debug('Updating BugTraqs Id collection ...')
-
-        max_bid = self.mongoDbDriver.get_max_bid_inserted()
-        if max_bid < 103525:
-            # Clean
-            if max_bid != 0:
-                self.mongoDbDriver.delete_bid_collection()
-                self.mongoDbDriver.delete_bid_info_collection()
-            # Adding BIDs
-            compressed_file = io.BytesIO(get_http_resource_content(
-                "https://github.com/eliasgranderubio/bidDB_downloader/raw/master/bonus_track/20180328_sf_db.json.gz"))
-            bid_items_array, bid_detail_array = get_bug_traqs_lists_from_file(compressed_file)
-            # Insert BIDs
-            for bid_items_list in bid_items_array:
-                self.mongoDbDriver.bulk_insert_bids(bid_items_list)
-                bid_items_list.clear()
-            # Insert BID details
-            self.mongoDbDriver.bulk_insert_bid_info(bid_detail_array)
-            bid_detail_array.clear()
-            # Set the new max bid
-            max_bid = 103525
-
-        # Updating BugTraqs from http://www.securityfocus.com/
-        bid_items_array, bid_detail_array = get_bug_traqs_lists_from_online_mode(bid_downloader(first_bid=max_bid+1,
-                                                                                                last_bid=104000))
-        # Insert BIDs
-        if len(bid_items_array) > 0:
-            for bid_items_list in bid_items_array:
-                self.mongoDbDriver.bulk_insert_bids(bid_items_list)
-                bid_items_list.clear()
-        # Insert BID details
-        if len(bid_detail_array) > 0:
-            self.mongoDbDriver.bulk_insert_bid_info(bid_detail_array)
-            bid_detail_array.clear()
-
-        if InternalServer.is_debug_logging_enabled():
-            DagdaLogger.get_logger().debug('BugTraqs Id collection updated')
-
         # -- RHSA (Red Hat Security Advisory) and RHBA (Red Hat Bug Advisory)
         # Adding or updating rhsa and rhba collections
         if InternalServer.is_debug_logging_enabled():
@@ -157,5 +106,79 @@ class DBComposer:
         if InternalServer.is_debug_logging_enabled():
             DagdaLogger.get_logger().debug('RHSA & RHBA collections updated')
 
+        # -- BID
+        # Adding BugTraqs from 20180328_sf_db.json.gz, where 103525 is the max bid in the gz file
+        if InternalServer.is_debug_logging_enabled():
+            DagdaLogger.get_logger().debug('Updating BugTraqs Id collection ...')
+
+        max_bid = self.mongoDbDriver.get_max_bid_inserted()
+        bid_thread = Thread(target=DBComposer._threaded_preprocessed_bid_gathering, args=(self.mongoDbDriver, max_bid))
+        if max_bid < 103525:
+            bid_thread.start()
+            # Set the new max bid
+            max_bid = 103525
+
+        # Updating BugTraqs from http://www.securityfocus.com/
+        bid_items_array, bid_detail_array = get_bug_traqs_lists_from_online_mode(bid_downloader(first_bid=max_bid+1,
+                                                                                                last_bid=104000))
+        # Insert BIDs
+        if len(bid_items_array) > 0:
+            for bid_items_list in bid_items_array:
+                self.mongoDbDriver.bulk_insert_bids(bid_items_list)
+                bid_items_list.clear()
+        # Insert BID details
+        if len(bid_detail_array) > 0:
+            self.mongoDbDriver.bulk_insert_bid_info(bid_detail_array)
+            bid_detail_array.clear()
+
+        # Wait for bid_thread
+        if bid_thread.is_alive():
+            bid_thread.join()
+
+        if InternalServer.is_debug_logging_enabled():
+            DagdaLogger.get_logger().debug('BugTraqs Id collection updated')
+
         if InternalServer.is_debug_logging_enabled():
             DagdaLogger.get_logger().debug('EXIT from the method for composing VulnDB')
+
+    # Get CVEs thread
+    @staticmethod
+    def _threaded_cve_gathering(mongoDbDriver, i):
+        if InternalServer.is_debug_logging_enabled():
+            DagdaLogger.get_logger().debug('... Including CVEs - ' + str(i))
+
+        compressed_content = get_http_resource_content(
+            "https://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-" + str(i) + ".xml.gz")
+        cve_list = get_cve_list_from_file(compressed_content, i)
+        if len(cve_list) > 0:
+            mongoDbDriver.bulk_insert_cves(cve_list)
+
+        # Add CVE info collection with additional info like score
+        compressed_content_info = get_http_resource_content("https://nvd.nist.gov/download/nvdcve-"
+                                                            + str(i) + ".xml.zip")
+        cve_info_list = get_cve_description_from_file(compressed_content_info)
+        compressed_ext_content_info = \
+            get_http_resource_content("https://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-"
+                                      + str(i) + ".xml.zip")
+        cve_ext_info_list = get_cve_cweid_from_file(compressed_ext_content_info, cve_info_list)
+        if len(cve_ext_info_list) > 0:
+            mongoDbDriver.bulk_insert_cves_info(cve_ext_info_list)
+
+    # Get preprocessed BIDs thread
+    @staticmethod
+    def _threaded_preprocessed_bid_gathering(mongoDbDriver, max_bid):
+        # Clean
+        if max_bid != 0:
+            mongoDbDriver.delete_bid_collection()
+            mongoDbDriver.delete_bid_info_collection()
+        # Adding BIDs
+        compressed_file = io.BytesIO(get_http_resource_content(
+            "https://github.com/eliasgranderubio/bidDB_downloader/raw/master/bonus_track/20180328_sf_db.json.gz"))
+        bid_items_array, bid_detail_array = get_bug_traqs_lists_from_file(compressed_file)
+        # Insert BIDs
+        for bid_items_list in bid_items_array:
+            mongoDbDriver.bulk_insert_bids(bid_items_list)
+            bid_items_list.clear()
+        # Insert BID details
+        mongoDbDriver.bulk_insert_bid_info(bid_detail_array)
+        bid_detail_array.clear()

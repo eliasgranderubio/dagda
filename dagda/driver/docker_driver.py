@@ -51,7 +51,7 @@ class DockerDriver:
             containers = self.cli.containers()
             for c in containers:
                 if c['Image'] == image_name:
-                    ids = c['Id']
+                    ids.append(c['Id'])
         except NotFound:
             # Nothing to do
             pass

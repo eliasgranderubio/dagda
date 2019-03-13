@@ -848,6 +848,10 @@ Execute the following commands in the root folder of **Dagda** and then, the **D
     docker-compose up -d
 ```
 
+## Internal work flow
+
+![Dagda architecture](dagda_flow_of_process.svg)
+
 ## Troubleshooting
 
 Typically, Dagda works fine, but some scenarios can cause problems. If you get some issue, check the [Troubleshooting](https://github.com/eliasgranderubio/dagda/wiki/Troubleshooting) page for fixing it.

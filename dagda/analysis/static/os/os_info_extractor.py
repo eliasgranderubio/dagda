@@ -20,6 +20,7 @@
 import re
 import docker
 from exception.dagda_error import DagdaError
+from log.dagda_logger import DagdaLogger
 
 
 # Gets installed software on the OS from docker image
@@ -65,21 +66,20 @@ def get_soft_from_docker_container_id(docker_driver, container_id):
     # Extract Linux image distribution
     response = get_os_name(docker_driver.docker_exec(container_id, 'cat /etc/os-release', True, False))
     if response is None:
-        raise DagdaError('Linux image distribution has not the "/etc/os-release" file.')
+        DagdaLogger.get_logger().info('Linux image distribution has not the "/etc/os-release" file. Starting the task '
+                                      'for linux distribution identification in a blind mode ...')
+        products = get_os_software_packages_blind_mode(docker_driver, container_id)
     else:
         # Get all installed packages
         if 'Red Hat' in response or 'CentOS' in response or 'Fedora' in response or 'openSUSE' in response:
             # Red Hat/CentOS/Fedora/openSUSE
-            packages_info = docker_driver.docker_exec(container_id, 'rpm -aqi', True, False)
-            products = parse_rpm_output_list(packages_info)
+            products = get_os_software_packages(docker_driver, container_id, 'rpm -aqi', parse_rpm_output_list)
         elif 'Debian' in response or 'Ubuntu' in response:
             # Debian/Ubuntu
-            packages_info = docker_driver.docker_exec(container_id, 'dpkg -l', True, False)
-            products = parse_dpkg_output_list(packages_info)
+            products = get_os_software_packages(docker_driver, container_id, 'dpkg -l', parse_dpkg_output_list)
         elif 'Alpine' in response:
             # Alpine
-            packages_info = docker_driver.docker_exec(container_id, 'apk -v info', True, False)
-            products = parse_apk_output_list(packages_info)
+            products = get_os_software_packages(docker_driver, container_id, 'apk -v info', parse_apk_output_list)
         else:
             raise DagdaError('Linux image distribution not supported yet.')
     # Return packages
@@ -92,6 +92,28 @@ def get_os_name(os_release):
     for line in lines:
         if line.startswith('NAME='):
             return line
+
+
+# Get OS software packages
+def get_os_software_packages(docker_driver, container_id, cmd, parser_function):
+    packages_info = docker_driver.docker_exec(container_id, cmd, True, False)
+    return parser_function(packages_info)
+
+
+# Get OS software packages in a blind mode
+def get_os_software_packages_blind_mode(docker_driver, container_id):
+    supported_distributions = [{'cmd': 'rpm -aqi', 'parser': parse_rpm_output_list},
+                               {'cmd': 'dpkg -l', 'parser': parse_dpkg_output_list},
+                               {'cmd': 'apk -v info', 'parser': parse_apk_output_list}]
+    for supported_distribution in supported_distributions:
+        packages_info = docker_driver.docker_exec(container_id, supported_distribution['cmd'], True, False)
+        if packages_info is not None and 'exec failed' not in packages_info:
+            return supported_distribution['parser'](packages_info)
+
+    # The linux image has not a supported distribution or the image has not a package manager
+    DagdaLogger.get_logger().warn('Linux image distribution not found. The OS packages report is empty.')
+    # Return empty list
+    return []
 
 
 # Parses the rpm output returned by docker container (Red Hat/CentOS/Fedora/openSUSE)

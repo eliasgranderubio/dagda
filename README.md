@@ -43,6 +43,7 @@ Finally, each analysis report of a docker image/container, included all static a
        * [Monitoring running containers for detecting anomalous activities](#monitoring-running-containers-for-detecting-anomalous-activities)
      * [Getting docker daemon events](#getting-docker-daemon-events)
      * [Bonus Track: Quick Start with Docker](#bonus-track-quick-start-with-docker)
+   * [Internal workflows](#internal-workflows)
    * [Troubleshooting](#troubleshooting)
    * [Change Log](#change-log)
    * [Bugs and Feedback](#bugs-and-feedback)
@@ -848,9 +849,15 @@ Execute the following commands in the root folder of **Dagda** and then, the **D
     docker-compose up -d
 ```
 
+## Internal workflows
+
+Below, a 10,000 foot diagram about the **Dagda** internal workflows is shown:
+
+![Dagda_internal_workflows](https://raw.githubusercontent.com/eliasgranderubio/dagda/master/img/Dagda_internal_workflows.png)
+
 ## Troubleshooting
 
-Typically, Dagda works fine, but some scenarios can cause problems. If you get some issue, check the [Troubleshooting](https://github.com/eliasgranderubio/dagda/wiki/Troubleshooting) page for fixing it.
+Typically, **Dagda** works fine, but some scenarios can cause problems. If you get some issue, check the [Troubleshooting](https://github.com/eliasgranderubio/dagda/wiki/Troubleshooting) page for fixing it.
 
 ## Change Log
 

@@ -268,11 +268,13 @@ def get_rhsa_and_rhba_lists_from_file(bz2_file):
                     # Get RHSA (Red Hat Security Advisory)
                     if reference.attrib['source'] == 'RHSA':
                         rhsa_id = reference.attrib['ref_id']
-                        rhsa_id = rhsa_id[:rhsa_id.index("-", 5)]
+                        if "-" in rhsa_id[5:]:
+                            rhsa_id = rhsa_id[:rhsa_id.index("-", 5)]
                     # RHBA (Red Hat Bug Advisory)
                     if reference.attrib['source'] == 'RHBA':
                         rhba_id = reference.attrib['ref_id']
-                        rhba_id = rhba_id[:rhba_id.index("-", 5)]
+                        if "-" in rhba_id[5:]:
+                            rhba_id = rhba_id[:rhba_id.index("-", 5)]
                     # Get related CVEs
                     if reference.attrib['source'] == 'CVE':
                         cves.append(reference.attrib['ref_id'])

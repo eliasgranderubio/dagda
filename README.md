@@ -5,7 +5,6 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/3grander/dagda.svg)](https://hub.docker.com/r/3grander/dagda/)
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/eliasgranderubio/dagda)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Feliasgranderubio%2Fdagda.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Feliasgranderubio%2Fdagda?ref=badge_shield)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/eliasgranderubio)
 
 **Dagda** is a tool to perform static analysis of known vulnerabilities, trojans, viruses, malware & other malicious threats in docker images/containers and to monitor the docker daemon and running docker containers for detecting anomalous activities.
 
@@ -48,7 +47,6 @@ Finally, each analysis report of a docker image/container, included all static a
    * [Change Log](#change-log)
    * [Bugs and Feedback](#bugs-and-feedback)
    * [License](#license)
-   * [Donation](#donation)
 
 ## Requirements
 Before **Dagda** usage, you must have installed the next requirements:
@@ -869,10 +867,3 @@ For bugs, questions and discussions please use the [Github Issues](https://githu
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Feliasgranderubio%2Fdagda.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Feliasgranderubio%2Fdagda?ref=badge_large)
-
-
-## Donation
-
-If this project help you in your security analysis or into your CI/CD pipelines, you can invite me a cup of coffee :)
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/eliasgranderubio)

@@ -59,13 +59,10 @@ class MongoDbDriver:
         self.db.cve.create_index([('product', pymongo.DESCENDING)])
         self.db.cve.insert_many(products)
 
-    # Bulk insert the cve info dict format
-    def bulk_insert_cves_info(self, cves_info):
-        cves = []
-        for cve in cves_info:
-            cves.append(cves_info[cve])
+    # Bulk insert the cve info
+    def bulk_insert_cves_info(self, cves):
         # Bulk insert
-        self.db.cve_info.create_index([('cve', pymongo.DESCENDING)], default_language='none')
+        self.db.cve_info.create_index([('cveid', pymongo.DESCENDING)], default_language='none')
         self.db.cve_info.insert_many(cves)
 
     # Bulk insert the bid list with the next format: <BID-ID>#<product>#<version>

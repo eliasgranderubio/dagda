@@ -110,7 +110,7 @@ class DagdaServer:
                             InternalServer.get_docker_driver().docker_remove_container(
                                 self.sysdig_falco_monitor.get_running_container_id())
                 else:
-                    serve(DagdaServer.app, host=self.dagda_server_host, port=self.dagda_server_port)
+                    serve(DagdaServer.app, host=self.dagda_server_host, port=self.dagda_server_port, ident=None)
 
     # -- Post process
 

@@ -23,8 +23,6 @@ import re
 import requests
 import zlib
 import defusedxml.ElementTree as ET
-from zipfile import ZipFile
-import os
 from io import BytesIO
 import datetime
 import tarfile
@@ -59,79 +57,69 @@ def extract_vector(initial_vector):
 # Gets CVE list from compressed file
 def get_cve_list_from_file(compressed_content, year):
     cve_set = set()
-    xml_file_content = zlib.decompress(compressed_content, 16 + zlib.MAX_WBITS)
-    root = ET.fromstring(xml_file_content)
-    for entry in root.findall("{http://scap.nist.gov/schema/feed/vulnerability/2.0}entry"):
-        vuln_soft_list = entry.find("{http://scap.nist.gov/schema/vulnerability/0.4}vulnerable-software-list")
-        if vuln_soft_list is not None:
-            for vuln_product in vuln_soft_list.findall(
-                    "{http://scap.nist.gov/schema/vulnerability/0.4}product"):
-                splitted_product = vuln_product.text.split(":")
-                if len(splitted_product) > 4:
-                    item = entry.attrib.get("id") + "#" + splitted_product[2] + "#" + splitted_product[3] + "#" + \
-                           splitted_product[4] + "#" + str(year)
-                    if item not in cve_set:
-                        cve_set.add(item)
-    return list(cve_set)
+    cve_info_list = []
+    json_file_content = zlib.decompress(compressed_content, 16 + zlib.MAX_WBITS)
+    for cve in json.loads(json_file_content)['CVE_Items']:
+        cve_id = cve['cve']['CVE_data_meta']['ID']
+        for node in cve['configurations']['nodes']:
+            def get_cpe_match(node, cve_id, year):
+                output_set = set()
+                if 'children' in node:
+                    for child in node['children']:
+                        temp_set = get_cpe_match(child, cve_id, year)
+                        output_set = output_set.union(temp_set)
+                if 'cpe_match' in node:
+                    for cpe in node['cpe_match']:
+                        splitted_product = cpe['cpe23Uri'].split(":")
+                        if len(splitted_product) > 4:
+                            item = cve_id + "#" + splitted_product[3] + "#" + splitted_product[4] + "#" + \
+                                   splitted_product[5] + "#" + str(year)
+                            output_set.add(item)
+                return output_set
+            cve_set = get_cpe_match(node, cve_id, year)
 
-
-# Gets description from CVE compresed files
-def get_cve_description_from_file(compressed_content):
-    cve_info_set = {}
-    zip_file = ZipFile(BytesIO(compressed_content))
-    filename = zip_file.extract(zip_file.filelist[0])
-    root = ET.parse(filename).getroot()
-    os.remove(filename)
-    for child in root:
+        # Get CVE info
         try:
-            cveid = child.attrib['name']
-            aux = child.attrib['published'].split('-')
+            cveid = cve_id
+            aux = cve['publishedDate'].split('T')[0].split('-')
             pub_date = datetime.datetime(int(aux[0]), int(aux[1]), int(aux[2]))
-            aux = child.attrib['modified'].split('-')
+            aux = cve['lastModifiedDate'].split('T')[0].split('-')
             mod_date = datetime.datetime(int(aux[0]), int(aux[1]), int(aux[2]))
-            cvss_base = float(child.attrib['CVSS_base_score'])
-            cvss_impact = float(child.attrib['CVSS_impact_subscore'])
-            cvss_exploit = float(child.attrib['CVSS_exploit_subscore'])
-            vector, features = extract_vector(child.attrib['CVSS_vector'])
-            summary = child[0][0].text
-            cve_info_set[cveid] = {"cveid": cveid,
-                                    "pub_date": pub_date,
-                                    "mod_date": mod_date,
-                                    "summary": summary,
-                                    "cvss_base": cvss_base,
-                                    "cvss_impact": cvss_impact,
-                                    "cvss_exploit": cvss_exploit,
-                                    "cvss_access_vector": features[0],
-                                    "cvss_access_complexity": features[1],
-                                    "cvss_authentication": features[2],
-                                    "cvss_confidentiality_impact": features[3],
-                                    "cvss_integrity_impact": features[4],
-                                    "cvss_availability_impact": features[5],
-                                    "cvss_vector": vector,
-                                    "cweid": "CWE-0"
-                                    }
+            cvss_base = float(cve['impact']['baseMetricV2']['cvssV2']['baseScore'])
+            cvss_impact = float(cve['impact']['baseMetricV2']['impactScore'])
+            cvss_exploit = float(cve['impact']['baseMetricV2']['exploitabilityScore'])
+            vector = cve['impact']['baseMetricV2']['cvssV2']['vectorString']
+            access_vector = cve['impact']['baseMetricV2']['cvssV2']['accessVector']
+            access_complexity = cve['impact']['baseMetricV2']['cvssV2']['accessComplexity']
+            authentication = cve['impact']['baseMetricV2']['cvssV2']['authentication']
+            confidentiality_impact = cve['impact']['baseMetricV2']['cvssV2']['confidentialityImpact']
+            integrity_impact = cve['impact']['baseMetricV2']['cvssV2']['integrityImpact']
+            availability_impact = cve['impact']['baseMetricV2']['cvssV2']['availabilityImpact']
+            summary = cve['cve']['description']['description_data'][0]['value']
+            cweid = cve['cve']['problemtype']['problemtype_data'][0]['description'][0]['value']
+            cve_info = {
+                "cveid": cveid,
+                "pub_date": pub_date,
+                "mod_date": mod_date,
+                "summary": summary,
+                "cvss_base": cvss_base,
+                "cvss_impact": cvss_impact,
+                "cvss_exploit": cvss_exploit,
+                "cvss_access_vector": access_vector,
+                "cvss_access_complexity": access_complexity,
+                "cvss_authentication": authentication,
+                "cvss_confidentiality_impact": confidentiality_impact,
+                "cvss_integrity_impact": integrity_impact,
+                "cvss_availability_impact": availability_impact,
+                "cvss_vector": vector,
+                "cweid": cweid
+            }
+            cve_info_list.append(cve_info)
         except KeyError:
             # Any error continue
             pass
-    return dict(cve_info_set)
 
-
-# Update cweid info at cve description
-def get_cve_cweid_from_file(compressed_content, cve_dict):
-    zip = ZipFile(BytesIO(compressed_content))
-    zip_file = ZipFile(BytesIO(compressed_content))
-    filename = zip_file.extract(zip_file.filelist[0])
-    root = ET.parse(filename).getroot()
-    os.remove(filename)
-    cwe_ns = "{http://scap.nist.gov/schema/vulnerability/0.4}"
-    default_ns = "{http://scap.nist.gov/schema/feed/vulnerability/2.0}"
-    for entry in root.findall('{ns}entry'.format(ns=default_ns)):
-        id = entry.attrib["id"]
-        cwe = entry.find('{nsd}cwe'.format(nsd=cwe_ns))
-        if cwe is not None:
-            if id in cve_dict.keys():
-                cve_dict[id]["cweid"] = str(cwe.attrib["id"])
-    return dict(cve_dict)
+    return list(cve_set), cve_info_list
 
 
 # Gets Exploit_db list from csv file
@@ -266,12 +254,12 @@ def get_rhsa_and_rhba_lists_from_file(bz2_file):
                 cves = []
                 for reference in metadata.findall("{http://oval.mitre.org/XMLSchema/oval-definitions-5}reference"):
                     # Get RHSA (Red Hat Security Advisory)
-                    if reference.attrib['source'] == 'RHSA':
+                    if 'RHSA' in reference.attrib['ref_id']:
                         rhsa_id = reference.attrib['ref_id']
                         if "-" in rhsa_id[5:]:
                             rhsa_id = rhsa_id[:rhsa_id.index("-", 5)]
                     # RHBA (Red Hat Bug Advisory)
-                    if reference.attrib['source'] == 'RHBA':
+                    if 'RHBA' in reference.attrib['ref_id']:
                         rhba_id = reference.attrib['ref_id']
                         if "-" in rhba_id[5:]:
                             rhba_id = rhba_id[:rhba_id.index("-", 5)]

@@ -28,8 +28,6 @@ from vulnDB.ext_source_util import get_cve_list_from_file
 from vulnDB.ext_source_util import get_exploit_db_list_from_csv
 from vulnDB.ext_source_util import get_http_resource_content
 from vulnDB.bid_downloader import bid_downloader
-from vulnDB.ext_source_util import get_cve_description_from_file
-from vulnDB.ext_source_util import get_cve_cweid_from_file
 from vulnDB.ext_source_util import get_rhsa_and_rhba_lists_from_file
 
 
@@ -148,19 +146,10 @@ class DBComposer:
             DagdaLogger.get_logger().debug('... Including CVEs - ' + str(i))
 
         compressed_content = get_http_resource_content(
-            "https://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-" + str(i) + ".xml.gz")
-        cve_list = get_cve_list_from_file(compressed_content, i)
+            "https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-" + str(i) + ".json.gz")
+        cve_list, cve_ext_info_list = get_cve_list_from_file(compressed_content, i)
         if len(cve_list) > 0:
             mongoDbDriver.bulk_insert_cves(cve_list)
-
-        # Add CVE info collection with additional info like score
-        compressed_content_info = get_http_resource_content("https://nvd.nist.gov/download/nvdcve-"
-                                                            + str(i) + ".xml.zip")
-        cve_info_list = get_cve_description_from_file(compressed_content_info)
-        compressed_ext_content_info = \
-            get_http_resource_content("https://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-"
-                                      + str(i) + ".xml.zip")
-        cve_ext_info_list = get_cve_cweid_from_file(compressed_ext_content_info, cve_info_list)
         if len(cve_ext_info_list) > 0:
             mongoDbDriver.bulk_insert_cves_info(cve_ext_info_list)
 

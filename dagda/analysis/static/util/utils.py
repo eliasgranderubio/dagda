@@ -76,19 +76,17 @@ def _untar_layers(dir, layers):
     for layer in layers:
         tarfile = TarFile(dir + "/" + layer)
         for member in tarfile.getmembers():
-            output[member.name] = member
-    for member_name in output:
-        try:
-            tarfile.extract(output[member_name], path=dir, set_attrs=False)
-        except (ValueError, ReadError) as ex:
-            if InternalServer.is_debug_logging_enabled():
-                message = "Unexpected exception of type {0} occurred while untaring the docker image: {1!r}" \
-                    .format(type(ex).__name__, ex.get_message() if type(ex).__name__ == 'DagdaError' else ex.args)
-                DagdaLogger.get_logger().debug(message)
-        except PermissionError as ex:
-            message = "Unexpected error occurred while untaring the docker image: " + \
-                      "Operation not permitted on {0!r}".format(member_name)
-            DagdaLogger.get_logger().warn(message)
+            try:
+                tarfile.extract(member, path=dir, set_attrs=False)
+            except (ValueError, ReadError) as ex:
+                if InternalServer.is_debug_logging_enabled():
+                    message = "Unexpected exception of type {0} occurred while untaring the docker image: {1!r}" \
+                        .format(type(ex).__name__, ex.get_message() if type(ex).__name__ == 'DagdaError' else ex.args)
+                    DagdaLogger.get_logger().debug(message)
+            except PermissionError as ex:
+                message = "Unexpected error occurred while untaring the docker image: " + \
+                          "Operation not permitted on {0!r}".format(member.name)
+                DagdaLogger.get_logger().warn(message)
 
     # Clean up
     for layer in layers:

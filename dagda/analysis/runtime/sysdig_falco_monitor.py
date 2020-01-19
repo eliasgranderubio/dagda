@@ -87,11 +87,11 @@ class SysdigFalcoMonitor:
             if self.docker_driver.get_docker_client() is None:
                 raise DagdaError('Error while fetching Docker server API version.')
 
-            # Docker pull for ensuring the sysdig/falco image
-            self.docker_driver.docker_pull('sysdig/falco')
+            # Docker pull for ensuring the falcosecurity/falco image
+            self.docker_driver.docker_pull('falcosecurity/falco', tag='0.18.0')
 
             # Stops sysdig/falco containers if there are any
-            container_ids = self.docker_driver.get_docker_container_ids_by_image_name('sysdig/falco')
+            container_ids = self.docker_driver.get_docker_container_ids_by_image_name('falcosecurity/falco:0.18.0')
             if len(container_ids) > 0:
                 for container_id in container_ids:
                     self.docker_driver.docker_stop(container_id)
@@ -126,8 +126,8 @@ class SysdigFalcoMonitor:
         # Check output file and running docker container
         if not os.path.isfile(SysdigFalcoMonitor._falco_output_filename) or \
             (not InternalServer.is_external_falco() and \
-            len(self.docker_driver.get_docker_container_ids_by_image_name('sysdig/falco')) == 0):
-            raise DagdaError('Sysdig/falco output file not found.')
+            len(self.docker_driver.get_docker_container_ids_by_image_name('falcosecurity/falco:0.18.0')) == 0):
+            raise DagdaError('Falcosecurity/falco output file not found.')
 
         # Review sysdig/falco logs after rules parser
         if not InternalServer.is_external_falco():
@@ -146,14 +146,18 @@ class SysdigFalcoMonitor:
                 for line in content:
                     line = line.decode('utf-8').replace("\n", "")
                     json_data = json.loads(line)
-                    container_id = json_data['output'].split(" (id=")[1].replace(")", "")
+                    container_id = json_data['output_fields']['container.id']
                     if container_id != 'host':
                         try:
-                            image_name = self.docker_driver.get_docker_image_name_by_container_id(container_id)
                             json_data['container_id'] = container_id
-                            json_data['image_name'] = image_name
+                            json_data['image_name'] = json_data['output_fields']['container.image.repository']
+                            if 'container.image.tag' in json_data['output_fields']:
+                                json_data['image_name'] += ":" + json_data['output_fields']['container.image.tag']
                             sysdig_falco_events.append(json_data)
                         except IndexError:
+                            # The /tmp/falco_output.json file had information about ancient events, so nothing to do
+                            pass
+                        except KeyError:
                             # The /tmp/falco_output.json file had information about ancient events, so nothing to do
                             pass
                 last_file_position = fbuf.tell()
@@ -170,7 +174,7 @@ class SysdigFalcoMonitor:
     # Starts Sysdig falco container
     def _start_container(self, entrypoint=None):
         # Start container
-        container_id = self.docker_driver.create_container('sysdig/falco',
+        container_id = self.docker_driver.create_container('falcosecurity/falco:0.18.0',
                                                            entrypoint,
                                                            [
                                                               '/host/var/run/docker.sock',

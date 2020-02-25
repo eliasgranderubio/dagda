@@ -26,7 +26,7 @@ Then, when you run a static analysis of known vulnerabilities, **Dagda** retriev
   * ruby
   * php
 
-On the other hand, **Dagda** is integrated with [Sysdig Falco](http://www.sysdig.org/falco/) for monitoring running docker containers to detect anomalous activities. Also, **Dagda** includes the gathering of real time events from docker daemon.
+On the other hand, **Dagda** is integrated with [Falco](https://falco.org/) for monitoring running docker containers to detect anomalous activities. Also, **Dagda** includes the gathering of real time events from docker daemon.
 
 Finally, each analysis report of a docker image/container, included all static analysis and all runtime monitoring, is stored into the same MongoDB for having available the history of each docker image/container when it is needed.
 
@@ -91,7 +91,7 @@ You can also run MongoDB using docker:
 
 ### Installation of kernel headers in the host OS
 
-You must have installed the kernel headers in the host OS because **Dagda** is integrated with [Sysdig Falco](http://www.sysdig.org/falco/) for monitoring running docker containers to detect anomalous activities.
+You must have installed the kernel headers in the host OS because **Dagda** is integrated with [Falco](https://falco.org/) for monitoring running docker containers to detect anomalous activities.
 
 This can usually be done on Debian-like distributions with: `apt-get -y install linux-headers-$(uname -r)`
 
@@ -102,7 +102,7 @@ After that, run the command `/usr/lib/dkms/dkms_autoinstaller start` is recommen
 rmmod: ERROR: Module sysdig_probe is not currently loaded
 ```
 
-**Important to note:** In some distributions it has been detected that [Sysdig](http://www.sysdig.org/) installation is required, so if you need instructions for Sysdig installation, see the [How-to install Sysdig for Linux](https://github.com/draios/sysdig/wiki/How-to-Install-Sysdig-for-Linux) page.
+**Important to note:** In some distributions it has been detected that [Sysdig](http://sysdig.com/) installation is required, so if you need instructions for Sysdig installation, see the [How-to install Sysdig for Linux](https://github.com/draios/sysdig/wiki/How-to-Install-Sysdig-for-Linux) page.
 
 ## Usage
 

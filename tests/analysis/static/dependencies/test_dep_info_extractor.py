@@ -20,6 +20,7 @@
 import unittest
 import json
 import os
+import tempfile
 from dagda.analysis.static.dependencies.dep_info_extractor import get_filtered_dependencies_info
 from dagda.analysis.static.dependencies.dep_info_extractor import read_4depcheck_output_file
 
@@ -29,7 +30,8 @@ from dagda.analysis.static.dependencies.dep_info_extractor import read_4depcheck
 class DepInfoExtractorTestSuite(unittest.TestCase):
 
     def test_raw_info_to_json_array(self):
-        filtered_dep = get_filtered_dependencies_info(json.loads(mock_json_array), '/tmp/sdgas68kg')
+        filtered_dep = get_filtered_dependencies_info(
+            json.loads(mock_json_array), os.path.join(tempfile.gettempdir(), 'sdgas68kg'))
         self.assertEqual(len(filtered_dep), 3)
         self.assertTrue('python#lxml#1.0.1#/tmp/lxml.1.0.1.py' in filtered_dep)
         self.assertTrue('java#cxf#2.6.0#/tmp/cxf.2.6.0.jar' in filtered_dep)
@@ -41,21 +43,21 @@ class DepInfoExtractorTestSuite(unittest.TestCase):
             read_4depcheck_output_file('no_image_name')
         except Exception as ex:
             msg = ex.get_message()
-        self.assertEqual(msg, '4depcheck output file [/tmp/4depcheck/no_image_name.json] not found.')
+        self.assertEqual(msg, '4depcheck output file [' + tempfile.gettempdir() + '/4depcheck/no_image_name.json] not found.')
 
     def test_read_4depcheck_empty_output_file(self):
         # Prepare test
         try:
-            os.makedirs('/tmp/4depcheck')
+            os.makedirs(os.path.join(tempfile.gettempdir(), '4depcheck'))
             created = True
         except OSError:
             created = False
-        with open('/tmp/4depcheck/empty_output_file.json', 'w') as f:
-            None
+        with open(os.path.join(tempfile.gettempdir(), '4depcheck', 'empty_output_file.json'), 'w') as f:
+            pass
         # Run
         raw_info = read_4depcheck_output_file('empty_output_file')
         # Clean up
-        os.remove('/tmp/4depcheck/empty_output_file.json')
+        os.remove(os.path.join(tempfile.gettempdir(), '4depcheck', 'empty_output_file.json'))
         if created:
             os.removedirs('/tmp/4depcheck')
         # Check

@@ -26,6 +26,7 @@ import defusedxml.ElementTree as ET
 from io import BytesIO
 import datetime
 import tarfile
+import bz2
 
 
 ACCESS_VECTOR = {'L': 'Local access', 'A': 'Adjacent Network', 'N': 'Network'}
@@ -228,9 +229,11 @@ def parse_bid_from_json(json_data, items):
 
 
 # Gets RHSA (Red Hat Security Advisory) and RHBA (Red Hat Bug Advisory) lists from bz2 file
+# This is expected to be a unified OVAL definitions XML file.
+# See https://www.redhat.com/security/data/metrics/ for details.
 def get_rhsa_and_rhba_lists_from_file(bz2_file):
     # Init
-    tar = tarfile.open(mode='r:bz2', fileobj=BytesIO(bz2_file))
+    xml_file_content = bz2.decompress(bz2_file)
     rhsa_list = []
     rhsa_id_list = []
     rhba_list = []
@@ -239,82 +242,79 @@ def get_rhsa_and_rhba_lists_from_file(bz2_file):
     rhsa_info_id_list = []
     rhba_info_list = []
     rhba_info_id_list = []
-    for xml_file in tar.getmembers():
-        if xml_file.size > 0:
-            xml_file_content = tar.extractfile(xml_file.name)
-            root = ET.parse(xml_file_content).getroot().find('{http://oval.mitre.org/XMLSchema/oval-definitions-5}definitions')
-            for entry in root.findall('{http://oval.mitre.org/XMLSchema/oval-definitions-5}definition'):
-                # Init
-                metadata = entry.find('{http://oval.mitre.org/XMLSchema/oval-definitions-5}metadata')
-                detail_info = {}
+    root = ET.parse(xml_file_content).getroot().find('{http://oval.mitre.org/XMLSchema/oval-definitions-5}definitions')
+    for entry in root.findall('{http://oval.mitre.org/XMLSchema/oval-definitions-5}definition'):
+        # Init
+        metadata = entry.find('{http://oval.mitre.org/XMLSchema/oval-definitions-5}metadata')
+        detail_info = {}
 
-                # Get IDs
-                rhsa_id = None
-                rhba_id = None
-                cves = []
-                for reference in metadata.findall("{http://oval.mitre.org/XMLSchema/oval-definitions-5}reference"):
-                    # Get RHSA (Red Hat Security Advisory)
-                    if 'RHSA' in reference.attrib['ref_id']:
-                        rhsa_id = reference.attrib['ref_id']
-                        if "-" in rhsa_id[5:]:
-                            rhsa_id = rhsa_id[:rhsa_id.index("-", 5)]
-                    # RHBA (Red Hat Bug Advisory)
-                    if 'RHBA' in reference.attrib['ref_id']:
-                        rhba_id = reference.attrib['ref_id']
-                        if "-" in rhba_id[5:]:
-                            rhba_id = rhba_id[:rhba_id.index("-", 5)]
-                    # Get related CVEs
-                    if reference.attrib['source'] == 'CVE':
-                        cves.append(reference.attrib['ref_id'])
+        # Get IDs
+        rhsa_id = None
+        rhba_id = None
+        cves = []
+        for reference in metadata.findall("{http://oval.mitre.org/XMLSchema/oval-definitions-5}reference"):
+            # Get RHSA (Red Hat Security Advisory)
+            if 'RHSA' in reference.attrib['ref_id']:
+                rhsa_id = reference.attrib['ref_id']
+                if "-" in rhsa_id[5:]:
+                    rhsa_id = rhsa_id[:rhsa_id.index("-", 5)]
+            # RHBA (Red Hat Bug Advisory)
+            if 'RHBA' in reference.attrib['ref_id']:
+                rhba_id = reference.attrib['ref_id']
+                if "-" in rhba_id[5:]:
+                    rhba_id = rhba_id[:rhba_id.index("-", 5)]
+            # Get related CVEs
+            if reference.attrib['source'] == 'CVE':
+                cves.append(reference.attrib['ref_id'])
 
-                detail_info['cve'] = cves
+        detail_info['cve'] = cves
 
-                # Get title and description
-                detail_info['title'] = metadata.findtext('{http://oval.mitre.org/XMLSchema/oval-definitions-5}title')
-                detail_info['description'] = metadata.findtext('{http://oval.mitre.org/XMLSchema/oval-definitions-5}description')
+        # Get title and description
+        detail_info['title'] = metadata.findtext('{http://oval.mitre.org/XMLSchema/oval-definitions-5}title')
+        detail_info['description'] = metadata.findtext('{http://oval.mitre.org/XMLSchema/oval-definitions-5}description')
 
-                # Get severity
-                detail_info['severity'] = metadata.find("{http://oval.mitre.org/XMLSchema/oval-definitions-5}advisory") \
-                                                    .find("{http://oval.mitre.org/XMLSchema/oval-definitions-5}severity").text
-                # Append detail info
-                if rhsa_id is not None:
-                    detail_info['rhsa_id'] = rhsa_id
-                    if rhsa_id not in rhsa_info_id_list:
-                        rhsa_info_id_list.append(rhsa_id)
-                        rhsa_info_list.append(detail_info)
-                if rhba_id is not None:
-                    detail_info['rhba_id'] = rhba_id
-                    if rhba_id not in rhba_info_id_list:
-                        rhba_info_id_list.append(rhba_id)
-                        rhba_info_list.append(detail_info)
+        # Get severity
+        detail_info['severity'] = metadata.find("{http://oval.mitre.org/XMLSchema/oval-definitions-5}advisory") \
+                                            .find("{http://oval.mitre.org/XMLSchema/oval-definitions-5}severity").text
+        # Append detail info
+        if rhsa_id is not None:
+            detail_info['rhsa_id'] = rhsa_id
+            if rhsa_id not in rhsa_info_id_list:
+                rhsa_info_id_list.append(rhsa_id)
+                rhsa_info_list.append(detail_info)
+        if rhba_id is not None:
+            detail_info['rhba_id'] = rhba_id
+            if rhba_id not in rhba_info_id_list:
+                rhba_info_id_list.append(rhba_id)
+                rhba_info_list.append(detail_info)
 
-                # Get vulnerable products
-                affected_cpe_list = metadata.find("{http://oval.mitre.org/XMLSchema/oval-definitions-5}advisory") \
-                                            .find("{http://oval.mitre.org/XMLSchema/oval-definitions-5}affected_cpe_list")
-                for cpe in affected_cpe_list:
-                  if cpe.text is not None:
-                    info_item = {}
-                    splitted_product = cpe.text.split(":")
-                    info_item['vendor'] = splitted_product[2]
-                    info_item['product'] = splitted_product[3]
-                    try:
-                        info_item['version'] = splitted_product[4]
-                    except IndexError:
-                        info_item['version'] = '-'
+        # Get vulnerable products
+        affected_cpe_list = metadata.find("{http://oval.mitre.org/XMLSchema/oval-definitions-5}advisory") \
+                                    .find("{http://oval.mitre.org/XMLSchema/oval-definitions-5}affected_cpe_list")
+        for cpe in affected_cpe_list:
+          if cpe.text is not None:
+            info_item = {}
+            splitted_product = cpe.text.split(":")
+            info_item['vendor'] = splitted_product[2]
+            info_item['product'] = splitted_product[3]
+            try:
+                info_item['version'] = splitted_product[4]
+            except IndexError:
+                info_item['version'] = '-'
 
-                    tmp = '#' + info_item['vendor'] + '#' + info_item['product'] + '#' + info_item['version']
-                    if rhsa_id is not None:
-                        info_item['rhsa_id'] = rhsa_id
-                        tmp = rhsa_id + tmp
-                        if tmp not in rhsa_id_list:
-                            rhsa_id_list.append(tmp)
-                            rhsa_list.append(info_item)
-                    if rhba_id is not None:
-                        info_item['rhba_id'] = rhba_id
-                        tmp = rhba_id + tmp
-                        if tmp not in rhba_id_list:
-                            rhba_id_list.append(tmp)
-                            rhba_list.append(info_item)
+            tmp = '#' + info_item['vendor'] + '#' + info_item['product'] + '#' + info_item['version']
+            if rhsa_id is not None:
+                info_item['rhsa_id'] = rhsa_id
+                tmp = rhsa_id + tmp
+                if tmp not in rhsa_id_list:
+                    rhsa_id_list.append(tmp)
+                    rhsa_list.append(info_item)
+            if rhba_id is not None:
+                info_item['rhba_id'] = rhba_id
+                tmp = rhba_id + tmp
+                if tmp not in rhba_id_list:
+                    rhba_id_list.append(tmp)
+                    rhba_list.append(info_item)
 
     # Return
     return rhsa_list, rhba_list, rhsa_info_list, rhba_info_list

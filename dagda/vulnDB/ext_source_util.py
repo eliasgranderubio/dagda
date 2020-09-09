@@ -242,7 +242,7 @@ def get_rhsa_and_rhba_lists_from_file(bz2_file):
     rhsa_info_id_list = []
     rhba_info_list = []
     rhba_info_id_list = []
-    root = ET.parse(xml_file_content).getroot().find('{http://oval.mitre.org/XMLSchema/oval-definitions-5}definitions')
+    root = ET.fromstring(xml_file_content).find('{http://oval.mitre.org/XMLSchema/oval-definitions-5}definitions')
     for entry in root.findall('{http://oval.mitre.org/XMLSchema/oval-definitions-5}definition'):
         # Init
         metadata = entry.find('{http://oval.mitre.org/XMLSchema/oval-definitions-5}metadata')

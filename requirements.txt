@@ -5,6 +5,6 @@ joblib==0.12.5
 docker==3.6.0
 Flask==1.0.2
 flask-cors==3.0.6
-PyYAML==3.13
+PyYAML==5.4
 defusedxml==0.5.0
 waitress==1.4.3

@@ -31,7 +31,8 @@ import bz2
 
 ACCESS_VECTOR = {'L': 'Local access', 'A': 'Adjacent Network', 'N': 'Network'}
 ACCESS_COMPLEXITY = {'H': 'High', 'M': 'Medium', 'L': 'Low'}
-AUTHENTICATION = {'N': 'None required', 'S': 'Requires single instance', 'M': 'Requires multiple instances'}
+AUTHENTICATION = {'N': 'None required',
+                  'S': 'Requires single instance', 'M': 'Requires multiple instances'}
 CONFIDENTIALITY_IMPACT = {'N': 'None', 'P': 'Partial', 'C': 'Complete'}
 INTEGRITY_IMPACT = {'N': 'None', 'P': 'Partial', 'C': 'Complete'}
 AVAILABILITY_IMPACT = {'N': 'None', 'P': 'Partial', 'C': 'Complete'}
@@ -59,7 +60,8 @@ def extract_vector(initial_vector):
 def get_cve_list_from_file(compressed_content, year):
     cve_set = set()
     cve_info_list = []
-    json_file_content = zlib.decompress(compressed_content, 16 + zlib.MAX_WBITS)
+    json_file_content = zlib.decompress(
+        compressed_content, 16 + zlib.MAX_WBITS)
     for cve in json.loads(json_file_content)['CVE_Items']:
         cve_id = cve['cve']['CVE_data_meta']['ID']
         for node in cve['configurations']['nodes']:
@@ -74,7 +76,7 @@ def get_cve_list_from_file(compressed_content, year):
                         splitted_product = cpe['cpe23Uri'].split(":")
                         if len(splitted_product) > 4:
                             item = cve_id + "#" + splitted_product[3] + "#" + splitted_product[4] + "#" + \
-                                   splitted_product[5] + "#" + str(year)
+                                splitted_product[5] + "#" + str(year)
                             output_set.add(item)
                 return output_set
             cve_set = get_cpe_match(node, cve_id, year)
@@ -86,9 +88,11 @@ def get_cve_list_from_file(compressed_content, year):
             pub_date = datetime.datetime(int(aux[0]), int(aux[1]), int(aux[2]))
             aux = cve['lastModifiedDate'].split('T')[0].split('-')
             mod_date = datetime.datetime(int(aux[0]), int(aux[1]), int(aux[2]))
-            cvss_base = float(cve['impact']['baseMetricV2']['cvssV2']['baseScore'])
+            cvss_base = float(cve['impact']['baseMetricV2']
+                              ['cvssV2']['baseScore'])
             cvss_impact = float(cve['impact']['baseMetricV2']['impactScore'])
-            cvss_exploit = float(cve['impact']['baseMetricV2']['exploitabilityScore'])
+            cvss_exploit = float(
+                cve['impact']['baseMetricV2']['exploitabilityScore'])
             vector = cve['impact']['baseMetricV2']['cvssV2']['vectorString']
             access_vector = cve['impact']['baseMetricV2']['cvssV2']['accessVector']
             access_complexity = cve['impact']['baseMetricV2']['cvssV2']['accessComplexity']
@@ -116,7 +120,7 @@ def get_cve_list_from_file(compressed_content, year):
                 "cweid": cweid
             }
             cve_info_list.append(cve_info)
-        except KeyError:
+        except (KeyError, IndexError):
             # Any error continue
             pass
 
@@ -134,19 +138,23 @@ def get_exploit_db_list_from_csv(csv_content):
             exploit_db_id = splitted_line[0]
             description = splitted_line[2][1:len(splitted_line[2]) - 1]
             if '-' in description:
-                description = description[0:description.index('-')].lstrip().rstrip().lower()
+                description = description[0:description.index(
+                    '-')].lstrip().rstrip().lower()
                 iterator = re.finditer("([0-9]+(\.[0-9]+)+)", description)
                 match = next(iterator, None)
                 if match:
                     version = match.group()
-                    description = description[:description.index(version)].rstrip().lstrip()
-                    item = str(exploit_db_id) + "#" + description + "#" + str(version)
+                    description = description[:description.index(
+                        version)].rstrip().lstrip()
+                    item = str(exploit_db_id) + "#" + \
+                        description + "#" + str(version)
                     if item not in items:
                         items.add(item)
                         item_added = True
                     for match in iterator:
                         version = match.group()
-                        item = str(exploit_db_id) + "#" + description + "#" + str(version)
+                        item = str(exploit_db_id) + "#" + \
+                            description + "#" + str(version)
                         if item not in items:
                             items.add(item)
                             item_added = True
@@ -156,9 +164,11 @@ def get_exploit_db_list_from_csv(csv_content):
                         match = next(iterator, None)
                         if match:
                             version = match.group()
-                            description = description[:description.index(version)].rstrip().lstrip()
+                            description = description[:description.index(
+                                version)].rstrip().lstrip()
                             version = version.rstrip().lstrip()
-                            item = str(exploit_db_id) + "#" + description + "#" + str(version)
+                            item = str(exploit_db_id) + "#" + \
+                                description + "#" + str(version)
                             if item not in items:
                                 items.add(item)
                                 item_added = True
@@ -166,7 +176,8 @@ def get_exploit_db_list_from_csv(csv_content):
                 if item_added:
                     details = {}
                     details['exploit_db_id'] = int(splitted_line[0])
-                    details['description'] = splitted_line[2][1:len(splitted_line[2]) - 1]
+                    details['description'] = splitted_line[2][1:len(
+                        splitted_line[2]) - 1]
                     details['platform'] = splitted_line[6] if splitted_line[6] is not None else ''
                     details['type'] = splitted_line[5] if splitted_line[5] is not None else ''
                     try:
@@ -222,8 +233,10 @@ def parse_bid_from_json(json_data, items):
             if version.startswith('-'):
                 version = version[1:]
             if version:
-                product = vuln_product[:vuln_product.index(version) - 1].rstrip().lstrip()
-                item = str(bugtraq_id) + "#" + product.lower() + "#" + str(version)
+                product = vuln_product[:vuln_product.index(
+                    version) - 1].rstrip().lstrip()
+                item = str(bugtraq_id) + "#" + \
+                    product.lower() + "#" + str(version)
                 if item not in items:
                     items.add(item)
 
@@ -242,10 +255,12 @@ def get_rhsa_and_rhba_lists_from_file(bz2_file):
     rhsa_info_id_list = []
     rhba_info_list = []
     rhba_info_id_list = []
-    root = ET.fromstring(xml_file_content).find('{http://oval.mitre.org/XMLSchema/oval-definitions-5}definitions')
+    root = ET.fromstring(xml_file_content).find(
+        '{http://oval.mitre.org/XMLSchema/oval-definitions-5}definitions')
     for entry in root.findall('{http://oval.mitre.org/XMLSchema/oval-definitions-5}definition'):
         # Init
-        metadata = entry.find('{http://oval.mitre.org/XMLSchema/oval-definitions-5}metadata')
+        metadata = entry.find(
+            '{http://oval.mitre.org/XMLSchema/oval-definitions-5}metadata')
         detail_info = {}
 
         # Get IDs
@@ -270,12 +285,14 @@ def get_rhsa_and_rhba_lists_from_file(bz2_file):
         detail_info['cve'] = cves
 
         # Get title and description
-        detail_info['title'] = metadata.findtext('{http://oval.mitre.org/XMLSchema/oval-definitions-5}title')
-        detail_info['description'] = metadata.findtext('{http://oval.mitre.org/XMLSchema/oval-definitions-5}description')
+        detail_info['title'] = metadata.findtext(
+            '{http://oval.mitre.org/XMLSchema/oval-definitions-5}title')
+        detail_info['description'] = metadata.findtext(
+            '{http://oval.mitre.org/XMLSchema/oval-definitions-5}description')
 
         # Get severity
         detail_info['severity'] = metadata.find("{http://oval.mitre.org/XMLSchema/oval-definitions-5}advisory") \
-                                            .find("{http://oval.mitre.org/XMLSchema/oval-definitions-5}severity").text
+            .find("{http://oval.mitre.org/XMLSchema/oval-definitions-5}severity").text
         # Append detail info
         if rhsa_id is not None:
             detail_info['rhsa_id'] = rhsa_id
@@ -292,29 +309,30 @@ def get_rhsa_and_rhba_lists_from_file(bz2_file):
         affected_cpe_list = metadata.find("{http://oval.mitre.org/XMLSchema/oval-definitions-5}advisory") \
                                     .find("{http://oval.mitre.org/XMLSchema/oval-definitions-5}affected_cpe_list")
         for cpe in affected_cpe_list:
-          if cpe.text is not None:
-            info_item = {}
-            splitted_product = cpe.text.split(":")
-            info_item['vendor'] = splitted_product[2]
-            info_item['product'] = splitted_product[3]
-            try:
-                info_item['version'] = splitted_product[4]
-            except IndexError:
-                info_item['version'] = '-'
+            if cpe.text is not None:
+                info_item = {}
+                splitted_product = cpe.text.split(":")
+                info_item['vendor'] = splitted_product[2]
+                info_item['product'] = splitted_product[3]
+                try:
+                    info_item['version'] = splitted_product[4]
+                except IndexError:
+                    info_item['version'] = '-'
 
-            tmp = '#' + info_item['vendor'] + '#' + info_item['product'] + '#' + info_item['version']
-            if rhsa_id is not None:
-                info_item['rhsa_id'] = rhsa_id
-                tmp = rhsa_id + tmp
-                if tmp not in rhsa_id_list:
-                    rhsa_id_list.append(tmp)
-                    rhsa_list.append(info_item)
-            if rhba_id is not None:
-                info_item['rhba_id'] = rhba_id
-                tmp = rhba_id + tmp
-                if tmp not in rhba_id_list:
-                    rhba_id_list.append(tmp)
-                    rhba_list.append(info_item)
+                tmp = '#' + info_item['vendor'] + '#' + \
+                    info_item['product'] + '#' + info_item['version']
+                if rhsa_id is not None:
+                    info_item['rhsa_id'] = rhsa_id
+                    tmp = rhsa_id + tmp
+                    if tmp not in rhsa_id_list:
+                        rhsa_id_list.append(tmp)
+                        rhsa_list.append(info_item)
+                if rhba_id is not None:
+                    info_item['rhba_id'] = rhba_id
+                    tmp = rhba_id + tmp
+                    if tmp not in rhba_id_list:
+                        rhba_id_list.append(tmp)
+                        rhba_list.append(info_item)
 
     # Return
     return rhsa_list, rhba_list, rhsa_info_list, rhba_info_list

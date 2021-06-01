@@ -33,12 +33,14 @@ class UtilsTestSuite(unittest.TestCase):
 
     def test_extract_filesystem_bundle_and_clean_up(self):
         temporary_dir = extract_filesystem_bundle(MockDockerDriver(), container_id='asdfi76fdgauh')
-        self.assertTrue(os.path.isdir(os.path.join(temporary_dir, 'bin')))
-        self.assertTrue(os.path.exists(os.path.join(temporary_dir, 'bin/bash')))
-        self.assertTrue(os.path.isdir(os.path.join(temporary_dir, 'etc')))
-        self.assertTrue(os.path.exists(os.path.join(temporary_dir, 'etc/daemon.conf')))
-        self.assertTrue(os.path.isdir(os.path.join(temporary_dir, 'opt')))
-        clean_up(temporary_dir)
+        try:
+            self.assertTrue(os.path.isdir(os.path.join(temporary_dir, 'bin')))
+            self.assertTrue(os.path.exists(os.path.join(temporary_dir, 'bin/bash')))
+            self.assertTrue(os.path.isdir(os.path.join(temporary_dir, 'etc')))
+            self.assertTrue(os.path.exists(os.path.join(temporary_dir, 'etc/daemon.conf')))
+            self.assertTrue(os.path.isdir(os.path.join(temporary_dir, 'opt')))
+        finally:
+            clean_up(temporary_dir)
         self.assertFalse(os.path.isdir(os.path.join(temporary_dir, 'bin')))
         self.assertFalse(os.path.exists(os.path.join(temporary_dir, 'bin/bash')))
         self.assertFalse(os.path.isdir(os.path.join(temporary_dir, 'etc')))
@@ -46,12 +48,14 @@ class UtilsTestSuite(unittest.TestCase):
         self.assertFalse(os.path.isdir(os.path.join(temporary_dir, 'opt')))
 
         temporary_dir = extract_filesystem_bundle(MockDockerDriver(), image_name='alpine')
-        self.assertTrue(os.path.isdir(os.path.join(temporary_dir, 'bin')))
-        self.assertTrue(os.path.exists(os.path.join(temporary_dir, 'bin/bash')))
-        self.assertTrue(os.path.isdir(os.path.join(temporary_dir, 'etc')))
-        self.assertTrue(os.path.exists(os.path.join(temporary_dir, 'etc/daemon.conf')))
-        self.assertTrue(os.path.isdir(os.path.join(temporary_dir, 'opt')))
-        clean_up(temporary_dir)
+        try:
+            self.assertTrue(os.path.isdir(os.path.join(temporary_dir, 'bin')))
+            self.assertTrue(os.path.exists(os.path.join(temporary_dir, 'bin/bash')))
+            self.assertTrue(os.path.isdir(os.path.join(temporary_dir, 'etc')))
+            self.assertTrue(os.path.exists(os.path.join(temporary_dir, 'etc/daemon.conf')))
+            self.assertTrue(os.path.isdir(os.path.join(temporary_dir, 'opt')))
+        finally:
+            clean_up(temporary_dir)
         self.assertFalse(os.path.isdir(os.path.join(temporary_dir, 'bin')))
         self.assertFalse(os.path.exists(os.path.join(temporary_dir, 'bin/bash')))
         self.assertFalse(os.path.isdir(os.path.join(temporary_dir, 'etc')))

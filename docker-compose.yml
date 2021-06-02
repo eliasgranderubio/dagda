@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 services:
   dagda:
     build: .
@@ -6,7 +6,6 @@ services:
     container_name: dagda
     networks:
       - mdb
-    entrypoint: python dagda.py start -s 0.0.0.0 -p 5000 -m vulndb -mp 27017
     ports:
       - "5000:5000"
     volumes:

@@ -6,8 +6,7 @@ RUN curl -s https://falco.org/repo/falcosecurity-3672BA8F.asc | apt-key add -
 RUN echo "deb https://download.falco.org/packages/deb stable main" | tee -a /etc/apt/sources.list.d/falcosecurity.list
 
 RUN apt-get update -y
-RUN apt install -y falco linux-headers-amd64 clamav clamav-daemon
-RUN freshclam
+RUN apt install -y falco linux-headers-amd64
 
 COPY requirements.txt /opt/app/requirements.txt
 WORKDIR /opt/app

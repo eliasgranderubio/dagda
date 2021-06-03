@@ -19,7 +19,8 @@
 
 import json
 import datetime
-from flask import Blueprint
+from flask import Blueprint, request
+from werkzeug.utils import secure_filename
 from exception.dagda_error import DagdaError
 from log.dagda_logger import DagdaLogger
 from api.internal.internal_server import InternalServer
@@ -33,13 +34,25 @@ check_api = Blueprint('check_api', __name__)
 @check_api.route('/v1/check/images/<path:image_name>', methods=['POST'])
 def check_docker_by_image_name(image_name):
     # -- Check input
-    if not image_name:
+    uploaded_file = None
+    is_already_tar = False
+    if request.files['file']:
+        uploaded_file = request.files['file']
+        image_name = image_name if image_name else uploaded_file.filename
+        is_already_tar = True
+
+        # write to disk
+        # docker load
+
+    elif not image_name:
         return json.dumps({'err': 400, 'msg': 'Bad image name'}, sort_keys=True), 400
 
     # -- Docker pull from remote registry if it is necessary
     try:
         pulled = False
-        if not InternalServer.get_docker_driver().is_docker_image(image_name):
+        if is_already_tar:
+            pass
+        elif not InternalServer.get_docker_driver().is_docker_image(image_name):
             if ':' in image_name:
                 tmp = image_name.split(':')[0]
                 tag = image_name.split(':')[1]

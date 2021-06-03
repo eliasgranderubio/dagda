@@ -31,19 +31,18 @@ def get_dependencies_from_docker_image(docker_driver, image_name, temp_dir):
     docker_driver.docker_pull('3grander/4depcheck', '0.1.0')
     # Start container
     container_id = docker_driver.create_container('3grander/4depcheck:0.1.0',
-                                                  'python3 /opt/app/4depcheck.py ' + filtered_image_name + ' ' +
-                                                   temp_dir,
+                                                  'python3 /opt/app/4depcheck.py ' + filtered_image_name + ' ' + temp_dir,
                                                   [
-                                                         temp_dir,
-                                                         tempfile.gettempdir() + '/4depcheck'
-                                                         # The previous directory should be resolved as /tmp/4depcheck
+                                                      temp_dir,
+                                                      tempfile.gettempdir() + '/4depcheck'
+                                                      # The previous directory should be resolved as /tmp/4depcheck
                                                   ],
                                                   docker_driver.get_docker_client().create_host_config(
-                                                    binds=[
-                                                        temp_dir + ':' + temp_dir + ':ro',
-                                                        tempfile.gettempdir() + '/4depcheck' + ':' +
-                                                                tempfile.gettempdir() + '/4depcheck' + ':rw'
-                                                  ]))
+                                                      binds=[
+                                                          temp_dir + ':' + temp_dir + ':ro',
+                                                          tempfile.gettempdir() + '/4depcheck' + ':' +
+                                                          tempfile.gettempdir() + '/4depcheck' + ':rw'
+                                                      ]))
     docker_driver.docker_start(container_id)
     # Wait for 3grander/4depcheck
     docker_driver.docker_logs(container_id, True, False, True)
@@ -62,7 +61,7 @@ def get_filtered_dependencies_info(dependencies, temp_dir):
     output_set = set()
     for dependency in dependencies:
         data = dependency['cve_type'] + "#" + dependency['cve_product'] + "#" + \
-               dependency['cve_product_version'] + '#' + dependency['cve_product_file_path'].replace(temp_dir, '')
+            dependency['cve_product_version'] + '#' + dependency['cve_product_file_path'].replace(temp_dir, '')
         if data not in output_set:
             output_set.add(data)
     return list(output_set)

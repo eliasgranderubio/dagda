@@ -81,6 +81,8 @@ class DagdaServer:
                         self._check_docker_by_image_name(item)
                     elif item['msg'] == 'check_container':
                         self._check_docker_by_container_id(item)
+                    elif item['msg'] == 'check_image_tar':
+                        self._check_docker_by_container_tar(item)
             except KeyboardInterrupt:
                 # Pressed CTRL+C to quit, so nothing to do
                 pass
@@ -156,14 +158,14 @@ class DagdaServer:
             if InternalServer.is_debug_logging_enabled():
                 traceback.print_exc()
             InternalServer.get_mongodb_driver().insert_init_db_process_status(
-                    {'status': message, 'timestamp': datetime.datetime.now().timestamp()})
+                {'status': message, 'timestamp': datetime.datetime.now().timestamp()})
 
     # Check docker by image name
     @staticmethod
     def _check_docker_by_image_name(item):
         analyzer = Analyzer()
         # -- Evaluates the docker image
-        evaluated_docker_image = analyzer.evaluate_image(item['image_name'], None)
+        evaluated_docker_image = analyzer.evaluate_image(item['image_name'], None, None)
 
         # -- Updates mongodb report
         InternalServer.get_mongodb_driver().update_docker_image_scan_result_to_history(item['_id'],
@@ -178,8 +180,18 @@ class DagdaServer:
     def _check_docker_by_container_id(item):
         analyzer = Analyzer()
         # -- Evaluates the docker image
-        evaluated_docker_image = analyzer.evaluate_image(None, item['container_id'])
+        evaluated_docker_image = analyzer.evaluate_image(None, item['container_id'], None)
 
         # -- Updates mongodb report
         InternalServer.get_mongodb_driver().update_docker_image_scan_result_to_history(item['_id'],
                                                                                        evaluated_docker_image)
+
+    @staticmethod
+    def _check_docker_by_container_tar(item):
+        analyzer = Analyzer()
+        # -- Evaluates the docker image tar
+        evaluated_docker_image_tar = analyzer.evaluate(None, None, item['path'])
+
+        # -- Updates mongodb report
+        InternalServer.get_mongodb_driver().update_docker_image_scan_result_to_history(
+            item['_id'], evaluated_docker_image_tar)

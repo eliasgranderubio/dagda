@@ -49,7 +49,7 @@ class Analyzer:
         self.dockerDriver = InternalServer.get_docker_driver()
 
     # Evaluate image from image name or container id
-    def evaluate_image(self, image_name, container_id):
+    def evaluate_image(self, image_name, container_id, file_path):
         if InternalServer.is_debug_logging_enabled():
             DagdaLogger.get_logger().debug('ENTRY to the method for analyzing a docker image')
 
@@ -57,8 +57,10 @@ class Analyzer:
         data = {}
 
         # -- Static analysis
-        image_name = self.dockerDriver.get_docker_image_name_by_container_id(container_id) if container_id \
-                                                                                           else image_name
+        image_name = None
+        if not file_path:
+            self.dockerDriver.get_docker_image_name_by_container_id(container_id) if container_id else image_name
+
         os_packages = []
         malware_binaries = []
         dependencies = []
@@ -68,7 +70,10 @@ class Analyzer:
             if InternalServer.is_debug_logging_enabled():
                 DagdaLogger.get_logger().debug('Retrieving OS packages from the docker image ...')
 
-            if container_id is None:  # Scans the docker image
+            if file_path:
+                # no OS packages to scan because not contained in a docker image
+                pass
+            elif container_id is None:  # Scans the docker image
                 os_packages = os_info_extractor.get_soft_from_docker_image(docker_driver=self.dockerDriver,
                                                                            image_name=image_name)
                 temp_dir = extract_filesystem_bundle(docker_driver=self.dockerDriver,
@@ -161,8 +166,8 @@ class Analyzer:
             dep_details[splitted_dep[0]].append(d)
         # Prepare output
         data['vuln_dependencies'] = len(dep_details['java']) + len(dep_details['python']) + \
-                                    len(dep_details['nodejs']) + len(dep_details['js']) + \
-                                    len(dep_details['ruby']) + len(dep_details['php']) - fp_count
+            len(dep_details['nodejs']) + len(dep_details['js']) + \
+            len(dep_details['ruby']) + len(dep_details['php']) - fp_count
         data['dependencies_details'] = dep_details
         # Return
         return data

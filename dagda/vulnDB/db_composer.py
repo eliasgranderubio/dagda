@@ -56,15 +56,8 @@ class DBComposer:
             DagdaLogger.get_logger().debug('Updating CVE collection ...')
 
         first_year = self.mongoDbDriver.remove_only_cve_for_update()
-        threads = list()
         for i in range(first_year, next_year):
-            tmp_thread = Thread(target=DBComposer._threaded_cve_gathering, args=(self.mongoDbDriver, i))
-            threads.append(tmp_thread)
-            tmp_thread.start()
-
-        # Waiting for the threads
-        for i in threads:
-            i.join()
+            DBComposer._threaded_cve_gathering(self.mongoDbDriver, i)
 
         if InternalServer.is_debug_logging_enabled():
             DagdaLogger.get_logger().debug('CVE collection updated')

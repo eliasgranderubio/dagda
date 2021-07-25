@@ -1,7 +1,7 @@
 # Dagda
 [![Build Status](https://travis-ci.org/eliasgranderubio/dagda.svg?branch=master)](https://travis-ci.org/eliasgranderubio/dagda)
 [![Coverage Status](https://coveralls.io/repos/github/eliasgranderubio/dagda/badge.svg?branch=master)](https://coveralls.io/github/eliasgranderubio/dagda?branch=master)
-[![Python](https://img.shields.io/badge/python-3.4%2C%203.5%2C%203.6-blue.svg)](https://github.com/eliasgranderubio/dagda)
+[![Python](https://img.shields.io/badge/python-3.8-blue.svg)](https://github.com/eliasgranderubio/dagda)
 [![Docker Pulls](https://img.shields.io/docker/pulls/3grander/dagda.svg)](https://hub.docker.com/r/3grander/dagda/)
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/eliasgranderubio/dagda)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Feliasgranderubio%2Fdagda.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Feliasgranderubio%2Fdagda?ref=badge_shield)
@@ -51,8 +51,8 @@ Finally, each analysis report of a docker image/container, included all static a
 ## Requirements
 Before **Dagda** usage, you must have installed the next requirements:
 
-* Python 3.4.X or later
-* MongoDB 2.6 or later
+* Python 3.8.X or later
+* MongoDB 3.6 or later
 * Docker
 * Pip3
   * PyMongo
@@ -79,7 +79,7 @@ In order to avoid having to use `sudo` when you use the `docker` command, create
 
 ### Installation of MongoDB
 
-You must have installed MongoDB 2.4 or later for using **Dagda** because in MongoDB are stored both the vulnerabilities/exploits and the analysis results.
+You must have installed MongoDB 3.6 or later for using **Dagda** because in MongoDB are stored both the vulnerabilities/exploits and the analysis results.
 
 If you need instructions for MongoDB installation, see the [How-to install MongoDB Community Edition](https://docs.mongodb.com/manual/administration/install-community/) page.
 

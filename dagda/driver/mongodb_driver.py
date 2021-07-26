@@ -683,7 +683,6 @@ class MongoDbDriver:
             priorities = []
             start_timestamp = image_history['runtime_analysis']['start_timestamp']
             cursor = self.db.falco_events.find({'container_id': container_id[:12],
-                                                'image_name': image_history['image_name'],
                                                 'time': {'$gte': start_timestamp}})
             for event in cursor:
                 if event is not None:

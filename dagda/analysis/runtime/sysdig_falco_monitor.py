@@ -120,7 +120,9 @@ class SysdigFalcoMonitor:
                                                               SysdigFalcoMonitor._falco_output_filename +
                                                               self.falco_rules)
 
-            # Wait 3 seconds for sysdig/falco start up and creates the output file
+            if not os.path.isfile(SysdigFalcoMonitor._falco_output_filename):
+                os.mknod(SysdigFalcoMonitor._falco_output_filename)
+            # Wait 3 seconds for sysdig/falco start up
             time.sleep(3)
 
         # Check output file and running docker container

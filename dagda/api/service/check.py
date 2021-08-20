@@ -24,6 +24,7 @@ from werkzeug.utils import secure_filename
 from exception.dagda_error import DagdaError
 from log.dagda_logger import DagdaLogger
 from api.internal.internal_server import InternalServer
+import uuid
 
 # -- Global
 
@@ -36,13 +37,28 @@ def check_docker_by_image_name(image_name):
     # -- Check input
     uploaded_file = None
     is_already_tar = False
-    if request.files['file']:
-        uploaded_file = request.files['file']
-        image_name = image_name if image_name else uploaded_file.filename
-        is_already_tar = True
 
-        # write to disk
-        # docker load
+
+
+
+    if request.stream:
+        try:
+            uploaded_file = f"/tmp/{uuid.uuid4()}.tar"
+            with open(uploaded_file, "bw") as f:
+                chunk_size = 4096
+                while True:
+                    chunk = request.stream.read(chunk_size)
+                    if len(chunk) == 0:
+                        break
+                    f.write(chunk)
+            image_name = image_name if image_name else "unknown" # TODO
+            is_already_tar = True
+            InternalServer.get_docker_driver().docker_import(src=request.stream, tag=image_name, stream_src=True)
+        except Exception as ex:
+            message = "Unexpected exception of type {0} occurred while unpacking the docker tar file: {1!r}" \
+                .format(type(ex).__name__, ex.get_message() if type(ex).__name__ == 'DagdaError' else ex.args)
+            DagdaLogger.get_logger().error(message)
+            return json.dumps({'err': 500, 'msg': message}, sort_keys=True), 500
 
     elif not image_name:
         return json.dumps({'err': 400, 'msg': 'Bad image name'}, sort_keys=True), 400

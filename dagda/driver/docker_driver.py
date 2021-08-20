@@ -116,3 +116,7 @@ class DockerDriver:
     # Gets docker client
     def get_docker_client(self):
         return self.cli
+
+    # Import image
+    def docker_import(self, src=None, repository=None, tag=None, image=None, changes=None, stream_src=False):
+        return self.cli.import_image(src, repository, tag, image, changes, stream_src)

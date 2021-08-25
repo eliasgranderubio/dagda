@@ -38,10 +38,9 @@ def check_docker_by_image_name(image_name):
     uploaded_file = None
     is_already_tar = False
 
+    DagdaLogger.get_logger().error("image_name: " + str(image_name))
 
-
-
-    if request.stream:
+    if request.form.get("stream"):
         try:
             uploaded_file = f"/tmp/{uuid.uuid4()}.tar"
             with open(uploaded_file, "bw") as f:
@@ -53,7 +52,11 @@ def check_docker_by_image_name(image_name):
                     f.write(chunk)
             image_name = image_name if image_name else "unknown" # TODO
             is_already_tar = True
-            InternalServer.get_docker_driver().docker_import(src=request.stream, tag=image_name, stream_src=True)
+            InternalServer.get_docker_driver().docker_import(
+                src=uploaded_file, #request.stream,
+                repository=image_name,
+                tag=image_name,
+                stream_src=False) #True)
         except Exception as ex:
             message = "Unexpected exception of type {0} occurred while unpacking the docker tar file: {1!r}" \
                 .format(type(ex).__name__, ex.get_message() if type(ex).__name__ == 'DagdaError' else ex.args)

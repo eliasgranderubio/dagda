@@ -190,7 +190,7 @@ class DagdaServer:
     def _check_docker_by_container_tar(item):
         analyzer = Analyzer()
         # -- Evaluates the docker image tar
-        evaluated_docker_image_tar = analyzer.evaluate(None, None, item['path'])
+        evaluated_docker_image_tar = analyzer.evaluate_image(None, None, item['path'])
 
         # -- Updates mongodb report
         InternalServer.get_mongodb_driver().update_docker_image_scan_result_to_history(

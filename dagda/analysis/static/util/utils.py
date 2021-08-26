@@ -28,18 +28,22 @@ from log.dagda_logger import DagdaLogger
 
 
 # Prepare filesystem bundle
-def extract_filesystem_bundle(docker_driver, container_id=None, image_name=None):
+def extract_filesystem_bundle(docker_driver, container_id=None, image_name=None, image_path=None):
     temporary_dir = tempfile.mkdtemp()
     # Get and save filesystem bundle
-    if container_id is not None:
-        image = docker_driver.get_docker_client().export(container=container_id)
-        name = container_id
-    else:
-        image = docker_driver.get_docker_client().get_image(image=image_name)
+    if docker_driver is not None and image_path is None:
+        if container_id is not None:
+            image = docker_driver.get_docker_client().export(container=container_id)
+            name = container_id
+        else:
+            image = docker_driver.get_docker_client().get_image(image=image_name)
+            name = image_name.replace('/', '_').replace(':', '_')
+        with open(temporary_dir + "/" + name + ".tar", "wb") as file:
+            for chunk in image:
+                file.write(chunk)
+    elif image_path is not None:
         name = image_name.replace('/', '_').replace(':', '_')
-    with open(temporary_dir + "/" + name + ".tar", "wb") as file:
-        for chunk in image:
-            file.write(chunk)
+
     # Untar filesystem bundle
     tarfile = TarFile(temporary_dir + "/" + name + ".tar")
     tarfile.extractall(temporary_dir)

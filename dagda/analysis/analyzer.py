@@ -57,7 +57,6 @@ class Analyzer:
         data = {}
 
         # -- Static analysis
-        image_name = None
         if not file_path:
             self.dockerDriver.get_docker_image_name_by_container_id(container_id) if container_id else image_name
 
@@ -72,7 +71,10 @@ class Analyzer:
 
             if file_path:
                 # no OS packages to scan because not contained in a docker image
-                pass
+                temp_dir = extract_filesystem_bundle(
+                    image_name=image_name,
+                    image_path=file_path,
+                )
             elif container_id is None:  # Scans the docker image
                 os_packages = os_info_extractor.get_soft_from_docker_image(docker_driver=self.dockerDriver,
                                                                            image_name=image_name)

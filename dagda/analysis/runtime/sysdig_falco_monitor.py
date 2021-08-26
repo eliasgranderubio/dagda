@@ -88,10 +88,10 @@ class SysdigFalcoMonitor:
                 raise DagdaError('Error while fetching Docker server API version.')
 
             # Docker pull for ensuring the falcosecurity/falco image
-            self.docker_driver.docker_pull('falcosecurity/falco', tag='0.18.0')
+            self.docker_driver.docker_pull('falcosecurity/falco', tag='0.29.0')
 
             # Stops sysdig/falco containers if there are any
-            container_ids = self.docker_driver.get_docker_container_ids_by_image_name('falcosecurity/falco:0.18.0')
+            container_ids = self.docker_driver.get_docker_container_ids_by_image_name('falcosecurity/falco:0.29.0')
             if len(container_ids) > 0:
                 for container_id in container_ids:
                     self.docker_driver.docker_stop(container_id)
@@ -120,13 +120,15 @@ class SysdigFalcoMonitor:
                                                               SysdigFalcoMonitor._falco_output_filename +
                                                               self.falco_rules)
 
-            # Wait 3 seconds for sysdig/falco start up and creates the output file
+            if not os.path.isfile(SysdigFalcoMonitor._falco_output_filename):
+                os.mknod(SysdigFalcoMonitor._falco_output_filename)
+            # Wait 3 seconds for sysdig/falco start up
             time.sleep(3)
 
         # Check output file and running docker container
         if not os.path.isfile(SysdigFalcoMonitor._falco_output_filename) or \
             (not InternalServer.is_external_falco() and \
-            len(self.docker_driver.get_docker_container_ids_by_image_name('falcosecurity/falco:0.18.0')) == 0):
+            len(self.docker_driver.get_docker_container_ids_by_image_name('falcosecurity/falco:0.29.0')) == 0):
             raise DagdaError('Falcosecurity/falco output file not found.')
 
         # Review sysdig/falco logs after rules parser
@@ -144,16 +146,21 @@ class SysdigFalcoMonitor:
                 content = fbuf.readlines()
                 sysdig_falco_events = []
                 for line in content:
+                    falco_event = {}
                     line = line.decode('utf-8').replace("\n", "")
                     json_data = json.loads(line)
                     container_id = json_data['output_fields']['container.id']
                     if container_id != 'host':
                         try:
-                            json_data['container_id'] = container_id
-                            json_data['image_name'] = json_data['output_fields']['container.image.repository']
+                            falco_event['container_id'] = container_id
+                            falco_event['image_name'] = json_data['output_fields']['container.image.repository']
                             if 'container.image.tag' in json_data['output_fields']:
-                                json_data['image_name'] += ":" + json_data['output_fields']['container.image.tag']
-                            sysdig_falco_events.append(json_data)
+                                falco_event['image_name'] += ":" + json_data['output_fields']['container.image.tag']
+                            falco_event['output'] = json_data['output']
+                            falco_event['priority'] = json_data['priority']
+                            falco_event['rule'] = json_data['rule']
+                            falco_event['time'] = json_data['time']
+                            sysdig_falco_events.append(falco_event)
                         except IndexError:
                             # The /tmp/falco_output.json file had information about ancient events, so nothing to do
                             pass
@@ -174,7 +181,7 @@ class SysdigFalcoMonitor:
     # Starts Sysdig falco container
     def _start_container(self, entrypoint=None):
         # Start container
-        container_id = self.docker_driver.create_container('falcosecurity/falco:0.18.0',
+        container_id = self.docker_driver.create_container('falcosecurity/falco:0.29.0',
                                                            entrypoint,
                                                            [
                                                               '/host/var/run/docker.sock',
@@ -183,6 +190,7 @@ class SysdigFalcoMonitor:
                                                               '/host/boot',
                                                               '/host/lib/modules',
                                                               '/host/usr',
+                                                              '/host/etc',
                                                               '/host' + SysdigFalcoMonitor._tmp_directory
                                                            ],
                                                            self.docker_driver.get_docker_client().create_host_config(
@@ -191,8 +199,9 @@ class SysdigFalcoMonitor:
                                                                   '/dev:/host/dev',
                                                                   '/proc:/host/proc:ro',
                                                                   '/boot:/host/boot:ro',
-                                                                  '/lib/modules:/host/lib/modules:rw',
+                                                                  '/lib/modules:/host/lib/modules:ro',
                                                                   '/usr:/host/usr:ro',
+                                                                  '/etc:/host/etc:ro',
                                                                   SysdigFalcoMonitor._tmp_directory + ':/host' +
                                                                             SysdigFalcoMonitor._tmp_directory + ':rw'
                                                               ],

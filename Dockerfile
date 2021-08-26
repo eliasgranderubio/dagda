@@ -1,4 +1,4 @@
-FROM python:3.6.13-buster
+FROM python:3.8.11-alpine3.14
 # add falco repo
 RUN apt update -y
 RUN apt install -y apt-transport-https ca-certificates curl gnupg lsb-release

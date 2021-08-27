@@ -47,7 +47,7 @@ def check_docker(image_name, request, is_already_tar):
     # -- Check input
     uploaded_file = None
 
-    DagdaLogger.get_logger().error("image_name: " + str(image_name))
+    DagdaLogger.get_logger().info("image_name: " + str(image_name))
 
     if is_already_tar:
         extension = pathlib.Path(image_name).suffix

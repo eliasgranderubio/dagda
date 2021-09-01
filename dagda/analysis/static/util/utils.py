@@ -31,7 +31,7 @@ from log.dagda_logger import DagdaLogger
 
 # Prepare filesystem bundle
 def extract_filesystem_bundle(
-    docker_driver, container_id=None, image_name=None, image_path=None
+    docker_driver=None, container_id=None, image_name=None, image_path=None
 ):
     is_tar = True
     extension = ".tar"

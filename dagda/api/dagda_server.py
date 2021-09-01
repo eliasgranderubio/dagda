@@ -23,6 +23,7 @@ import datetime
 import traceback
 from waitress import serve
 from flask import Flask
+import flask
 from flask_cors import CORS, cross_origin
 from api.internal.internal_server import InternalServer
 from api.service.check import check_api
@@ -45,6 +46,7 @@ class DagdaServer:
     # -- Global attributes
 
     app = Flask(__name__)
+    app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024 * 1024
     CORS(app)
     app.register_blueprint(check_api)
     app.register_blueprint(docker_api)
@@ -112,9 +114,27 @@ class DagdaServer:
                             InternalServer.get_docker_driver().docker_remove_container(
                                 self.sysdig_falco_monitor.get_running_container_id())
                 else:
-                    serve(DagdaServer.app, host=self.dagda_server_host, port=self.dagda_server_port, ident=None)
+                    serve(
+                        DagdaServer.app,
+                        host=self.dagda_server_host,
+                        port=self.dagda_server_port,
+                        ident=None,
+                        max_request_body_size=self.app.config['MAX_CONTENT_LENGTH']
+                    )
 
     # -- Post process
+
+    @app.before_request
+    def handle_chunking():
+        """
+        Sets the "wsgi.input_terminated" environment flag, thus enabling
+        Werkzeug to pass chunked requests as streams.  The gunicorn server
+        should set this, but it's not yet been implemented.
+        """
+
+        transfer_encoding = flask.request.headers.get("Transfer-Encoding", None)
+        if transfer_encoding == u"chunked":
+            flask.request.environ["wsgi.input_terminated"] = True
 
     # Apply headers
     @app.after_request
@@ -190,7 +210,7 @@ class DagdaServer:
     def _check_docker_by_container_tar(item):
         analyzer = Analyzer()
         # -- Evaluates the docker image tar
-        evaluated_docker_image_tar = analyzer.evaluate_image(None, None, item['path'])
+        evaluated_docker_image_tar = analyzer.evaluate_image(item['image_name'], None, item['path'])
 
         # -- Updates mongodb report
         InternalServer.get_mongodb_driver().update_docker_image_scan_result_to_history(

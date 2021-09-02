@@ -81,7 +81,7 @@ class InternalServer:
     @staticmethod
     def is_runtime_analysis_enabled():
         return InternalServer._external_falco or \
-               len(InternalServer._docker_driver.get_docker_container_ids_by_image_name('falcosecurity/falco:0.18.0')) > 0
+               len(InternalServer._docker_driver.get_docker_container_ids_by_image_name('falcosecurity/falco:0.29.0')) > 0
 
     # Sets if debug logging is enabled
     @staticmethod

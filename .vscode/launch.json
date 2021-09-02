@@ -8,7 +8,7 @@
       "name": "Python: Dagda.py",
       "type": "python",
       "request": "launch",
-      "program": "dagda/dagda.py",
+      "program": "${workspaceRoot}/dagda/dagda.py",
       "console": "integratedTerminal",
       "args": [
         "start",

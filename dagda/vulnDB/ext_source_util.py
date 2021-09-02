@@ -73,13 +73,13 @@ def get_cve_list_from_file(compressed_content, year):
                         output_set = output_set.union(temp_set)
                 if 'cpe_match' in node:
                     for cpe in node['cpe_match']:
-                        splitted_product = cpe['cpe23Uri'].split(":")
+                        splitted_product = cpe['cpe23Uri'].replace('\\#', " ").split(":")
                         if len(splitted_product) > 4:
                             item = cve_id + "#" + splitted_product[3] + "#" + splitted_product[4] + "#" + \
                                 splitted_product[5] + "#" + str(year)
                             output_set.add(item)
                 return output_set
-            cve_set = get_cpe_match(node, cve_id, year)
+            cve_set = cve_set.union(get_cpe_match(node, cve_id, year))
 
         # Get CVE info
         try:
@@ -101,7 +101,11 @@ def get_cve_list_from_file(compressed_content, year):
             integrity_impact = cve['impact']['baseMetricV2']['cvssV2']['integrityImpact']
             availability_impact = cve['impact']['baseMetricV2']['cvssV2']['availabilityImpact']
             summary = cve['cve']['description']['description_data'][0]['value']
-            cweid = cve['cve']['problemtype']['problemtype_data'][0]['description'][0]['value']
+            cweid = ''
+            try:
+                cweid = cve['cve']['problemtype']['problemtype_data'][0]['description'][0]['value']
+            except IndexError:
+                pass
             cve_info = {
                 "cveid": cveid,
                 "pub_date": pub_date,

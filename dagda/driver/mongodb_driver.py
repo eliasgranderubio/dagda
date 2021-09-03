@@ -232,6 +232,10 @@ class MongoDbDriver:
     def delete_falco_events_collection(self):
         self.db.falco_events.drop()
 
+    # Removes image_history collection
+    def delete_image_history_collection(self):
+        self.db.image_history.drop()
+
     # -- Querying methods
 
     # Gets the max bid inserted

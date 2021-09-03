@@ -18,7 +18,7 @@
 #
 
 import io
-from datetime import date
+from datetime import date, datetime
 from threading import Thread
 from log.dagda_logger import DagdaLogger
 from api.internal.internal_server import InternalServer
@@ -171,3 +171,15 @@ class DBComposer:
         # Insert BID details
         mongoDbDriver.bulk_insert_bid_info(bid_detail_array)
         bid_detail_array.clear()
+
+    def delete_all(self):
+        self.mongoDbDriver.insert_init_db_process_status(
+            {'status': 'Deleted', 'timestamp': datetime.now().timestamp()})
+        self.mongoDbDriver.delete_exploit_db_collection()
+        self.mongoDbDriver.delete_exploit_db_info_collection()
+        self.mongoDbDriver.delete_rhba_collection()
+        self.mongoDbDriver.delete_rhba_info_collection()
+        self.mongoDbDriver.delete_rhsa_collection()
+        self.mongoDbDriver.delete_rhsa_info_collection()
+        self.mongoDbDriver.delete_falco_events_collection()
+        self.mongoDbDriver.delete_image_history_collection()

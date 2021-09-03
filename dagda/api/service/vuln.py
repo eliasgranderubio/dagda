@@ -22,9 +22,8 @@ import re
 import datetime
 from flask import Blueprint
 from api.internal.internal_server import InternalServer
-
-
-# -- Global
+from vulnDB.db_composer import DBComposer
+from log.dagda_logger import DagdaLogger
 
 vuln_api = Blueprint('vuln_api', __name__)
 
@@ -119,6 +118,20 @@ def get_products_by_rhba(rhba_id):
 def get_rhba_details(rhba_id):
     return _execute_rhba_query(rhba_id=rhba_id, details=True)
 
+# Deletes mongo collections
+@vuln_api.route('/v1/vuln/delete', methods=['DELETE'])
+def delete_all():
+    try:
+        db_composer = DBComposer()
+        db_composer.delete_all()
+        return json.dumps({'status': 'Deleting'}), 202
+    except Exception as ex:
+        message = "Unexpected exception of type {0} occurred while dropping the database: {1!r}".format(
+            type(ex).__name__,
+            ex.get_message() if type(ex).__name__ == "DagdaError" else ex.args,
+        )
+        DagdaLogger.get_logger().error(message)
+        return json.dumps({"err": 500, "msg": message}, sort_keys=True), 500
 
 # -- Private methods
 

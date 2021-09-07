@@ -120,3 +120,5 @@ bin/
 # database
 db/*
 !db/.gitkeep
+db-dev/*
+!db-dev/.gitkeep

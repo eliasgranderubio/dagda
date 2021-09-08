@@ -236,6 +236,10 @@ class MongoDbDriver:
     def delete_image_history_collection(self):
         self.db.image_history.drop()
 
+    # Remove element(s) of image history collection
+    def delete_one_image_history(self, id):
+        return self.db.image_history.delete_one({'_id': ObjectId(id)})
+
     # -- Querying methods
 
     # Gets the max bid inserted

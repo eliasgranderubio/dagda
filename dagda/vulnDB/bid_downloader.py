@@ -83,24 +83,43 @@ def prepare_output(title, bugtraq_id, clazz, linked_cves, is_local, is_remote, v
 # Requests the bid, parses the HTML and prints the BugTraq info
 def get_bid(bugtraq_id):
     url = "http://www.securityfocus.com/bid/" + str(bugtraq_id)
+    archive_api_url = "http://archive.org/wayback/available?url=" + url
     try:
-        r = requests.get(url)
+        r = requests.get(archive_api_url)
         if r.status_code == 200:
-            try:
-                body = r.content.decode("utf-8")
-                body = body[body.index('<div id="vulnerability">'):
-                            body.index('<span class="label">Not Vulnerable:</span>')]
-                title = get_title(body)
-                clazz = get_info_by_label(body, 'Class')
-                linked_cves = get_linked_CVEs(body)
-                is_local = get_info_by_label(body, 'Local')
-                is_remote = get_info_by_label(body, 'Remote')
-                vuln_products = get_vulnerable_products(body)
-            except:
-                vuln_products = []
-            if len(vuln_products) > 0:
-                return json.dumps(prepare_output(title, bugtraq_id, clazz, linked_cves, is_local, is_remote,
-                                                 vuln_products), sort_keys=True)
+            json_content = r.json()
+            if not 'archived_snapshots' in json_content or not 'closest' in json_content['archived_snapshots'] \
+                or not 'url' in json_content['archived_snapshots']['closest']:
+                DagdaLogger.get_logger().warning(f"""Bug {bugtraq_id} not found online.""")
+                return None
+            archive_snapshot_url = r.json()['archived_snapshots']['closest']['url']
+            r = requests.get(archive_snapshot_url)
+            if r.status_code == 200:
+                try:
+                    body = r.content.decode("utf-8")
+                    body = body[body.index('<div id="vulnerability">'):
+                                body.index('<span class="label">Not Vulnerable:</span>')]
+                    title = get_title(body)
+                    clazz = get_info_by_label(body, 'Class')
+                    linked_cves = get_linked_CVEs(body)
+                    is_local = get_info_by_label(body, 'Local')
+                    is_remote = get_info_by_label(body, 'Remote')
+                    vuln_products = get_vulnerable_products(body)
+                except:
+                    vuln_products = []
+                if len(vuln_products) > 0:
+                    return json.dumps(prepare_output(title, bugtraq_id, clazz, linked_cves, is_local, is_remote,
+                                                     vuln_products), sort_keys=True)
+                else:
+                    return None
+            else:
+                DagdaLogger.get_logger().warning(f"""Getting archive snapshot failed with status code ${r.status_code} \
+                and message ${r.content}""")
+                return None
+        else:
+            DagdaLogger.get_logger().warning(f"""Getting archive API failed with status code ${r.status_code} \
+            and message ${r.content}""")
+            return None
     except requests.ConnectionError:
         DagdaLogger.get_logger().warning('Connection error occurred with: "' + url + '"')
         return None

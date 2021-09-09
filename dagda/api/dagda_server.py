@@ -23,6 +23,7 @@ import datetime
 import traceback
 from waitress import serve
 from flask import Flask
+import flask
 from flask_cors import CORS, cross_origin
 from api.internal.internal_server import InternalServer
 from api.service.check import check_api
@@ -40,11 +41,13 @@ from analysis.runtime.docker_events_monitor import DockerDaemonEventsMonitor
 
 # Dagda server class
 
+
 class DagdaServer:
 
     # -- Global attributes
 
     app = Flask(__name__)
+    app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024 * 1024
     CORS(app)
     app.register_blueprint(check_api)
     app.register_blueprint(docker_api)
@@ -55,18 +58,32 @@ class DagdaServer:
     # -- Public methods
 
     # DagdaServer Constructor
-    def __init__(self, dagda_server_host='127.0.0.1', dagda_server_port=5000, mongodb_host='127.0.0.1',
-                 mongodb_port=27017, mongodb_ssl=False, mongodb_user=None, mongodb_pass=None,
-                 falco_rules_filename=None, external_falco_output_filename=None, debug_logging=False):
+    def __init__(
+        self,
+        dagda_server_host="127.0.0.1",
+        dagda_server_port=5000,
+        mongodb_host="127.0.0.1",
+        mongodb_port=27017,
+        mongodb_ssl=False,
+        mongodb_user=None,
+        mongodb_pass=None,
+        falco_rules_filename=None,
+        external_falco_output_filename=None,
+        debug_logging=False,
+    ):
         super(DagdaServer, self).__init__()
         self.dagda_server_host = dagda_server_host
         self.dagda_server_port = dagda_server_port
         InternalServer.set_debug_logging_enabled(debug_logging)
-        InternalServer.set_mongodb_driver(mongodb_host, mongodb_port, mongodb_ssl, mongodb_user, mongodb_pass)
-        self.sysdig_falco_monitor = SysdigFalcoMonitor(InternalServer.get_docker_driver(),
-                                                       InternalServer.get_mongodb_driver(),
-                                                       falco_rules_filename,
-                                                       external_falco_output_filename)
+        InternalServer.set_mongodb_driver(
+            mongodb_host, mongodb_port, mongodb_ssl, mongodb_user, mongodb_pass
+        )
+        self.sysdig_falco_monitor = SysdigFalcoMonitor(
+            InternalServer.get_docker_driver(),
+            InternalServer.get_mongodb_driver(),
+            falco_rules_filename,
+            external_falco_output_filename,
+        )
 
     # Runs DagdaServer
     def run(self):
@@ -74,13 +91,21 @@ class DagdaServer:
         if edn_pid == 0:
             try:
                 while True:
-                    item = InternalServer.get_dagda_edn().get()
-                    if item['msg'] == 'init_db':
+                    edn = InternalServer.get_dagda_edn()
+                    item = edn.get()
+                    queue_size = edn.qsize()
+                    DagdaLogger.get_logger().debug(
+                        f"EDN queue size after get: {queue_size}"
+                    )
+
+                    if item["msg"] == "init_db":
                         self._init_or_update_db()
-                    elif item['msg'] == 'check_image':
+                    elif item["msg"] == "check_image":
                         self._check_docker_by_image_name(item)
-                    elif item['msg'] == 'check_container':
+                    elif item["msg"] == "check_container":
                         self._check_docker_by_container_id(item)
+                    elif item["msg"] == "check_image_tar":
+                        self._check_docker_by_container_tar(item)
             except KeyboardInterrupt:
                 # Pressed CTRL+C to quit, so nothing to do
                 pass
@@ -88,8 +113,10 @@ class DagdaServer:
             docker_events_monitor_pid = os.fork()
             if docker_events_monitor_pid == 0:
                 try:
-                    docker_daemon_events_monitor = DockerDaemonEventsMonitor(InternalServer.get_docker_driver(),
-                                                                             InternalServer.get_mongodb_driver())
+                    docker_daemon_events_monitor = DockerDaemonEventsMonitor(
+                        InternalServer.get_docker_driver(),
+                        InternalServer.get_mongodb_driver(),
+                    )
                     docker_daemon_events_monitor.run()
                 except KeyboardInterrupt:
                     # Pressed CTRL+C to quit, so nothing to do
@@ -102,17 +129,40 @@ class DagdaServer:
                         self.sysdig_falco_monitor.run()
                     except DagdaError as e:
                         DagdaLogger.get_logger().error(e.get_message())
-                        DagdaLogger.get_logger().warning('Runtime behaviour monitor disabled.')
+                        DagdaLogger.get_logger().warning(
+                            "Runtime behaviour monitor disabled."
+                        )
                     except KeyboardInterrupt:
                         # Pressed CTRL+C to quit
                         if not InternalServer.is_external_falco():
-                            InternalServer.get_docker_driver().docker_stop(self.sysdig_falco_monitor.get_running_container_id())
+                            InternalServer.get_docker_driver().docker_stop(
+                                self.sysdig_falco_monitor.get_running_container_id()
+                            )
                             InternalServer.get_docker_driver().docker_remove_container(
-                                self.sysdig_falco_monitor.get_running_container_id())
+                                self.sysdig_falco_monitor.get_running_container_id()
+                            )
                 else:
-                    serve(DagdaServer.app, host=self.dagda_server_host, port=self.dagda_server_port, ident=None)
+                    serve(
+                        DagdaServer.app,
+                        host=self.dagda_server_host,
+                        port=self.dagda_server_port,
+                        ident=None,
+                        max_request_body_size=self.app.config["MAX_CONTENT_LENGTH"],
+                    )
 
     # -- Post process
+
+    @app.before_request
+    def handle_chunking():
+        """
+        Sets the "wsgi.input_terminated" environment flag, thus enabling
+        Werkzeug to pass chunked requests as streams.  The gunicorn server
+        should set this, but it's not yet been implemented.
+        """
+
+        transfer_encoding = flask.request.headers.get("Transfer-Encoding", None)
+        if transfer_encoding == "chunked":
+            flask.request.environ["wsgi.input_terminated"] = True
 
     # Apply headers
     @app.after_request
@@ -125,17 +175,20 @@ class DagdaServer:
     # 400 Bad Request error handler
     @app.errorhandler(400)
     def bad_request(self):
-        return json.dumps({'err': 400, 'msg': 'Bad Request'}, sort_keys=True), 400
+        return json.dumps({"err": 400, "msg": "Bad Request"}, sort_keys=True), 400
 
     # 404 Not Found error handler
     @app.errorhandler(404)
     def not_found(self):
-        return json.dumps({'err': 404, 'msg': 'Not Found'}, sort_keys=True), 404
+        return json.dumps({"err": 404, "msg": "Not Found"}, sort_keys=True), 404
 
     # 500 Internal Server error handler
     @app.errorhandler(500)
     def internal_server_error(self):
-        return json.dumps({'err': 500, 'msg': 'Internal Server Error'}, sort_keys=True), 500
+        return (
+            json.dumps({"err": 500, "msg": "Internal Server Error"}, sort_keys=True),
+            500,
+        )
 
     # -- Private methods
 
@@ -144,42 +197,67 @@ class DagdaServer:
     def _init_or_update_db():
         try:
             InternalServer.get_mongodb_driver().insert_init_db_process_status(
-                {'status': 'Initializing', 'timestamp': datetime.datetime.now().timestamp()})
+                {
+                    "status": "Initializing",
+                    "timestamp": datetime.datetime.now().timestamp(),
+                }
+            )
             # Init db
             db_composer = DBComposer()
             db_composer.compose_vuln_db()
             InternalServer.get_mongodb_driver().insert_init_db_process_status(
-                {'status': 'Updated', 'timestamp': datetime.datetime.now().timestamp()})
+                {"status": "Updated", "timestamp": datetime.datetime.now().timestamp()}
+            )
         except Exception as ex:
-            message = "Unexpected exception of type {0} occurred: {1!r}".format(type(ex).__name__,  ex.args)
+            message = "Unexpected exception of type {0} occurred: {1!r}".format(
+                type(ex).__name__, ex.args
+            )
             DagdaLogger.get_logger().error(message)
             if InternalServer.is_debug_logging_enabled():
                 traceback.print_exc()
             InternalServer.get_mongodb_driver().insert_init_db_process_status(
-                    {'status': message, 'timestamp': datetime.datetime.now().timestamp()})
+                {"status": message, "timestamp": datetime.datetime.now().timestamp()}
+            )
 
     # Check docker by image name
     @staticmethod
     def _check_docker_by_image_name(item):
         analyzer = Analyzer()
         # -- Evaluates the docker image
-        evaluated_docker_image = analyzer.evaluate_image(item['image_name'], None)
+        evaluated_docker_image = analyzer.evaluate_image(item["image_name"], None, None)
 
         # -- Updates mongodb report
-        InternalServer.get_mongodb_driver().update_docker_image_scan_result_to_history(item['_id'],
-                                                                                       evaluated_docker_image)
+        InternalServer.get_mongodb_driver().update_docker_image_scan_result_to_history(
+            item["_id"], evaluated_docker_image
+        )
 
         # -- Cleanup
-        if item['pulled']:
-            InternalServer.get_docker_driver().docker_remove_image(item['image_name'])
+        if item["pulled"]:
+            InternalServer.get_docker_driver().docker_remove_image(item["image_name"])
 
     # Check docker by container id
     @staticmethod
     def _check_docker_by_container_id(item):
         analyzer = Analyzer()
         # -- Evaluates the docker image
-        evaluated_docker_image = analyzer.evaluate_image(None, item['container_id'])
+        evaluated_docker_image = analyzer.evaluate_image(
+            None, item["container_id"], None
+        )
 
         # -- Updates mongodb report
-        InternalServer.get_mongodb_driver().update_docker_image_scan_result_to_history(item['_id'],
-                                                                                       evaluated_docker_image)
+        InternalServer.get_mongodb_driver().update_docker_image_scan_result_to_history(
+            item["_id"], evaluated_docker_image
+        )
+
+    @staticmethod
+    def _check_docker_by_container_tar(item):
+        analyzer = Analyzer()
+        # -- Evaluates the docker image tar
+        evaluated_docker_image_tar = analyzer.evaluate_image(
+            item["image_name"], None, item["path"]
+        )
+
+        # -- Updates mongodb report
+        InternalServer.get_mongodb_driver().update_docker_image_scan_result_to_history(
+            item["_id"], evaluated_docker_image_tar
+        )

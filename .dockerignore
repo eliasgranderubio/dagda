@@ -1,6 +1,7 @@
 .git*
 bin
 db
+db-dev
 tests
 LICENSE*
 README.md

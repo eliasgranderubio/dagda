@@ -35,9 +35,9 @@ class DockerDriver:
             # Return a client configured from environment variables. The environment variables used are the same as
             # those used by the Docker command-line client.
             self.cli = docker.from_env(version="auto", timeout=3600).api
-        except DockerException:
+        except DockerException as e:
             DagdaLogger.get_logger().error(
-                "Error while fetching Docker server API version: Assuming Travis CI tests."
+                f"Error while fetching Docker server API version: Assuming Travis CI tests: {str(e)}"
             )
             self.cli = None
 
@@ -143,3 +143,15 @@ class DockerDriver:
     # Gets docker client
     def get_docker_client(self):
         return self.cli
+
+    # Import image
+    def docker_import(
+        self,
+        src=None,
+        repository=None,
+        tag=None,
+        image=None,
+        changes=None,
+        stream_src=False,
+    ):
+        return self.cli.import_image(src, repository, tag, image, changes, stream_src)

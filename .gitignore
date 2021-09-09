@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
+.venv/
 
 # C extensions
 *.so
@@ -122,3 +123,4 @@ db/*
 !db/.gitkeep
 db-dev/*
 !db-dev/.gitkeep
+share/python-wheels/*.whl

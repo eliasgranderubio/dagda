@@ -36,13 +36,15 @@ class DockerDriver:
             # those used by the Docker command-line client.
             self.cli = docker.from_env(version="auto", timeout=3600).api
         except DockerException as e:
-            DagdaLogger.get_logger().error(f'Error while fetching Docker server API version: Assuming Travis CI tests: {str(e)}')
+            DagdaLogger.get_logger().error(
+                f"Error while fetching Docker server API version: Assuming Travis CI tests: {str(e)}"
+            )
             self.cli = None
 
     # Gets the docker image name from a running container
     def get_docker_image_name_by_container_id(self, container_id):
-        containers = self.cli.containers(filters={'id': container_id})
-        return containers[0]['Image']
+        containers = self.cli.containers(filters={"id": container_id})
+        return containers[0]["Image"]
 
     # Gets the docker container ids from image name
     def get_docker_container_ids_by_image_name(self, image_name):
@@ -50,8 +52,8 @@ class DockerDriver:
         try:
             containers = self.cli.containers()
             for c in containers:
-                if c['Image'] == image_name:
-                    ids.append(c['Id'])
+                if c["Image"] == image_name:
+                    ids.append(c["Id"])
         except NotFound:
             # Nothing to do
             pass
@@ -64,33 +66,58 @@ class DockerDriver:
 
     # Executes docker exec command and return the output
     def docker_exec(self, container_id, cmd, show_stdout, show_stderr):
-        dict = self.cli.exec_create(container=container_id, cmd=cmd, stdout=show_stdout, stderr=show_stderr)
-        return (self.cli.exec_start(exec_id=dict.get('Id'))).decode("utf-8", errors="ignore")
+        dict = self.cli.exec_create(
+            container=container_id, cmd=cmd, stdout=show_stdout, stderr=show_stderr
+        )
+        return (self.cli.exec_start(exec_id=dict.get("Id"))).decode(
+            "utf-8", errors="ignore"
+        )
 
     # Gets logs from docker container
     def docker_logs(self, container_id, show_stdout, show_stderr, follow):
         try:
-            return (self.cli.logs(container=container_id, stdout=show_stdout, stderr=show_stderr, follow=follow))\
-                   .decode('utf-8')
+            return (
+                self.cli.logs(
+                    container=container_id,
+                    stdout=show_stdout,
+                    stderr=show_stderr,
+                    follow=follow,
+                )
+            ).decode("utf-8")
         except docker.errors.APIError as ex:
             if "configured logging reader does not support reading" in str(ex):
-                message = "Docker logging driver is not set to be 'json-file' or 'journald'"
+                message = (
+                    "Docker logging driver is not set to be 'json-file' or 'journald'"
+                )
                 DagdaLogger.get_logger().error(message)
                 raise DagdaError(message)
             else:
-                message = "Unexpected exception of type {0} occurred: {1!r}" \
-                    .format(type(ex).__name__, str(ex))
+                message = "Unexpected exception of type {0} occurred: {1!r}".format(
+                    type(ex).__name__, str(ex)
+                )
                 DagdaLogger.get_logger().error(message)
                 raise ex
 
     # Creates container and return the container id
-    def create_container(self, image_name, entrypoint=None, volumes=None, host_config=None):
-        container = self.cli.create_container(image=image_name, entrypoint=entrypoint, volumes=volumes,
-                                              host_config=host_config)
-        return container.get('Id')
+    def create_container(
+        self,
+        image_name,
+        entrypoint=None,
+        volumes=None,
+        host_config=None,
+        command=None,
+    ):
+        container = self.cli.create_container(
+            image=image_name,
+            entrypoint=entrypoint,
+            volumes=volumes,
+            command=command,
+            host_config=host_config,
+        )
+        return container.get("Id")
 
     # Docker pull
-    def docker_pull(self, image_name, tag='latest'):
+    def docker_pull(self, image_name, tag="latest"):
         return self.cli.pull(image_name, tag=tag)
 
     # Removes the docker image
@@ -118,5 +145,13 @@ class DockerDriver:
         return self.cli
 
     # Import image
-    def docker_import(self, src=None, repository=None, tag=None, image=None, changes=None, stream_src=False):
+    def docker_import(
+        self,
+        src=None,
+        repository=None,
+        tag=None,
+        image=None,
+        changes=None,
+        stream_src=False,
+    ):
         return self.cli.import_image(src, repository, tag, image, changes, stream_src)

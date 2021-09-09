@@ -2,8 +2,7 @@ FROM python:3.8.11-buster
 RUN apt update -y
 RUN apt install -y apt-transport-https ca-certificates curl gnupg lsb-release apt-utils
 RUN apt-get update -y
-RUN apt install -y falco linux-headers-amd64 clamav clamav-daemon
-RUN freshclam
+RUN apt install -y linux-headers-amd64
 
 COPY requirements.txt /opt/app/requirements.txt
 WORKDIR /opt/app

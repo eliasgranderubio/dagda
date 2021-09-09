@@ -51,13 +51,13 @@ def check_docker(image_name, request, is_already_tar):
 
     if is_already_tar:
         try:
-            extension = pathlib.Path(request.files['stream'].filename).suffix
+            extension = pathlib.Path(request.files["file"].filename).suffix
             uploaded_file = f"/tmp/{uuid.uuid4()}{extension}"
             with open(uploaded_file, "bw") as f:
                 chunk_size = 4096
                 while True:
-                    #chunk = request.stream.read(chunk_size)
-                    chunk = request.files['stream'].stream.read(chunk_size)
+                    # chunk = request.stream.read(chunk_size)
+                    chunk = request.files["file"].stream.read(chunk_size)
                     if len(chunk) == 0:
                         break
                     f.write(chunk)
@@ -117,8 +117,12 @@ def check_docker(image_name, request, is_already_tar):
         msg = "check_image_tar"
         edn_data["path"] = uploaded_file
     edn_data["msg"] = msg
-    InternalServer.get_dagda_edn().put(edn_data)
 
+    edn = InternalServer.get_dagda_edn()
+    edn.put(edn_data)
+
+    queue_size = edn.qsize()
+    DagdaLogger.get_logger().debug(f"EDN queue size after put: {queue_size}")
     # -- Return
     output = {}
     output["id"] = str(id)
@@ -159,9 +163,10 @@ def check_docker_by_container_id(container_id):
     id = InternalServer.get_mongodb_driver().insert_docker_image_scan_result_to_history(
         data
     )
-    InternalServer.get_dagda_edn().put(
-        {"msg": "check_container", "container_id": container_id, "_id": str(id)}
-    )
+    edn = InternalServer.get_dagda_edn()
+    edn.put({"msg": "check_container", "container_id": container_id, "_id": str(id)})
+    queue_size = edn.qsize()
+    DagdaLogger.get_logger().debug(f"EDN queue size after put: {queue_size}")
 
     # -- Return
     output = {}

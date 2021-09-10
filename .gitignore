@@ -121,4 +121,7 @@ bin/
 # database
 db/*
 !db/.gitkeep
+db-dev/*
+!db-dev/.gitkeep
 share/python-wheels/*.whl
+pyvenv.cfg

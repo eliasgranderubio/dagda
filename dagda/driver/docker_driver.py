@@ -36,7 +36,9 @@ class DockerDriver:
             # those used by the Docker command-line client.
             self.cli = docker.from_env(version="auto", timeout=3600).api
         except DockerException as e:
-            DagdaLogger.get_logger().error(f'Error while fetching Docker server API version: Assuming Travis CI tests: {str(e)}')
+            DagdaLogger.get_logger().error(
+                f"Error while fetching Docker server API version: Assuming Travis CI tests: {str(e)}"
+            )
             self.cli = None
 
     # Gets the docker image name from a running container
@@ -143,5 +145,13 @@ class DockerDriver:
         return self.cli
 
     # Import image
-    def docker_import(self, src=None, repository=None, tag=None, image=None, changes=None, stream_src=False):
+    def docker_import(
+        self,
+        src=None,
+        repository=None,
+        tag=None,
+        image=None,
+        changes=None,
+        stream_src=False,
+    ):
         return self.cli.import_image(src, repository, tag, image, changes, stream_src)

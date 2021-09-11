@@ -1,0 +1,25 @@
+FROM python:3.8.11-buster
+RUN apt update -y
+RUN apt install -y apt-transport-https ca-certificates curl gnupg lsb-release apt-utils
+
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+RUN echo \
+    "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
+    $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list
+
+RUN apt-get update -y
+RUN apt install -y linux-headers-amd64  clamav clamav-daemon
+RUN freshclam
+
+RUN apt-get install -y docker-ce docker-ce-cli containerd.io
+
+COPY daemon.json /etc/docker/daemon.json
+
+COPY requirements.txt /opt/app/requirements.txt
+WORKDIR /opt/app
+RUN pip install -r requirements.txt
+COPY dagda /opt/app
+COPY ./dockerfiles/run.sh /
+COPY ./dockerfiles/clamd.conf /etc/clamav/clamd.conf
+RUN chmod +x /run.sh
+ENTRYPOINT ["/bin/sh","/run.sh"]

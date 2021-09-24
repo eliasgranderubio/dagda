@@ -844,6 +844,16 @@ Execute the following commands in the root folder of **Dagda** and then, the **D
     docker-compose up -d
 ```
 
+Once the containers are up (`docker ps`) you can continue to use Dagda as before.
+```bash
+docker exec -it dagda python3 dagda.py vuln --init
+docker exec -it dagda python3 dagda.py vuln --init_status
+docker exec -it dagda python3 dagda.py check --docker_image jboss/wildfly  
+docker exec -it dagda python3 dagda.py history jboss/wildfly --id <your-id-here>
+```
+
+You can also check local images using Dagda that you have built `docker exec -it dagda python3 dagda.py check --docker_image alpine:latest` you can also check images that are in a repository such as Amazon's Elastic Container Registry (ECR) `docker exec -it dagda python3 dagda.py check --docker_image 123456789101.dkr.ecr.us-east-1.amazonaws.com/alpine:latest`.
+
 ## Internal workflows
 
 Below, a 10,000 foot diagram about the **Dagda** internal workflows is shown:

@@ -34,7 +34,7 @@ class ExtSourceUtilTestCase(unittest.TestCase):
 
     def test_get_rhsa_from_file(self):
         content = None
-        with open('./tests/mock_files/com.redhat.rhsa-2010.tar.bz2', 'rb') as content_file:
+        with open('./tests/mock_files/com.redhat.rhsa-2010.xml.bz2', 'rb') as content_file:
             content = content_file.read()
         rhsa_list, rhba_list, rhsa_info_list, rhba_info_list = get_rhsa_and_rhba_lists_from_file(content)
         self.assertEqual(len(rhsa_list), 384)
@@ -46,7 +46,7 @@ class ExtSourceUtilTestCase(unittest.TestCase):
 
     def test_get_rhba_from_file(self):
         content = None
-        with open('./tests/mock_files/com.redhat.rhba-20171767.tar.bz2', 'rb') as content_file:
+        with open('./tests/mock_files/com.redhat.rhba-20171767.xml.bz2', 'rb') as content_file:
             content = content_file.read()
         rhsa_list, rhba_list, rhsa_info_list, rhba_info_list = get_rhsa_and_rhba_lists_from_file(content)
         self.assertEqual(len(rhsa_list), 0)

@@ -231,6 +231,50 @@ class MongoDbDriverTestCase(unittest.TestCase):
             "time": 1465256864.080226
         }])
 
+    def test_bulk_insert_rhsa(self):
+        mock_driver = BulkInfoMongoDbDriver()
+        mock_driver.bulk_insert_rhsa([{"vendor": "redhat", "product": "enterprise_linux", "version": "4", "rhsa_id": "RHSA-2010:0002-01"}])
+        mock_driver.db.rhsa.insert_many.assert_called_once_with([{"vendor": "redhat", "product": "enterprise_linux", "version": "4", "rhsa_id": "RHSA-2010:0002-01"}])
+
+    def test_bulk_insert_rhsa_empty(self):
+        # Test bug #85
+        mock_driver = BulkInfoMongoDbDriver()
+        mock_driver.bulk_insert_rhsa([])
+        mock_driver.db.rhsa.insert_many.assert_not_called()
+
+    def test_bulk_insert_rhba(self):
+        mock_driver = BulkInfoMongoDbDriver()
+        mock_driver.bulk_insert_rhba([{"vendor": "redhat", "product": "enterprise_linux", "version": "4", "rhba_id": "RHBA-2010:0002-01"}])
+        mock_driver.db.rhba.insert_many.assert_called_once_with([{"vendor": "redhat", "product": "enterprise_linux", "version": "4", "rhba_id": "RHBA-2010:0002-01"}])
+
+    def test_bulk_insert_rhba_empty(self):
+        # Test bug #85
+        mock_driver = BulkInfoMongoDbDriver()
+        mock_driver.bulk_insert_rhba([])
+        mock_driver.db.rhba.insert_many.assert_not_called()
+
+    def test_bulk_insert_rhsa_info(self):
+        mock_driver = BulkInfoMongoDbDriver()
+        mock_driver.bulk_insert_rhsa_info([{"cve": ["CVE-20101"], "title": "Test", "description": "Test CVE", "severity": "high", "rhsa_id": "RHSA-2010:0002-01"}])
+        mock_driver.db.rhsa_info.insert_many.assert_called_once_with([{"cve": ["CVE-20101"], "title": "Test", "description": "Test CVE", "severity": "high", "rhsa_id": "RHSA-2010:0002-01"}])
+
+    def test_bulk_insert_rhsa_info_empty(self):
+        # Test bug #85
+        mock_driver = BulkInfoMongoDbDriver()
+        mock_driver.bulk_insert_rhsa_info([])
+        mock_driver.db.rhsa_info.insert_many.assert_not_called()
+
+    def test_bulk_insert_rhba_info(self):
+        mock_driver = BulkInfoMongoDbDriver()
+        mock_driver.bulk_insert_rhba_info([{"cve": ["CVE-20101"], "title": "Test", "description": "Test CVE", "severity": "high", "rhba_id": "RHBA-2010:0002-01"}])
+        mock_driver.db.rhba_info.insert_many.assert_called_once_with([{"cve": ["CVE-20101"], "title": "Test", "description": "Test CVE", "severity": "high", "rhba_id": "RHBA-2010:0002-01"}])
+
+    def test_bulk_insert_rhba_info_empty(self):
+        # Test bug #85
+        mock_driver = BulkInfoMongoDbDriver()
+        mock_driver.bulk_insert_rhba_info([])
+        mock_driver.db.rhba_info.insert_many.assert_not_called()
+
     def test_is_fp_false(self):
         mock_driver = IsFPMongoDbDriver()
         is_fp = mock_driver.is_fp('alpine', 'zlib')

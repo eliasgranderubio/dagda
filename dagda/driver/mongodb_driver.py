@@ -108,26 +108,34 @@ class MongoDbDriver:
     # Bulk insert the rhsa list
     def bulk_insert_rhsa(self, rhsa_list):
         # Bulk insert
-        self.db.rhsa.create_index([('product', pymongo.DESCENDING)])
-        self.db.rhsa.insert_many(rhsa_list)
+        if rhsa_list:
+            # Ensure the list is not empty.  See #85.
+            self.db.rhsa.create_index([('product', pymongo.DESCENDING)])
+            self.db.rhsa.insert_many(rhsa_list)
 
     # Bulk insert the rhba list
     def bulk_insert_rhba(self, rhba_list):
         # Bulk insert
-        self.db.rhba.create_index([('product', pymongo.DESCENDING)])
-        self.db.rhba.insert_many(rhba_list)
+        if rhba_list:
+            # Ensure the list is not empty.  See #85.
+            self.db.rhba.create_index([('product', pymongo.DESCENDING)])
+            self.db.rhba.insert_many(rhba_list)
 
     # Bulk insert the rhsa info list
     def bulk_insert_rhsa_info(self, rhsa_info_list):
         # Bulk insert
-        self.db.rhsa_info.create_index([('rhsa_id', pymongo.DESCENDING)])
-        self.db.rhsa_info.insert_many(rhsa_info_list)
+        if rhsa_info_list:
+            # Ensure the list is not empty.  See #85.
+            self.db.rhsa_info.create_index([('rhsa_id', pymongo.DESCENDING)])
+            self.db.rhsa_info.insert_many(rhsa_info_list)
 
     # Bulk insert the rhba info list
     def bulk_insert_rhba_info(self, rhba_info_list):
         # Bulk insert
-        self.db.rhba_info.create_index([('rhba_id', pymongo.DESCENDING)])
-        self.db.rhba_info.insert_many(rhba_info_list)
+        if rhba_info_list:
+            # Ensure the list is not empty.  See #85.
+            self.db.rhba_info.create_index([('rhba_id', pymongo.DESCENDING)])
+            self.db.rhba_info.insert_many(rhba_info_list)
 
     # Bulk insert the docker daemon events
     def bulk_insert_docker_daemon_events(self, events):

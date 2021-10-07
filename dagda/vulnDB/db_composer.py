@@ -87,7 +87,7 @@ class DBComposer:
         self.mongoDbDriver.delete_rhba_info_collection()
         self.mongoDbDriver.delete_rhsa_collection()
         self.mongoDbDriver.delete_rhsa_info_collection()
-        bz2_file = get_http_resource_content('https://www.redhat.com/security/data/oval/rhsa.tar.bz2')
+        bz2_file = get_http_resource_content('https://www.redhat.com/security/data/oval/com.redhat.rhsa-all.xml.bz2')
         rhsa_list, rhba_list, rhsa_info_list, rhba_info_list = get_rhsa_and_rhba_lists_from_file(bz2_file)
         self.mongoDbDriver.bulk_insert_rhsa(rhsa_list)
         self.mongoDbDriver.bulk_insert_rhba(rhba_list)

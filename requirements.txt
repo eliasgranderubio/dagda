@@ -7,4 +7,4 @@ Flask==2.0.1
 flask-cors==3.0.10
 PyYAML==5.4.1
 defusedxml==0.7.1
-waitress==2.0.0
+waitress==2.1.1
